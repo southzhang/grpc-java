@@ -24,53 +24,53 @@ option java_package = "io.grpc.benchmarks.proto";
 option java_outer_classname = "Services";
 
 service BenchmarkService {
-  // One request followed by one response.
-  // The server returns the client payload as-is.
-  rpc UnaryCall(SimpleRequest) returns (SimpleResponse);
+    // One request followed by one response.
+    // The server returns the client payload as-is.
+    rpc UnaryCall (SimpleRequest) returns (SimpleResponse);
 
-  // Repeated sequence of one request followed by one response.
-  // Should be called streaming ping-pong
-  // The server returns the client payload as-is on each response
-  rpc StreamingCall(stream SimpleRequest) returns (stream SimpleResponse);
+    // Repeated sequence of one request followed by one response.
+    // Should be called streaming ping-pong
+    // The server returns the client payload as-is on each response
+    rpc StreamingCall (stream SimpleRequest) returns (stream SimpleResponse);
 
-  // Single-sided unbounded streaming from client to server
-  // The server returns the client payload as-is once the client does WritesDone
-  rpc StreamingFromClient(stream SimpleRequest) returns (SimpleResponse);
+    // Single-sided unbounded streaming from client to server
+    // The server returns the client payload as-is once the client does WritesDone
+    rpc StreamingFromClient (stream SimpleRequest) returns (SimpleResponse);
 
-  // Single-sided unbounded streaming from server to client
-  // The server repeatedly returns the client payload as-is
-  rpc StreamingFromServer(SimpleRequest) returns (stream SimpleResponse);
+    // Single-sided unbounded streaming from server to client
+    // The server repeatedly returns the client payload as-is
+    rpc StreamingFromServer (SimpleRequest) returns (stream SimpleResponse);
 
-  // Two-sided unbounded streaming between server to client
-  // Both sides send the content of their own choice to the other
-  rpc StreamingBothWays(stream SimpleRequest) returns (stream SimpleResponse);
+    // Two-sided unbounded streaming between server to client
+    // Both sides send the content of their own choice to the other
+    rpc StreamingBothWays (stream SimpleRequest) returns (stream SimpleResponse);
 }
 
 service WorkerService {
-  // Start server with specified workload.
-  // First request sent specifies the ServerConfig followed by ServerStatus
-  // response. After that, a "Mark" can be sent anytime to request the latest
-  // stats. Closing the stream will initiate shutdown of the test server
-  // and once the shutdown has finished, the OK status is sent to terminate
-  // this RPC.
-  rpc RunServer(stream ServerArgs) returns (stream ServerStatus);
+    // Start server with specified workload.
+    // First request sent specifies the ServerConfig followed by ServerStatus
+    // response. After that, a "Mark" can be sent anytime to request the latest
+    // stats. Closing the stream will initiate shutdown of the test server
+    // and once the shutdown has finished, the OK status is sent to terminate
+    // this RPC.
+    rpc RunServer (stream ServerArgs) returns (stream ServerStatus);
 
-  // Start client with specified workload.
-  // First request sent specifies the ClientConfig followed by ClientStatus
-  // response. After that, a "Mark" can be sent anytime to request the latest
-  // stats. Closing the stream will initiate shutdown of the test client
-  // and once the shutdown has finished, the OK status is sent to terminate
-  // this RPC.
-  rpc RunClient(stream ClientArgs) returns (stream ClientStatus);
+    // Start client with specified workload.
+    // First request sent specifies the ClientConfig followed by ClientStatus
+    // response. After that, a "Mark" can be sent anytime to request the latest
+    // stats. Closing the stream will initiate shutdown of the test client
+    // and once the shutdown has finished, the OK status is sent to terminate
+    // this RPC.
+    rpc RunClient (stream ClientArgs) returns (stream ClientStatus);
 
-  // Just return the core count - unary call
-  rpc CoreCount(CoreRequest) returns (CoreResponse);
+    // Just return the core count - unary call
+    rpc CoreCount (CoreRequest) returns (CoreResponse);
 
-  // Quit this worker
-  rpc QuitWorker(Void) returns (Void);
+    // Quit this worker
+    rpc QuitWorker (Void) returns (Void);
 }
 
 service ReportQpsScenarioService {
-  // Report results of a QPS test benchmark scenario.
-  rpc ReportScenario(ScenarioResult) returns (Void);
+    // Report results of a QPS test benchmark scenario.
+    rpc ReportScenario (ScenarioResult) returns (Void);
 }

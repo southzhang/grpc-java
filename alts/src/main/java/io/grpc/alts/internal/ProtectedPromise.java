@@ -16,15 +16,16 @@
 
 package io.grpc.alts.internal;
 
-import static com.google.common.base.Preconditions.checkState;
-
 import io.grpc.Internal;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.DefaultChannelPromise;
 import io.netty.util.concurrent.EventExecutor;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Promise used when flushing the {@code pendingUnprotectedWrites} queue. It manages the many-to
@@ -37,115 +38,115 @@ import java.util.List;
  */
 @Internal
 public final class ProtectedPromise extends DefaultChannelPromise {
-  private final List<ChannelPromise> unprotectedPromises;
-  private int expectedCount;
-  private int successfulCount;
-  private int failureCount;
-  private boolean doneAllocating;
+    private final List<ChannelPromise> unprotectedPromises;
+    private int expectedCount;
+    private int successfulCount;
+    private int failureCount;
+    private boolean doneAllocating;
 
-  public ProtectedPromise(Channel channel, EventExecutor executor, int numUnprotectedPromises) {
-    super(channel, executor);
-    unprotectedPromises = new ArrayList<>(numUnprotectedPromises);
-  }
-
-  /**
-   * Adds a promise for a pending unprotected write. This will be notified after all of the writes
-   * complete.
-   */
-  public void addUnprotectedPromise(ChannelPromise promise) {
-    unprotectedPromises.add(promise);
-  }
-
-  /**
-   * Allocate a new promise for the write of a protected frame. This will be used to aggregate the
-   * overall success of the unprotected promises.
-   *
-   * @return {@code this} promise.
-   */
-  public ChannelPromise newPromise() {
-    checkState(!doneAllocating, "Done allocating. No more promises can be allocated.");
-    expectedCount++;
-    return this;
-  }
-
-  /**
-   * Signify that no more {@link #newPromise()} allocations will be made. The aggregation can not be
-   * successful until this method is called.
-   *
-   * @return {@code this} promise.
-   */
-  public ChannelPromise doneAllocatingPromises() {
-    if (!doneAllocating) {
-      doneAllocating = true;
-      if (successfulCount == expectedCount) {
-        trySuccessInternal(null);
-        return super.setSuccess(null);
-      }
+    public ProtectedPromise(Channel channel, EventExecutor executor, int numUnprotectedPromises) {
+        super(channel, executor);
+        unprotectedPromises = new ArrayList<>(numUnprotectedPromises);
     }
-    return this;
-  }
 
-  @Override
-  public boolean tryFailure(Throwable cause) {
-    if (awaitingPromises()) {
-      ++failureCount;
-      if (failureCount == 1) {
-        tryFailureInternal(cause);
-        return super.tryFailure(cause);
-      }
-      // TODO: We break the interface a bit here.
-      // Multiple failure events can be processed without issue because this is an aggregation.
-      return true;
+    /**
+     * Adds a promise for a pending unprotected write. This will be notified after all of the writes
+     * complete.
+     */
+    public void addUnprotectedPromise(ChannelPromise promise) {
+        unprotectedPromises.add(promise);
     }
-    return false;
-  }
 
-  /**
-   * Fail this object if it has not already been failed.
-   *
-   * <p>This method will NOT throw an {@link IllegalStateException} if called multiple times because
-   * that may be expected.
-   */
-  @Override
-  public ChannelPromise setFailure(Throwable cause) {
-    tryFailure(cause);
-    return this;
-  }
-
-  private boolean awaitingPromises() {
-    return successfulCount + failureCount < expectedCount;
-  }
-
-  @Override
-  public ChannelPromise setSuccess(Void result) {
-    trySuccess(result);
-    return this;
-  }
-
-  @Override
-  public boolean trySuccess(Void result) {
-    if (awaitingPromises()) {
-      ++successfulCount;
-      if (successfulCount == expectedCount && doneAllocating) {
-        trySuccessInternal(result);
-        return super.trySuccess(result);
-      }
-      // TODO: We break the interface a bit here.
-      // Multiple success events can be processed without issue because this is an aggregation.
-      return true;
+    /**
+     * Allocate a new promise for the write of a protected frame. This will be used to aggregate the
+     * overall success of the unprotected promises.
+     *
+     * @return {@code this} promise.
+     */
+    public ChannelPromise newPromise() {
+        checkState(!doneAllocating, "Done allocating. No more promises can be allocated.");
+        expectedCount++;
+        return this;
     }
-    return false;
-  }
 
-  private void trySuccessInternal(Void result) {
-    for (int i = 0; i < unprotectedPromises.size(); ++i) {
-      unprotectedPromises.get(i).trySuccess(result);
+    /**
+     * Signify that no more {@link #newPromise()} allocations will be made. The aggregation can not be
+     * successful until this method is called.
+     *
+     * @return {@code this} promise.
+     */
+    public ChannelPromise doneAllocatingPromises() {
+        if (!doneAllocating) {
+            doneAllocating = true;
+            if (successfulCount == expectedCount) {
+                trySuccessInternal(null);
+                return super.setSuccess(null);
+            }
+        }
+        return this;
     }
-  }
 
-  private void tryFailureInternal(Throwable cause) {
-    for (int i = 0; i < unprotectedPromises.size(); ++i) {
-      unprotectedPromises.get(i).tryFailure(cause);
+    @Override
+    public boolean tryFailure(Throwable cause) {
+        if (awaitingPromises()) {
+            ++failureCount;
+            if (failureCount == 1) {
+                tryFailureInternal(cause);
+                return super.tryFailure(cause);
+            }
+            // TODO: We break the interface a bit here.
+            // Multiple failure events can be processed without issue because this is an aggregation.
+            return true;
+        }
+        return false;
     }
-  }
+
+    /**
+     * Fail this object if it has not already been failed.
+     *
+     * <p>This method will NOT throw an {@link IllegalStateException} if called multiple times because
+     * that may be expected.
+     */
+    @Override
+    public ChannelPromise setFailure(Throwable cause) {
+        tryFailure(cause);
+        return this;
+    }
+
+    private boolean awaitingPromises() {
+        return successfulCount + failureCount < expectedCount;
+    }
+
+    @Override
+    public ChannelPromise setSuccess(Void result) {
+        trySuccess(result);
+        return this;
+    }
+
+    @Override
+    public boolean trySuccess(Void result) {
+        if (awaitingPromises()) {
+            ++successfulCount;
+            if (successfulCount == expectedCount && doneAllocating) {
+                trySuccessInternal(result);
+                return super.trySuccess(result);
+            }
+            // TODO: We break the interface a bit here.
+            // Multiple success events can be processed without issue because this is an aggregation.
+            return true;
+        }
+        return false;
+    }
+
+    private void trySuccessInternal(Void result) {
+        for (int i = 0; i < unprotectedPromises.size(); ++i) {
+            unprotectedPromises.get(i).trySuccess(result);
+        }
+    }
+
+    private void tryFailureInternal(Throwable cause) {
+        for (int i = 0; i < unprotectedPromises.size(); ++i) {
+            unprotectedPromises.get(i).tryFailure(cause);
+        }
+    }
 }

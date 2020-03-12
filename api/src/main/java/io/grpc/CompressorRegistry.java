@@ -16,13 +16,14 @@
 
 package io.grpc;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.google.common.annotations.VisibleForTesting;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Encloses classes related to the compression and decompression of messages.
@@ -30,48 +31,48 @@ import javax.annotation.concurrent.ThreadSafe;
 @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1704")
 @ThreadSafe
 public final class CompressorRegistry {
-  private static final CompressorRegistry DEFAULT_INSTANCE = new CompressorRegistry(
-      new Codec.Gzip(),
-      Codec.Identity.NONE);
+    private static final CompressorRegistry DEFAULT_INSTANCE = new CompressorRegistry(
+            new Codec.Gzip(),
+            Codec.Identity.NONE);
 
-  /**
-   * Returns the default instance used by gRPC when the registry is not specified.
-   * Currently the registry just contains support for gzip.
-   */
-  public static CompressorRegistry getDefaultInstance() {
-    return DEFAULT_INSTANCE;
-  }
-
-  /**
-   * Returns a new instance with no registered compressors.
-   */
-  public static CompressorRegistry newEmptyInstance() {
-    return new CompressorRegistry();
-  }
-
-  private final ConcurrentMap<String, Compressor> compressors;
-
-  @VisibleForTesting
-  CompressorRegistry(Compressor ...cs) {
-    compressors = new ConcurrentHashMap<>();
-    for (Compressor c : cs) {
-      compressors.put(c.getMessageEncoding(), c);
+    /**
+     * Returns the default instance used by gRPC when the registry is not specified.
+     * Currently the registry just contains support for gzip.
+     */
+    public static CompressorRegistry getDefaultInstance() {
+        return DEFAULT_INSTANCE;
     }
-  }
 
-  @Nullable
-  public Compressor lookupCompressor(String compressorName) {
-    return compressors.get(compressorName);
-  }
+    /**
+     * Returns a new instance with no registered compressors.
+     */
+    public static CompressorRegistry newEmptyInstance() {
+        return new CompressorRegistry();
+    }
 
-  /**
-   * Registers a compressor for both decompression and message encoding negotiation.
-   *
-   * @param c The compressor to register
-   */
-  public void register(Compressor c) {
-    String encoding = c.getMessageEncoding();
-    checkArgument(!encoding.contains(","), "Comma is currently not allowed in message encoding");
-    compressors.put(encoding, c);
-  }
+    private final ConcurrentMap<String, Compressor> compressors;
+
+    @VisibleForTesting
+    CompressorRegistry(Compressor... cs) {
+        compressors = new ConcurrentHashMap<>();
+        for (Compressor c : cs) {
+            compressors.put(c.getMessageEncoding(), c);
+        }
+    }
+
+    @Nullable
+    public Compressor lookupCompressor(String compressorName) {
+        return compressors.get(compressorName);
+    }
+
+    /**
+     * Registers a compressor for both decompression and message encoding negotiation.
+     *
+     * @param c The compressor to register
+     */
+    public void register(Compressor c) {
+        String encoding = c.getMessageEncoding();
+        checkArgument(!encoding.contains(","), "Comma is currently not allowed in message encoding");
+        compressors.put(encoding, c);
+    }
 }

@@ -17,56 +17,64 @@
 package io.grpc.alts.internal;
 
 import com.google.common.collect.ImmutableList;
+
 import javax.annotation.Nullable;
 
-/** Handshaker options for creating ALTS client channel. */
+/**
+ * Handshaker options for creating ALTS client channel.
+ */
 public final class AltsClientOptions extends AltsHandshakerOptions {
 
-  // targetName is the server service account name for secure name checking.
-  @Nullable private final String targetName;
-  // targetServiceAccounts contains a list of expected target service accounts. One of these service
-  // accounts should match peer service account in the handshaker result. Otherwise, the handshake
-  // fails.
-  private final ImmutableList<String> targetServiceAccounts;
+    // targetName is the server service account name for secure name checking.
+    @Nullable
+    private final String targetName;
+    // targetServiceAccounts contains a list of expected target service accounts. One of these service
+    // accounts should match peer service account in the handshaker result. Otherwise, the handshake
+    // fails.
+    private final ImmutableList<String> targetServiceAccounts;
 
-  private AltsClientOptions(Builder builder) {
-    super(builder.rpcProtocolVersions);
-    targetName = builder.targetName;
-    targetServiceAccounts = builder.targetServiceAccounts;
-  }
-
-  public String getTargetName() {
-    return targetName;
-  }
-
-  public ImmutableList<String> getTargetServiceAccounts() {
-    return targetServiceAccounts;
-  }
-
-  /** Builder for AltsClientOptions. */
-  public static final class Builder {
-
-    @Nullable private String targetName;
-    @Nullable private RpcProtocolVersions rpcProtocolVersions;
-    private ImmutableList<String> targetServiceAccounts = ImmutableList.of();
-
-    public Builder setTargetName(String targetName) {
-      this.targetName = targetName;
-      return this;
+    private AltsClientOptions(Builder builder) {
+        super(builder.rpcProtocolVersions);
+        targetName = builder.targetName;
+        targetServiceAccounts = builder.targetServiceAccounts;
     }
 
-    public Builder setRpcProtocolVersions(RpcProtocolVersions rpcProtocolVersions) {
-      this.rpcProtocolVersions = rpcProtocolVersions;
-      return this;
+    public String getTargetName() {
+        return targetName;
     }
 
-    public Builder setTargetServiceAccounts(ImmutableList<String> targetServiceAccounts) {
-      this.targetServiceAccounts = targetServiceAccounts;
-      return this;
+    public ImmutableList<String> getTargetServiceAccounts() {
+        return targetServiceAccounts;
     }
 
-    public AltsClientOptions build() {
-      return new AltsClientOptions(this);
+    /**
+     * Builder for AltsClientOptions.
+     */
+    public static final class Builder {
+
+        @Nullable
+        private String targetName;
+        @Nullable
+        private RpcProtocolVersions rpcProtocolVersions;
+        private ImmutableList<String> targetServiceAccounts = ImmutableList.of();
+
+        public Builder setTargetName(String targetName) {
+            this.targetName = targetName;
+            return this;
+        }
+
+        public Builder setRpcProtocolVersions(RpcProtocolVersions rpcProtocolVersions) {
+            this.rpcProtocolVersions = rpcProtocolVersions;
+            return this;
+        }
+
+        public Builder setTargetServiceAccounts(ImmutableList<String> targetServiceAccounts) {
+            this.targetServiceAccounts = targetServiceAccounts;
+            return this;
+        }
+
+        public AltsClientOptions build() {
+            return new AltsClientOptions(this);
+        }
     }
-  }
 }

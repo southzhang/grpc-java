@@ -16,28 +16,35 @@
 
 package io.grpc.xds.internal.sds;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.envoyproxy.envoy.api.v2.auth.CommonTlsContext;
 
-/** Class for utility functions for {@link CommonTlsContext}. */
+import static com.google.common.base.Preconditions.checkNotNull;
+
+/**
+ * Class for utility functions for {@link CommonTlsContext}.
+ */
 final class CommonTlsContextUtil {
 
-  private CommonTlsContextUtil() {}
+    private CommonTlsContextUtil() {
+    }
 
-  /** Returns true only if given CommonTlsContext uses no SdsSecretConfigs. */
-  static boolean hasAllSecretsUsingFilename(CommonTlsContext commonTlsContext) {
-    checkNotNull(commonTlsContext, "commonTlsContext");
-    // return true if it has no SdsSecretConfig(s)
-    return (commonTlsContext.getTlsCertificateSdsSecretConfigsCount() == 0)
-        && !commonTlsContext.hasValidationContextSdsSecretConfig();
-  }
+    /**
+     * Returns true only if given CommonTlsContext uses no SdsSecretConfigs.
+     */
+    static boolean hasAllSecretsUsingFilename(CommonTlsContext commonTlsContext) {
+        checkNotNull(commonTlsContext, "commonTlsContext");
+        // return true if it has no SdsSecretConfig(s)
+        return (commonTlsContext.getTlsCertificateSdsSecretConfigsCount() == 0)
+                && !commonTlsContext.hasValidationContextSdsSecretConfig();
+    }
 
-  /** Returns true only if given CommonTlsContext uses only SdsSecretConfigs. */
-  static boolean hasAllSecretsUsingSds(CommonTlsContext commonTlsContext) {
-    checkNotNull(commonTlsContext, "commonTlsContext");
-    // return true if it has only SdsSecretConfig(s)
-    return (commonTlsContext.getTlsCertificatesCount() == 0)
-        && !commonTlsContext.hasValidationContext();
-  }
+    /**
+     * Returns true only if given CommonTlsContext uses only SdsSecretConfigs.
+     */
+    static boolean hasAllSecretsUsingSds(CommonTlsContext commonTlsContext) {
+        checkNotNull(commonTlsContext, "commonTlsContext");
+        // return true if it has only SdsSecretConfig(s)
+        return (commonTlsContext.getTlsCertificatesCount() == 0)
+                && !commonTlsContext.hasValidationContext();
+    }
 }

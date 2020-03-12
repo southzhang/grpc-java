@@ -16,50 +16,50 @@
 
 package io.grpc.internal;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import static org.junit.Assert.assertEquals;
+
 @RunWith(JUnit4.class)
 public class ReflectionLongAdderCounterTest {
-  private ReflectionLongAdderCounter counter = new ReflectionLongAdderCounter();
+    private ReflectionLongAdderCounter counter = new ReflectionLongAdderCounter();
 
-  @Test
-  public void testInitialValue() {
-    assertEquals(0, counter.value());
-  }
+    @Test
+    public void testInitialValue() {
+        assertEquals(0, counter.value());
+    }
 
-  @Test
-  public void testIncrement() {
-    counter.add(1);
-    assertEquals(1, counter.value());
-  }
+    @Test
+    public void testIncrement() {
+        counter.add(1);
+        assertEquals(1, counter.value());
+    }
 
-  @Test
-  public void testIncrementDelta() {
-    counter.add(2);
-    assertEquals(2, counter.value());
-  }
+    @Test
+    public void testIncrementDelta() {
+        counter.add(2);
+        assertEquals(2, counter.value());
+    }
 
-  @Test
-  public void testIncrementMulti() {
-    counter.add(2);
-    counter.add(1);
-    assertEquals(3, counter.value());
-  }
+    @Test
+    public void testIncrementMulti() {
+        counter.add(2);
+        counter.add(1);
+        assertEquals(3, counter.value());
+    }
 
-  @Test
-  public void testDecrement() {
-    counter.add(2);
-    counter.add(-1);
-    assertEquals(1, counter.value());
-  }
+    @Test
+    public void testDecrement() {
+        counter.add(2);
+        counter.add(-1);
+        assertEquals(1, counter.value());
+    }
 
-  @Test
-  public void testNegativeValue() {
-    counter.add(-2);
-    assertEquals(-2, counter.value());
-  }
+    @Test
+    public void testNegativeValue() {
+        counter.add(-2);
+        assertEquals(-2, counter.value());
+    }
 }

@@ -21,25 +21,25 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 
 final class ThreadlessExecutor implements Executor {
-  private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
+    private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
 
-  /**
-   * Waits until there is a Runnable, then executes it and all queued Runnables after it.
-   */
-  public void waitAndDrain() throws InterruptedException {
-    Runnable runnable = queue.take();
-    while (runnable != null) {
-      try {
-        runnable.run();
-      } catch (Throwable t) {
-        throw new RuntimeException("Runnable threw exception", t);
-      }
-      runnable = queue.poll();
+    /**
+     * Waits until there is a Runnable, then executes it and all queued Runnables after it.
+     */
+    public void waitAndDrain() throws InterruptedException {
+        Runnable runnable = queue.take();
+        while (runnable != null) {
+            try {
+                runnable.run();
+            } catch (Throwable t) {
+                throw new RuntimeException("Runnable threw exception", t);
+            }
+            runnable = queue.poll();
+        }
     }
-  }
 
-  @Override
-  public void execute(Runnable runnable) {
-    queue.add(runnable);
-  }
+    @Override
+    public void execute(Runnable runnable) {
+        queue.add(runnable);
+    }
 }

@@ -18,39 +18,42 @@ package io.grpc.internal.testing;
 
 import io.grpc.ChannelLogger;
 import io.grpc.internal.ClientTransportFactory;
-import java.net.InetSocketAddress;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.net.InetSocketAddress;
+
 @RunWith(JUnit4.class)
 public abstract class AbstractClientTransportFactoryTest {
 
-  protected abstract ClientTransportFactory newClientTransportFactory();
+    protected abstract ClientTransportFactory newClientTransportFactory();
 
-  @Test
-  public void multipleCallsToCloseShouldNotThrow() {
-    ClientTransportFactory transportFactory = newClientTransportFactory();
-    transportFactory.close();
-    transportFactory.close();
-    transportFactory.close();
-  }
+    @Test
+    public void multipleCallsToCloseShouldNotThrow() {
+        ClientTransportFactory transportFactory = newClientTransportFactory();
+        transportFactory.close();
+        transportFactory.close();
+        transportFactory.close();
+    }
 
-  @Test(expected = IllegalStateException.class)
-  public void newClientTransportAfterCloseShouldThrow() {
-    ClientTransportFactory transportFactory = newClientTransportFactory();
-    transportFactory.close();
-    transportFactory.newClientTransport(
-        new InetSocketAddress("localhost", 12345),
-        new ClientTransportFactory.ClientTransportOptions(),
-        new ChannelLogger() {
+    @Test(expected = IllegalStateException.class)
+    public void newClientTransportAfterCloseShouldThrow() {
+        ClientTransportFactory transportFactory = newClientTransportFactory();
+        transportFactory.close();
+        transportFactory.newClientTransport(
+                new InetSocketAddress("localhost", 12345),
+                new ClientTransportFactory.ClientTransportOptions(),
+                new ChannelLogger() {
 
-          @Override
-          public void log(ChannelLogLevel level, String message) {}
+                    @Override
+                    public void log(ChannelLogLevel level, String message) {
+                    }
 
-          @Override
-          public void log(ChannelLogLevel level, String messageFormat, Object... args) {}
-        }
-    );
-  }
+                    @Override
+                    public void log(ChannelLogLevel level, String messageFormat, Object... args) {
+                    }
+                }
+        );
+    }
 }

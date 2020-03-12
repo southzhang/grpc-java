@@ -16,102 +16,120 @@
 
 package io.grpc.alts.internal;
 
+import javax.annotation.Nonnull;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nonnull;
 
-/** A set of peer properties. */
+/**
+ * A set of peer properties.
+ */
 public final class TsiPeer {
-  private final List<Property<?>> properties;
+    private final List<Property<?>> properties;
 
-  public TsiPeer(List<Property<?>> properties) {
-    this.properties = Collections.unmodifiableList(properties);
-  }
-
-  public List<Property<?>> getProperties() {
-    return properties;
-  }
-
-  /** Get peer property. */
-  public Property<?> getProperty(String name) {
-    for (Property<?> property : properties) {
-      if (property.getName().equals(name)) {
-        return property;
-      }
-    }
-    return null;
-  }
-
-  @Override
-  public String toString() {
-    return new ArrayList<>(properties).toString();
-  }
-
-  /** A peer property. */
-  public abstract static class Property<T> {
-    private final String name;
-    private final T value;
-
-    public Property(@Nonnull String name, @Nonnull T value) {
-      this.name = name;
-      this.value = value;
+    public TsiPeer(List<Property<?>> properties) {
+        this.properties = Collections.unmodifiableList(properties);
     }
 
-    public final T getValue() {
-      return value;
+    public List<Property<?>> getProperties() {
+        return properties;
     }
 
-    public final String getName() {
-      return name;
+    /**
+     * Get peer property.
+     */
+    public Property<?> getProperty(String name) {
+        for (Property<?> property : properties) {
+            if (property.getName().equals(name)) {
+                return property;
+            }
+        }
+        return null;
     }
 
     @Override
     public String toString() {
-      return String.format("%s=%s", name, value);
+        return new ArrayList<>(properties).toString();
     }
-  }
 
-  /** A peer property corresponding to a boolean. */
-  public static final class BooleanProperty extends Property<Boolean> {
-    public BooleanProperty(@Nonnull String name, boolean value) {
-      super(name, value);
-    }
-  }
+    /**
+     * A peer property.
+     */
+    public abstract static class Property<T> {
+        private final String name;
+        private final T value;
 
-  /** A peer property corresponding to a signed 64-bit integer. */
-  public static final class SignedInt64Property extends Property<Long> {
-    public SignedInt64Property(@Nonnull String name, @Nonnull Long value) {
-      super(name, value);
-    }
-  }
+        public Property(@Nonnull String name, @Nonnull T value) {
+            this.name = name;
+            this.value = value;
+        }
 
-  /** A peer property corresponding to an unsigned 64-bit integer. */
-  public static final class UnsignedInt64Property extends Property<BigInteger> {
-    public UnsignedInt64Property(@Nonnull String name, @Nonnull BigInteger value) {
-      super(name, value);
-    }
-  }
+        public final T getValue() {
+            return value;
+        }
 
-  /** A peer property corresponding to a double. */
-  public static final class DoubleProperty extends Property<Double> {
-    public DoubleProperty(@Nonnull String name, @Nonnull Double value) {
-      super(name, value);
-    }
-  }
+        public final String getName() {
+            return name;
+        }
 
-  /** A peer property corresponding to a string. */
-  public static final class StringProperty extends Property<String> {
-    public StringProperty(@Nonnull String name, @Nonnull String value) {
-      super(name, value);
+        @Override
+        public String toString() {
+            return String.format("%s=%s", name, value);
+        }
     }
-  }
 
-  /** A peer property corresponding to a list of peer properties. */
-  public static final class PropertyList extends Property<List<Property<?>>> {
-    public PropertyList(@Nonnull String name, @Nonnull List<Property<?>> value) {
-      super(name, value);
+    /**
+     * A peer property corresponding to a boolean.
+     */
+    public static final class BooleanProperty extends Property<Boolean> {
+        public BooleanProperty(@Nonnull String name, boolean value) {
+            super(name, value);
+        }
     }
-  }
+
+    /**
+     * A peer property corresponding to a signed 64-bit integer.
+     */
+    public static final class SignedInt64Property extends Property<Long> {
+        public SignedInt64Property(@Nonnull String name, @Nonnull Long value) {
+            super(name, value);
+        }
+    }
+
+    /**
+     * A peer property corresponding to an unsigned 64-bit integer.
+     */
+    public static final class UnsignedInt64Property extends Property<BigInteger> {
+        public UnsignedInt64Property(@Nonnull String name, @Nonnull BigInteger value) {
+            super(name, value);
+        }
+    }
+
+    /**
+     * A peer property corresponding to a double.
+     */
+    public static final class DoubleProperty extends Property<Double> {
+        public DoubleProperty(@Nonnull String name, @Nonnull Double value) {
+            super(name, value);
+        }
+    }
+
+    /**
+     * A peer property corresponding to a string.
+     */
+    public static final class StringProperty extends Property<String> {
+        public StringProperty(@Nonnull String name, @Nonnull String value) {
+            super(name, value);
+        }
+    }
+
+    /**
+     * A peer property corresponding to a list of peer properties.
+     */
+    public static final class PropertyList extends Property<List<Property<?>>> {
+        public PropertyList(@Nonnull String name, @Nonnull List<Property<?>> value) {
+            super(name, value);
+        }
+    }
 }

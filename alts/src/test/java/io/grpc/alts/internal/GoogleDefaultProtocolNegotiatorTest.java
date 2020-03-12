@@ -16,10 +16,6 @@
 
 package io.grpc.alts.internal;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.google.common.collect.ImmutableList;
 import io.grpc.Attributes;
 import io.grpc.Channel;
@@ -36,85 +32,90 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.ssl.SslContext;
-import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.concurrent.atomic.AtomicReference;
+
+import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 @RunWith(JUnit4.class)
 public final class GoogleDefaultProtocolNegotiatorTest {
-  private ProtocolNegotiator googleProtocolNegotiator;
+    private ProtocolNegotiator googleProtocolNegotiator;
 
-  private final ObjectPool<Channel> handshakerChannelPool = new ObjectPool<Channel>() {
+    private final ObjectPool<Channel> handshakerChannelPool = new ObjectPool<Channel>() {
 
-    @Override
-    public Channel getObject() {
-      return InProcessChannelBuilder.forName("test").build();
-    }
+        @Override
+        public Channel getObject() {
+            return InProcessChannelBuilder.forName("test").build();
+        }
 
-    @Override
-    public Channel returnObject(Object object) {
-      ((ManagedChannel) object).shutdownNow();
-      return null;
-    }
-  };
-
-  @Before
-  public void setUp() throws Exception {
-    SslContext sslContext = GrpcSslContexts.forClient().build();
-
-    googleProtocolNegotiator = new AltsProtocolNegotiator.GoogleDefaultProtocolNegotiatorFactory(
-        ImmutableList.<String>of(),
-        handshakerChannelPool,
-        sslContext)
-        .buildProtocolNegotiator();
-  }
-
-  @After
-  public void tearDown() {
-    googleProtocolNegotiator.close();
-  }
-
-  @Test
-  public void altsHandler() {
-    Attributes eagAttributes =
-        Attributes.newBuilder().set(GrpclbConstants.ATTR_LB_PROVIDED_BACKEND, true).build();
-    GrpcHttp2ConnectionHandler mockHandler = mock(GrpcHttp2ConnectionHandler.class);
-    when(mockHandler.getEagAttributes()).thenReturn(eagAttributes);
-
-    final AtomicReference<Throwable> failure = new AtomicReference<>();
-    ChannelHandler exceptionCaught = new ChannelInboundHandlerAdapter() {
-      @Override
-      public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        failure.set(cause);
-        super.exceptionCaught(ctx, cause);
-      }
+        @Override
+        public Channel returnObject(Object object) {
+            ((ManagedChannel) object).shutdownNow();
+            return null;
+        }
     };
-    ChannelHandler h = googleProtocolNegotiator.newHandler(mockHandler);
-    EmbeddedChannel chan = new EmbeddedChannel(exceptionCaught);
-    // Add the negotiator handler last, but to the front.  Putting this in ctor above would make it
-    // throw early.
-    chan.pipeline().addFirst(h);
-    chan.pipeline().fireUserEventTriggered(InternalProtocolNegotiationEvent.getDefault());
 
-    // Check that the message complained about the ALTS code, rather than SSL.  ALTS throws on
-    // being added, so it's hard to catch it at the right time to make this assertion.
-    assertThat(failure.get()).hasMessageThat().contains("TsiHandshakeHandler");
-  }
+    @Before
+    public void setUp() throws Exception {
+        SslContext sslContext = GrpcSslContexts.forClient().build();
 
-  @Test
-  public void tlsHandler() {
-    Attributes eagAttributes = Attributes.EMPTY;
-    GrpcHttp2ConnectionHandler mockHandler = mock(GrpcHttp2ConnectionHandler.class);
-    when(mockHandler.getEagAttributes()).thenReturn(eagAttributes);
-    when(mockHandler.getAuthority()).thenReturn("authority");
+        googleProtocolNegotiator = new AltsProtocolNegotiator.GoogleDefaultProtocolNegotiatorFactory(
+                ImmutableList.<String>of(),
+                handshakerChannelPool,
+                sslContext)
+                .buildProtocolNegotiator();
+    }
 
-    ChannelHandler h = googleProtocolNegotiator.newHandler(mockHandler);
-    EmbeddedChannel chan = new EmbeddedChannel(h);
-    chan.pipeline().fireUserEventTriggered(InternalProtocolNegotiationEvent.getDefault());
+    @After
+    public void tearDown() {
+        googleProtocolNegotiator.close();
+    }
 
-    assertThat(chan.pipeline().first().getClass().getSimpleName()).isEqualTo("SslHandler");
-  }
+    @Test
+    public void altsHandler() {
+        Attributes eagAttributes =
+                Attributes.newBuilder().set(GrpclbConstants.ATTR_LB_PROVIDED_BACKEND, true).build();
+        GrpcHttp2ConnectionHandler mockHandler = mock(GrpcHttp2ConnectionHandler.class);
+        when(mockHandler.getEagAttributes()).thenReturn(eagAttributes);
+
+        final AtomicReference<Throwable> failure = new AtomicReference<>();
+        ChannelHandler exceptionCaught = new ChannelInboundHandlerAdapter() {
+            @Override
+            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+                failure.set(cause);
+                super.exceptionCaught(ctx, cause);
+            }
+        };
+        ChannelHandler h = googleProtocolNegotiator.newHandler(mockHandler);
+        EmbeddedChannel chan = new EmbeddedChannel(exceptionCaught);
+        // Add the negotiator handler last, but to the front.  Putting this in ctor above would make it
+        // throw early.
+        chan.pipeline().addFirst(h);
+        chan.pipeline().fireUserEventTriggered(InternalProtocolNegotiationEvent.getDefault());
+
+        // Check that the message complained about the ALTS code, rather than SSL.  ALTS throws on
+        // being added, so it's hard to catch it at the right time to make this assertion.
+        assertThat(failure.get()).hasMessageThat().contains("TsiHandshakeHandler");
+    }
+
+    @Test
+    public void tlsHandler() {
+        Attributes eagAttributes = Attributes.EMPTY;
+        GrpcHttp2ConnectionHandler mockHandler = mock(GrpcHttp2ConnectionHandler.class);
+        when(mockHandler.getEagAttributes()).thenReturn(eagAttributes);
+        when(mockHandler.getAuthority()).thenReturn("authority");
+
+        ChannelHandler h = googleProtocolNegotiator.newHandler(mockHandler);
+        EmbeddedChannel chan = new EmbeddedChannel(h);
+        chan.pipeline().fireUserEventTriggered(InternalProtocolNegotiationEvent.getDefault());
+
+        assertThat(chan.pipeline().first().getClass().getSimpleName()).isEqualTo("SslHandler");
+    }
 }

@@ -16,9 +16,9 @@
 
 package io.grpc;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.SocketAddress;
-import javax.annotation.Nullable;
 
 /**
  * A utility class to detect which proxy, if any, should be used for a given
@@ -48,17 +48,17 @@ import javax.annotation.Nullable;
  */
 @ExperimentalApi("https://github.com/grpc/grpc-java/issues/5279")
 public interface ProxyDetector {
-  /**
-   * Given a target address, returns a proxied address if a proxy should be used. If no proxy should
-   * be used, then return value will be {@code null}.
-   *
-   * <p>If the returned {@code ProxiedSocketAddress} contains any address that needs to be resolved
-   * locally, it should be resolved before it's returned, and this method throws if unable to
-   * resolve it.
-   *
-   * @param targetServerAddress the target address, which is generally unresolved, because the proxy
-   *                            will resolve it.
-   */
-  @Nullable
-  ProxiedSocketAddress proxyFor(SocketAddress targetServerAddress) throws IOException;
+    /**
+     * Given a target address, returns a proxied address if a proxy should be used. If no proxy should
+     * be used, then return value will be {@code null}.
+     *
+     * <p>If the returned {@code ProxiedSocketAddress} contains any address that needs to be resolved
+     * locally, it should be resolved before it's returned, and this method throws if unable to
+     * resolve it.
+     *
+     * @param targetServerAddress the target address, which is generally unresolved, because the proxy
+     *                            will resolve it.
+     */
+    @Nullable
+    ProxiedSocketAddress proxyFor(SocketAddress targetServerAddress) throws IOException;
 }

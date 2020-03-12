@@ -23,13 +23,13 @@ import io.grpc.Status;
  * reason for closure.
  */
 class GracefulCloseCommand extends WriteQueue.AbstractQueuedCommand {
-  private final Status status;
+    private final Status status;
 
-  public GracefulCloseCommand(Status status) {
-    this.status = status;
-  }
+    public GracefulCloseCommand(Status status) {
+        this.status = status;
+    }
 
-  public Status getStatus() {
-    return status;
-  }
+    public Status getStatus() {
+        return status;
+    }
 }

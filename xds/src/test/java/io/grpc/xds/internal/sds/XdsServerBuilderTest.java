@@ -16,12 +16,12 @@
 
 package io.grpc.xds.internal.sds;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import io.grpc.Server;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  * Unit tests for {@link XdsChannelBuilder}.
@@ -29,11 +29,11 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class XdsServerBuilderTest {
 
-  @Test
-  public void buildsXdsServerBuilder() {
-    XdsServerBuilder builder = XdsServerBuilder.forPort(8080);
-    assertThat(builder).isInstanceOf(XdsServerBuilder.class);
-    Server server = builder.build();
-    assertThat(server).isNotNull();
-  }
+    @Test
+    public void buildsXdsServerBuilder() {
+        XdsServerBuilder builder = XdsServerBuilder.forPort(8080);
+        assertThat(builder).isInstanceOf(XdsServerBuilder.class);
+        Server server = builder.build();
+        assertThat(server).isNotNull();
+    }
 }

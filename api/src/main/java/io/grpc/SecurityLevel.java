@@ -21,19 +21,19 @@ package io.grpc;
  */
 @ExperimentalApi("https://github.com/grpc/grpc-java/issues/4692")
 public enum SecurityLevel {
-  /**
-   * No security guarantee.
-   */
-  NONE,
+    /**
+     * No security guarantee.
+     */
+    NONE,
 
-  /**
-   * The other party is authenticated and the data is not tampered with.
-   */
-  INTEGRITY,
+    /**
+     * The other party is authenticated and the data is not tampered with.
+     */
+    INTEGRITY,
 
-  /**
-   * In addition to {@code INTEGRITY}, the data is only visible to the intended communication
-   * parties.
-   */
-  PRIVACY_AND_INTEGRITY
+    /**
+     * In addition to {@code INTEGRITY}, the data is only visible to the intended communication
+     * parties.
+     */
+    PRIVACY_AND_INTEGRITY
 }

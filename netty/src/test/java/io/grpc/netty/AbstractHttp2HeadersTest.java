@@ -16,43 +16,47 @@
 
 package io.grpc.netty;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import com.google.common.base.Defaults;
 import io.netty.handler.codec.http2.Http2Headers;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link AbstractHttp2Headers}. */
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+/**
+ * Unit tests for {@link AbstractHttp2Headers}.
+ */
 @RunWith(JUnit4.class)
 public class AbstractHttp2HeadersTest {
-  @Test
-  public void allMethodsAreUnsupported() {
-    Http2Headers headers = new AbstractHttp2Headers() {};
-    for (Method method : Http2Headers.class.getMethods()) {
-      // Avoid Java 8 default methods, without requiring Java 8 with isDefault()
-      if (!Modifier.isAbstract(method.getModifiers())) {
-        continue;
-      }
-      Class<?>[] params = method.getParameterTypes();
-      Object[] args = new Object[params.length];
-      for (int i = 0; i < params.length; i++) {
-        args[i] = Defaults.defaultValue(params[i]);
-      }
-      try {
-        method.invoke(headers, args);
-        fail("Expected exception for method: " + method);
-      } catch (InvocationTargetException ex) {
-        assertEquals("For method: " + method,
-            UnsupportedOperationException.class, ex.getCause().getClass());
-      } catch (Exception ex) {
-        throw new AssertionError("Failure with method: " + method, ex);
-      }
+    @Test
+    public void allMethodsAreUnsupported() {
+        Http2Headers headers = new AbstractHttp2Headers() {
+        };
+        for (Method method : Http2Headers.class.getMethods()) {
+            // Avoid Java 8 default methods, without requiring Java 8 with isDefault()
+            if (!Modifier.isAbstract(method.getModifiers())) {
+                continue;
+            }
+            Class<?>[] params = method.getParameterTypes();
+            Object[] args = new Object[params.length];
+            for (int i = 0; i < params.length; i++) {
+                args[i] = Defaults.defaultValue(params[i]);
+            }
+            try {
+                method.invoke(headers, args);
+                fail("Expected exception for method: " + method);
+            } catch (InvocationTargetException ex) {
+                assertEquals("For method: " + method,
+                        UnsupportedOperationException.class, ex.getCause().getClass());
+            } catch (Exception ex) {
+                throw new AssertionError("Failure with method: " + method, ex);
+            }
+        }
     }
-  }
 }

@@ -54,12 +54,12 @@ class HelloWorldClientTest {
 
     private val serviceImpl = mock(GreeterGrpc.GreeterImplBase::class.java, delegatesTo<Any>(
             object : GreeterGrpc.GreeterImplBase() {
-            // By default the client will receive Status.UNIMPLEMENTED for all RPCs.
-            // You might need to implement necessary behaviors for your test here, like this:
-            //
-            // override fun sayHello(req: HelloRequest, respObserver: StreamObserver<HelloReply>) {
-            //     respObserver.onNext(HelloReply.getDefaultInstance())
-            //     respObserver.onCompleted()
+                // By default the client will receive Status.UNIMPLEMENTED for all RPCs.
+                // You might need to implement necessary behaviors for your test here, like this:
+                //
+                // override fun sayHello(req: HelloRequest, respObserver: StreamObserver<HelloReply>) {
+                //     respObserver.onNext(HelloReply.getDefaultInstance())
+                //     respObserver.onCompleted()
             }))
 
     private var client: HelloWorldClient? = null

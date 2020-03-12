@@ -18,63 +18,63 @@ package io.grpc.inprocess;
 
 import com.google.common.truth.Truth;
 import io.grpc.ServerStreamTracer;
-import io.grpc.internal.FakeClock;
-import io.grpc.internal.ObjectPool;
-import io.grpc.internal.ServerListener;
-import io.grpc.internal.ServerTransport;
-import io.grpc.internal.ServerTransportListener;
-import java.util.Collections;
-import java.util.concurrent.ScheduledExecutorService;
+import io.grpc.internal.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.Collections;
+import java.util.concurrent.ScheduledExecutorService;
+
 @RunWith(JUnit4.class)
 public class InProcessServerTest {
-  private InProcessServerBuilder builder = InProcessServerBuilder.forName("name");
+    private InProcessServerBuilder builder = InProcessServerBuilder.forName("name");
 
-  @Test
-  public void getPort_notStarted() throws Exception {
-    InProcessServer s =
-        new InProcessServer(builder, Collections.<ServerStreamTracer.Factory>emptyList());
+    @Test
+    public void getPort_notStarted() throws Exception {
+        InProcessServer s =
+                new InProcessServer(builder, Collections.<ServerStreamTracer.Factory>emptyList());
 
-    Truth.assertThat(s.getListenSocketAddress()).isEqualTo(new InProcessSocketAddress("name"));
-  }
-
-  @Test
-  public void serverHoldsRefToScheduler() throws Exception {
-    final ScheduledExecutorService ses = new FakeClock().getScheduledExecutorService();
-    class RefCountingObjectPool implements ObjectPool<ScheduledExecutorService> {
-      private int count;
-
-      @Override
-      public ScheduledExecutorService getObject() {
-        count++;
-        return ses;
-      }
-
-      @Override
-      public ScheduledExecutorService returnObject(Object returned) {
-        count--;
-        return null;
-      }
+        Truth.assertThat(s.getListenSocketAddress()).isEqualTo(new InProcessSocketAddress("name"));
     }
 
-    RefCountingObjectPool pool = new RefCountingObjectPool();
-    builder.schedulerPool = pool;
-    InProcessServer s =
-        new InProcessServer(builder, Collections.<ServerStreamTracer.Factory>emptyList());
-    Truth.assertThat(pool.count).isEqualTo(0);
-    s.start(new ServerListener() {
-      @Override public ServerTransportListener transportCreated(ServerTransport transport) {
-        throw new UnsupportedOperationException();
-      }
+    @Test
+    public void serverHoldsRefToScheduler() throws Exception {
+        final ScheduledExecutorService ses = new FakeClock().getScheduledExecutorService();
+        class RefCountingObjectPool implements ObjectPool<ScheduledExecutorService> {
+            private int count;
 
-      @Override public void serverShutdown() {}
-    });
-    Truth.assertThat(pool.count).isEqualTo(1);
-    s.shutdown();
-    Truth.assertThat(pool.count).isEqualTo(0);
-  }
+            @Override
+            public ScheduledExecutorService getObject() {
+                count++;
+                return ses;
+            }
+
+            @Override
+            public ScheduledExecutorService returnObject(Object returned) {
+                count--;
+                return null;
+            }
+        }
+
+        RefCountingObjectPool pool = new RefCountingObjectPool();
+        builder.schedulerPool = pool;
+        InProcessServer s =
+                new InProcessServer(builder, Collections.<ServerStreamTracer.Factory>emptyList());
+        Truth.assertThat(pool.count).isEqualTo(0);
+        s.start(new ServerListener() {
+            @Override
+            public ServerTransportListener transportCreated(ServerTransport transport) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public void serverShutdown() {
+            }
+        });
+        Truth.assertThat(pool.count).isEqualTo(1);
+        s.shutdown();
+        Truth.assertThat(pool.count).isEqualTo(0);
+    }
 }
 

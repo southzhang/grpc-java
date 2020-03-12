@@ -22,21 +22,21 @@ import java.util.concurrent.atomic.AtomicLong;
  * An implementation of {@link LongCounter} that is just an {@Link AtomicLong}.
  */
 final class AtomicLongCounter implements LongCounter {
-  private final AtomicLong counter = new AtomicLong();
+    private final AtomicLong counter = new AtomicLong();
 
-  /**
-   * Creates an {@link AtomicLongCounter}.
-   */
-  AtomicLongCounter() {
-  }
+    /**
+     * Creates an {@link AtomicLongCounter}.
+     */
+    AtomicLongCounter() {
+    }
 
-  @Override
-  public void add(long delta) {
-    counter.getAndAdd(delta);
-  }
+    @Override
+    public void add(long delta) {
+        counter.getAndAdd(delta);
+    }
 
-  @Override
-  public long value() {
-    return counter.get();
-  }
+    @Override
+    public long value() {
+        return counter.get();
+    }
 }

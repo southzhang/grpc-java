@@ -19,62 +19,68 @@ package io.grpc.netty;
 import io.grpc.Status;
 import io.grpc.internal.ManagedClientTransport;
 
-/** Maintainer of transport lifecycle status. */
+/**
+ * Maintainer of transport lifecycle status.
+ */
 final class ClientTransportLifecycleManager {
-  private final ManagedClientTransport.Listener listener;
-  private boolean transportReady;
-  private boolean transportShutdown;
-  private boolean transportInUse;
-  /** null iff !transportShutdown. */
-  private Status shutdownStatus;
-  /** null iff !transportShutdown. */
-  private Throwable shutdownThrowable;
-  private boolean transportTerminated;
+    private final ManagedClientTransport.Listener listener;
+    private boolean transportReady;
+    private boolean transportShutdown;
+    private boolean transportInUse;
+    /**
+     * null iff !transportShutdown.
+     */
+    private Status shutdownStatus;
+    /**
+     * null iff !transportShutdown.
+     */
+    private Throwable shutdownThrowable;
+    private boolean transportTerminated;
 
-  public ClientTransportLifecycleManager(ManagedClientTransport.Listener listener) {
-    this.listener = listener;
-  }
-
-  public void notifyReady() {
-    if (transportReady || transportShutdown) {
-      return;
+    public ClientTransportLifecycleManager(ManagedClientTransport.Listener listener) {
+        this.listener = listener;
     }
-    transportReady = true;
-    listener.transportReady();
-  }
 
-  public void notifyShutdown(Status s) {
-    if (transportShutdown) {
-      return;
+    public void notifyReady() {
+        if (transportReady || transportShutdown) {
+            return;
+        }
+        transportReady = true;
+        listener.transportReady();
     }
-    transportShutdown = true;
-    shutdownStatus = s;
-    shutdownThrowable = s.asException();
-    listener.transportShutdown(s);
-  }
 
-  public void notifyInUse(boolean inUse) {
-    if (inUse == transportInUse) {
-      return;
+    public void notifyShutdown(Status s) {
+        if (transportShutdown) {
+            return;
+        }
+        transportShutdown = true;
+        shutdownStatus = s;
+        shutdownThrowable = s.asException();
+        listener.transportShutdown(s);
     }
-    transportInUse = inUse;
-    listener.transportInUse(inUse);
-  }
 
-  public void notifyTerminated(Status s) {
-    if (transportTerminated) {
-      return;
+    public void notifyInUse(boolean inUse) {
+        if (inUse == transportInUse) {
+            return;
+        }
+        transportInUse = inUse;
+        listener.transportInUse(inUse);
     }
-    transportTerminated = true;
-    notifyShutdown(s);
-    listener.transportTerminated();
-  }
 
-  public Status getShutdownStatus() {
-    return shutdownStatus;
-  }
+    public void notifyTerminated(Status s) {
+        if (transportTerminated) {
+            return;
+        }
+        transportTerminated = true;
+        notifyShutdown(s);
+        listener.transportTerminated();
+    }
 
-  public Throwable getShutdownThrowable() {
-    return shutdownThrowable;
-  }
+    public Status getShutdownStatus() {
+        return shutdownStatus;
+    }
+
+    public Throwable getShutdownThrowable() {
+        return shutdownThrowable;
+    }
 }

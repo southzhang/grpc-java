@@ -16,13 +16,13 @@
 
 package io.grpc.xds.internal.sds;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import io.grpc.ManagedChannel;
 import io.grpc.netty.NettyChannelBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  * Unit tests for {@link XdsChannelBuilder}.
@@ -30,12 +30,12 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class XdsChannelBuilderTest {
 
-  @Test
-  public void buildsXdsChannelBuilder() {
-    XdsChannelBuilder builder = XdsChannelBuilder.forTarget("localhost:8080");
-    assertThat(builder).isNotNull();
-    assertThat(builder.delegate()).isInstanceOf(NettyChannelBuilder.class);
-    ManagedChannel channel = builder.build();
-    assertThat(channel).isNotNull();
-  }
+    @Test
+    public void buildsXdsChannelBuilder() {
+        XdsChannelBuilder builder = XdsChannelBuilder.forTarget("localhost:8080");
+        assertThat(builder).isNotNull();
+        assertThat(builder.delegate()).isInstanceOf(NettyChannelBuilder.class);
+        ManagedChannel channel = builder.build();
+        assertThat(channel).isNotNull();
+    }
 }

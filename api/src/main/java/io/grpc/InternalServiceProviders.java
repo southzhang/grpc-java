@@ -17,58 +17,60 @@
 package io.grpc;
 
 import com.google.common.annotations.VisibleForTesting;
+
 import java.util.List;
 
 @Internal
 public final class InternalServiceProviders {
-  private InternalServiceProviders() {
-  }
+    private InternalServiceProviders() {
+    }
 
-  /**
-   * Accessor for method.
-   */
-  public static <T> T load(
-      Class<T> klass,
-      Iterable<Class<?>> hardcoded,
-      ClassLoader classLoader,
-      PriorityAccessor<T> priorityAccessor) {
-    return ServiceProviders.load(klass, hardcoded, classLoader, priorityAccessor);
-  }
+    /**
+     * Accessor for method.
+     */
+    public static <T> T load(
+            Class<T> klass,
+            Iterable<Class<?>> hardcoded,
+            ClassLoader classLoader,
+            PriorityAccessor<T> priorityAccessor) {
+        return ServiceProviders.load(klass, hardcoded, classLoader, priorityAccessor);
+    }
 
-  /**
-   * Accessor for method.
-   */
-  public static <T> List<T> loadAll(
-      Class<T> klass,
-      Iterable<Class<?>> hardCodedClasses,
-      ClassLoader classLoader,
-      PriorityAccessor<T> priorityAccessor) {
-    return ServiceProviders.loadAll(klass, hardCodedClasses, classLoader, priorityAccessor);
-  }
+    /**
+     * Accessor for method.
+     */
+    public static <T> List<T> loadAll(
+            Class<T> klass,
+            Iterable<Class<?>> hardCodedClasses,
+            ClassLoader classLoader,
+            PriorityAccessor<T> priorityAccessor) {
+        return ServiceProviders.loadAll(klass, hardCodedClasses, classLoader, priorityAccessor);
+    }
 
-  /**
-   * Accessor for method.
-   */
-  @VisibleForTesting
-  public static <T> Iterable<T> getCandidatesViaServiceLoader(Class<T> klass, ClassLoader cl) {
-    return ServiceProviders.getCandidatesViaServiceLoader(klass, cl);
-  }
+    /**
+     * Accessor for method.
+     */
+    @VisibleForTesting
+    public static <T> Iterable<T> getCandidatesViaServiceLoader(Class<T> klass, ClassLoader cl) {
+        return ServiceProviders.getCandidatesViaServiceLoader(klass, cl);
+    }
 
-  /**
-   * Accessor for method.
-   */
-  @VisibleForTesting
-  public static <T> Iterable<T> getCandidatesViaHardCoded(
-      Class<T> klass, Iterable<Class<?>> hardcoded) {
-    return ServiceProviders.getCandidatesViaHardCoded(klass, hardcoded);
-  }
+    /**
+     * Accessor for method.
+     */
+    @VisibleForTesting
+    public static <T> Iterable<T> getCandidatesViaHardCoded(
+            Class<T> klass, Iterable<Class<?>> hardcoded) {
+        return ServiceProviders.getCandidatesViaHardCoded(klass, hardcoded);
+    }
 
-  /**
-   * Accessor for {@link ServiceProviders#isAndroid}.
-   */
-  public static boolean isAndroid(ClassLoader cl) {
-    return ServiceProviders.isAndroid(cl);
-  }
+    /**
+     * Accessor for {@link ServiceProviders#isAndroid}.
+     */
+    public static boolean isAndroid(ClassLoader cl) {
+        return ServiceProviders.isAndroid(cl);
+    }
 
-  public interface PriorityAccessor<T> extends ServiceProviders.PriorityAccessor<T> {}
+    public interface PriorityAccessor<T> extends ServiceProviders.PriorityAccessor<T> {
+    }
 }

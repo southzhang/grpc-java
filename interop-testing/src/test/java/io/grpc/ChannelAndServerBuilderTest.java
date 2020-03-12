@@ -16,23 +16,24 @@
 
 package io.grpc;
 
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ClassInfo;
 import com.google.common.truth.Truth;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests that Channel and Server builders properly hide the static constructors.
@@ -42,66 +43,66 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class ChannelAndServerBuilderTest {
 
-  @Parameter
-  public Class<?> builderClass;
+    @Parameter
+    public Class<?> builderClass;
 
-  /**
-   * Javadoc.
-   */
-  @Parameters(name = "class={0}")
-  public static Collection<Object[]> params() throws Exception {
-    ClassLoader loader = ChannelAndServerBuilderTest.class.getClassLoader();
-    Collection<ClassInfo> classInfos =
-        ClassPath.from(loader).getTopLevelClassesRecursive("io.grpc");
-    // Java 9 doesn't expose the URLClassLoader, which breaks searching through the classpath
-    if (classInfos.isEmpty()) {
-      return new ArrayList<>();
+    /**
+     * Javadoc.
+     */
+    @Parameters(name = "class={0}")
+    public static Collection<Object[]> params() throws Exception {
+        ClassLoader loader = ChannelAndServerBuilderTest.class.getClassLoader();
+        Collection<ClassInfo> classInfos =
+                ClassPath.from(loader).getTopLevelClassesRecursive("io.grpc");
+        // Java 9 doesn't expose the URLClassLoader, which breaks searching through the classpath
+        if (classInfos.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Object[]> classes = new ArrayList<>();
+        for (ClassInfo classInfo : classInfos) {
+            String className = classInfo.getName();
+            if (className.contains("io.grpc.netty.shaded.io.netty")) {
+                continue;
+            }
+            Class<?> clazz = Class.forName(className, false /*initialize*/, loader);
+            if (ServerBuilder.class.isAssignableFrom(clazz) && clazz != ServerBuilder.class) {
+                classes.add(new Object[]{clazz});
+            } else if (ManagedChannelBuilder.class.isAssignableFrom(clazz)
+                    && clazz != ManagedChannelBuilder.class) {
+                classes.add(new Object[]{clazz});
+            }
+        }
+        Truth.assertWithMessage("Unable to find any builder classes").that(classes).isNotEmpty();
+        return classes;
     }
-    List<Object[]> classes = new ArrayList<>();
-    for (ClassInfo classInfo : classInfos) {
-      String className = classInfo.getName();
-      if (className.contains("io.grpc.netty.shaded.io.netty")) {
-        continue;
-      }
-      Class<?> clazz = Class.forName(className, false /*initialize*/, loader);
-      if (ServerBuilder.class.isAssignableFrom(clazz) && clazz != ServerBuilder.class) {
-        classes.add(new Object[]{clazz});
-      } else if (ManagedChannelBuilder.class.isAssignableFrom(clazz)
-          && clazz != ManagedChannelBuilder.class) {
-        classes.add(new Object[]{clazz});
-      }
+
+    @Test
+    public void serverBuilderHidesMethod_forPort() throws Exception {
+        Assume.assumeTrue(ServerBuilder.class.isAssignableFrom(builderClass));
+        Method method = builderClass.getMethod("forPort", int.class);
+
+        assertTrue(Modifier.isStatic(method.getModifiers()));
+        assertTrue(ServerBuilder.class.isAssignableFrom(method.getReturnType()));
+        assertSame(builderClass, method.getDeclaringClass());
     }
-    Truth.assertWithMessage("Unable to find any builder classes").that(classes).isNotEmpty();
-    return classes;
-  }
 
-  @Test
-  public void serverBuilderHidesMethod_forPort() throws Exception {
-    Assume.assumeTrue(ServerBuilder.class.isAssignableFrom(builderClass));
-    Method method = builderClass.getMethod("forPort", int.class);
+    @Test
+    public void channelBuilderHidesMethod_forAddress() throws Exception {
+        Assume.assumeTrue(ManagedChannelBuilder.class.isAssignableFrom(builderClass));
+        Method method = builderClass.getMethod("forAddress", String.class, int.class);
 
-    assertTrue(Modifier.isStatic(method.getModifiers()));
-    assertTrue(ServerBuilder.class.isAssignableFrom(method.getReturnType()));
-    assertSame(builderClass, method.getDeclaringClass());
-  }
+        assertTrue(Modifier.isStatic(method.getModifiers()));
+        assertTrue(ManagedChannelBuilder.class.isAssignableFrom(method.getReturnType()));
+        assertSame(builderClass, method.getDeclaringClass());
+    }
 
-  @Test
-  public void channelBuilderHidesMethod_forAddress() throws Exception {
-    Assume.assumeTrue(ManagedChannelBuilder.class.isAssignableFrom(builderClass));
-    Method method = builderClass.getMethod("forAddress", String.class, int.class);
+    @Test
+    public void channelBuilderHidesMethod_forTarget() throws Exception {
+        Assume.assumeTrue(ManagedChannelBuilder.class.isAssignableFrom(builderClass));
+        Method method = builderClass.getMethod("forTarget", String.class);
 
-    assertTrue(Modifier.isStatic(method.getModifiers()));
-    assertTrue(ManagedChannelBuilder.class.isAssignableFrom(method.getReturnType()));
-    assertSame(builderClass, method.getDeclaringClass());
-  }
-
-  @Test
-  public void channelBuilderHidesMethod_forTarget() throws Exception {
-    Assume.assumeTrue(ManagedChannelBuilder.class.isAssignableFrom(builderClass));
-    Method method = builderClass.getMethod("forTarget", String.class);
-
-    assertTrue(Modifier.isStatic(method.getModifiers()));
-    assertTrue(ManagedChannelBuilder.class.isAssignableFrom(method.getReturnType()));
-    assertSame(builderClass, method.getDeclaringClass());
-  }
+        assertTrue(Modifier.isStatic(method.getModifiers()));
+        assertTrue(ManagedChannelBuilder.class.isAssignableFrom(method.getReturnType()));
+        assertSame(builderClass, method.getDeclaringClass());
+    }
 }

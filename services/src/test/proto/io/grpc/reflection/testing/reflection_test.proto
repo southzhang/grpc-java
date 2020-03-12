@@ -26,9 +26,10 @@ option java_outer_classname = "ReflectionTestProto";
 package grpc.reflection.testing;
 
 extend ThirdLevelType {
-  optional int32 bar = 100;
+    optional int32 bar = 100;
 }
 
 service ReflectableService {
-  rpc Method (Request) returns (Reply) {}
+    rpc Method (Request) returns (Reply) {
+    }
 }

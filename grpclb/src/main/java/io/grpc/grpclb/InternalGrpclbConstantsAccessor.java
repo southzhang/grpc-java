@@ -19,6 +19,7 @@ package io.grpc.grpclb;
 import io.grpc.Attributes;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.Internal;
+
 import java.util.List;
 
 /**
@@ -28,14 +29,14 @@ import java.util.List;
 @Internal
 public final class InternalGrpclbConstantsAccessor {
 
-  // Prevent instantiation.
-  private InternalGrpclbConstantsAccessor() {
-  }
+    // Prevent instantiation.
+    private InternalGrpclbConstantsAccessor() {
+    }
 
-  public static final Attributes.Key<List<EquivalentAddressGroup>> ATTR_LB_ADDRS =
-      GrpclbConstants.ATTR_LB_ADDRS;
+    public static final Attributes.Key<List<EquivalentAddressGroup>> ATTR_LB_ADDRS =
+            GrpclbConstants.ATTR_LB_ADDRS;
 
-  @EquivalentAddressGroup.Attr
-  public static final Attributes.Key<String> ATTR_LB_ADDR_AUTHORITY =
-      GrpclbConstants.ATTR_LB_ADDR_AUTHORITY;
+    @EquivalentAddressGroup.Attr
+    public static final Attributes.Key<String> ATTR_LB_ADDR_AUTHORITY =
+            GrpclbConstants.ATTR_LB_ADDR_AUTHORITY;
 }

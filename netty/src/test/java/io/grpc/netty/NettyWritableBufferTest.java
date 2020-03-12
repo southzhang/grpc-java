@@ -19,11 +19,12 @@ package io.grpc.netty;
 import io.grpc.internal.WritableBuffer;
 import io.grpc.internal.WritableBufferTestBase;
 import io.netty.buffer.Unpooled;
-import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import java.util.Arrays;
 
 /**
  * Tests for {@link NettyWritableBuffer}.
@@ -31,27 +32,27 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class NettyWritableBufferTest extends WritableBufferTestBase {
 
-  private NettyWritableBuffer buffer;
+    private NettyWritableBuffer buffer;
 
-  @Before
-  public void setup() {
-    buffer = new NettyWritableBuffer(Unpooled.buffer(100));
-  }
+    @Before
+    public void setup() {
+        buffer = new NettyWritableBuffer(Unpooled.buffer(100));
+    }
 
-  @After
-  public void teardown() {
-    buffer.release();
-  }
+    @After
+    public void teardown() {
+        buffer.release();
+    }
 
-  @Override
-  protected WritableBuffer buffer() {
-    return buffer;
-  }
+    @Override
+    protected WritableBuffer buffer() {
+        return buffer;
+    }
 
-  @Override
-  protected byte[] writtenBytes() {
-    byte[] b = buffer.bytebuf().array();
-    int fromIdx = buffer.bytebuf().arrayOffset();
-    return Arrays.copyOfRange(b, fromIdx, buffer.readableBytes());
-  }
+    @Override
+    protected byte[] writtenBytes() {
+        byte[] b = buffer.bytebuf().array();
+        int fromIdx = buffer.bytebuf().arrayOffset();
+        return Arrays.copyOfRange(b, fromIdx, buffer.readableBytes());
+    }
 }

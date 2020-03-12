@@ -30,11 +30,11 @@ import java.io.OutputStream;
  */
 public interface Drainable {
 
-  /**
-   * Transfers the entire contents of this stream to the specified target.
-   *
-   * @param target to write to.
-   * @return number of bytes written.
-   */
-  int drainTo(OutputStream target) throws IOException;
+    /**
+     * Transfers the entire contents of this stream to the specified target.
+     *
+     * @param target to write to.
+     * @return number of bytes written.
+     */
+    int drainTo(OutputStream target) throws IOException;
 }

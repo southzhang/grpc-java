@@ -30,147 +30,152 @@ import io.netty.util.AsciiString;
  */
 public final class InternalProtocolNegotiators {
 
-  private InternalProtocolNegotiators() {}
-
-  /**
-   * Returns the channel logger for the given channel context, or a Noop Logger if absent.
-   */
-  public static ChannelLogger negotiationLogger(ChannelHandlerContext ctx) {
-    return ProtocolNegotiators.negotiationLogger(ctx);
-  }
-
-  /**
-   * Returns a {@link ProtocolNegotiator} that ensures the pipeline is set up so that TLS will
-   * be negotiated, the {@code handler} is added and writes to the {@link io.netty.channel.Channel}
-   * may happen immediately, even before the TLS Handshake is complete.
-   */
-  public static InternalProtocolNegotiator.ProtocolNegotiator tls(SslContext sslContext) {
-    final io.grpc.netty.ProtocolNegotiator negotiator = ProtocolNegotiators.tls(sslContext);
-    final class TlsNegotiator implements InternalProtocolNegotiator.ProtocolNegotiator {
-
-      @Override
-      public AsciiString scheme() {
-        return negotiator.scheme();
-      }
-
-      @Override
-      public ChannelHandler newHandler(GrpcHttp2ConnectionHandler grpcHandler) {
-        return negotiator.newHandler(grpcHandler);
-      }
-
-      @Override
-      public void close() {
-        negotiator.close();
-      }
-    }
-    
-    return new TlsNegotiator();
-  }
-
-  /**
-   * Returns a {@link ProtocolNegotiator} that ensures the pipeline is set up so that TLS will be
-   * negotiated, the server TLS {@code handler} is added and writes to the {@link
-   * io.netty.channel.Channel} may happen immediately, even before the TLS Handshake is complete.
-   */
-  public static InternalProtocolNegotiator.ProtocolNegotiator serverTls(SslContext sslContext) {
-    final io.grpc.netty.ProtocolNegotiator negotiator = ProtocolNegotiators.serverTls(sslContext);
-    final class ServerTlsNegotiator implements InternalProtocolNegotiator.ProtocolNegotiator {
-
-      @Override
-      public AsciiString scheme() {
-        return negotiator.scheme();
-      }
-
-      @Override
-      public ChannelHandler newHandler(GrpcHttp2ConnectionHandler grpcHandler) {
-        return negotiator.newHandler(grpcHandler);
-      }
-
-      @Override
-      public void close() {
-        negotiator.close();
-      }
+    private InternalProtocolNegotiators() {
     }
 
-    return new ServerTlsNegotiator();
-  }
-
-  /** Returns a {@link ProtocolNegotiator} for plaintext client channel. */
-  public static InternalProtocolNegotiator.ProtocolNegotiator plaintext() {
-    final io.grpc.netty.ProtocolNegotiator negotiator = ProtocolNegotiators.plaintext();
-    final class PlaintextNegotiator implements InternalProtocolNegotiator.ProtocolNegotiator {
-
-      @Override
-      public AsciiString scheme() {
-        return negotiator.scheme();
-      }
-
-      @Override
-      public ChannelHandler newHandler(GrpcHttp2ConnectionHandler grpcHandler) {
-        return negotiator.newHandler(grpcHandler);
-      }
-
-      @Override
-      public void close() {
-        negotiator.close();
-      }
+    /**
+     * Returns the channel logger for the given channel context, or a Noop Logger if absent.
+     */
+    public static ChannelLogger negotiationLogger(ChannelHandlerContext ctx) {
+        return ProtocolNegotiators.negotiationLogger(ctx);
     }
 
-    return new PlaintextNegotiator();
-  }
+    /**
+     * Returns a {@link ProtocolNegotiator} that ensures the pipeline is set up so that TLS will
+     * be negotiated, the {@code handler} is added and writes to the {@link io.netty.channel.Channel}
+     * may happen immediately, even before the TLS Handshake is complete.
+     */
+    public static InternalProtocolNegotiator.ProtocolNegotiator tls(SslContext sslContext) {
+        final io.grpc.netty.ProtocolNegotiator negotiator = ProtocolNegotiators.tls(sslContext);
+        final class TlsNegotiator implements InternalProtocolNegotiator.ProtocolNegotiator {
 
-  /** Returns a {@link ProtocolNegotiator} for plaintext server channel. */
-  public static InternalProtocolNegotiator.ProtocolNegotiator serverPlaintext() {
-    final io.grpc.netty.ProtocolNegotiator negotiator = ProtocolNegotiators.serverPlaintext();
-    final class ServerPlaintextNegotiator implements InternalProtocolNegotiator.ProtocolNegotiator {
+            @Override
+            public AsciiString scheme() {
+                return negotiator.scheme();
+            }
 
-      @Override
-      public AsciiString scheme() {
-        return negotiator.scheme();
-      }
+            @Override
+            public ChannelHandler newHandler(GrpcHttp2ConnectionHandler grpcHandler) {
+                return negotiator.newHandler(grpcHandler);
+            }
 
-      @Override
-      public ChannelHandler newHandler(GrpcHttp2ConnectionHandler grpcHandler) {
-        return negotiator.newHandler(grpcHandler);
-      }
+            @Override
+            public void close() {
+                negotiator.close();
+            }
+        }
 
-      @Override
-      public void close() {
-        negotiator.close();
-      }
+        return new TlsNegotiator();
     }
 
-    return new ServerPlaintextNegotiator();
-  }
+    /**
+     * Returns a {@link ProtocolNegotiator} that ensures the pipeline is set up so that TLS will be
+     * negotiated, the server TLS {@code handler} is added and writes to the {@link
+     * io.netty.channel.Channel} may happen immediately, even before the TLS Handshake is complete.
+     */
+    public static InternalProtocolNegotiator.ProtocolNegotiator serverTls(SslContext sslContext) {
+        final io.grpc.netty.ProtocolNegotiator negotiator = ProtocolNegotiators.serverTls(sslContext);
+        final class ServerTlsNegotiator implements InternalProtocolNegotiator.ProtocolNegotiator {
 
-  /**
-   * Internal version of {@link WaitUntilActiveHandler}.
-   */
-  public static ChannelHandler waitUntilActiveHandler(ChannelHandler next) {
-    return new WaitUntilActiveHandler(next);
-  }
+            @Override
+            public AsciiString scheme() {
+                return negotiator.scheme();
+            }
 
-  /**
-   * Internal version of {@link GrpcNegotiationHandler}.
-   */
-  public static ChannelHandler grpcNegotiationHandler(GrpcHttp2ConnectionHandler next) {
-    return new GrpcNegotiationHandler(next);
-  }
+            @Override
+            public ChannelHandler newHandler(GrpcHttp2ConnectionHandler grpcHandler) {
+                return negotiator.newHandler(grpcHandler);
+            }
 
-  public static ChannelHandler clientTlsHandler(
-      ChannelHandler next, SslContext sslContext, String authority) {
-    return new ClientTlsHandler(next, sslContext, authority, null);
-  }
+            @Override
+            public void close() {
+                negotiator.close();
+            }
+        }
 
-  public static class ProtocolNegotiationHandler
-      extends ProtocolNegotiators.ProtocolNegotiationHandler {
-
-    protected ProtocolNegotiationHandler(ChannelHandler next, String negotiatorName) {
-      super(next, negotiatorName);
+        return new ServerTlsNegotiator();
     }
 
-    protected ProtocolNegotiationHandler(ChannelHandler next) {
-      super(next);
+    /**
+     * Returns a {@link ProtocolNegotiator} for plaintext client channel.
+     */
+    public static InternalProtocolNegotiator.ProtocolNegotiator plaintext() {
+        final io.grpc.netty.ProtocolNegotiator negotiator = ProtocolNegotiators.plaintext();
+        final class PlaintextNegotiator implements InternalProtocolNegotiator.ProtocolNegotiator {
+
+            @Override
+            public AsciiString scheme() {
+                return negotiator.scheme();
+            }
+
+            @Override
+            public ChannelHandler newHandler(GrpcHttp2ConnectionHandler grpcHandler) {
+                return negotiator.newHandler(grpcHandler);
+            }
+
+            @Override
+            public void close() {
+                negotiator.close();
+            }
+        }
+
+        return new PlaintextNegotiator();
     }
-  }
+
+    /**
+     * Returns a {@link ProtocolNegotiator} for plaintext server channel.
+     */
+    public static InternalProtocolNegotiator.ProtocolNegotiator serverPlaintext() {
+        final io.grpc.netty.ProtocolNegotiator negotiator = ProtocolNegotiators.serverPlaintext();
+        final class ServerPlaintextNegotiator implements InternalProtocolNegotiator.ProtocolNegotiator {
+
+            @Override
+            public AsciiString scheme() {
+                return negotiator.scheme();
+            }
+
+            @Override
+            public ChannelHandler newHandler(GrpcHttp2ConnectionHandler grpcHandler) {
+                return negotiator.newHandler(grpcHandler);
+            }
+
+            @Override
+            public void close() {
+                negotiator.close();
+            }
+        }
+
+        return new ServerPlaintextNegotiator();
+    }
+
+    /**
+     * Internal version of {@link WaitUntilActiveHandler}.
+     */
+    public static ChannelHandler waitUntilActiveHandler(ChannelHandler next) {
+        return new WaitUntilActiveHandler(next);
+    }
+
+    /**
+     * Internal version of {@link GrpcNegotiationHandler}.
+     */
+    public static ChannelHandler grpcNegotiationHandler(GrpcHttp2ConnectionHandler next) {
+        return new GrpcNegotiationHandler(next);
+    }
+
+    public static ChannelHandler clientTlsHandler(
+            ChannelHandler next, SslContext sslContext, String authority) {
+        return new ClientTlsHandler(next, sslContext, authority, null);
+    }
+
+    public static class ProtocolNegotiationHandler
+            extends ProtocolNegotiators.ProtocolNegotiationHandler {
+
+        protected ProtocolNegotiationHandler(ChannelHandler next, String negotiatorName) {
+            super(next, negotiatorName);
+        }
+
+        protected ProtocolNegotiationHandler(ChannelHandler next) {
+            super(next);
+        }
+    }
 }

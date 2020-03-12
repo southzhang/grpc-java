@@ -24,53 +24,53 @@ import java.security.GeneralSecurityException;
  * nonces. Authenticated additional data is supported.
  */
 interface AeadCrypter {
-  /**
-   * Encrypt plaintext into ciphertext buffer using the given nonce.
-   *
-   * @param ciphertext the encrypted plaintext and the tag will be written into this buffer.
-   * @param plaintext the input that should be encrypted.
-   * @param nonce the unique nonce used for the encryption.
-   * @throws GeneralSecurityException if ciphertext buffer is short or the nonce does not have the
-   *     expected size.
-   */
-  void encrypt(ByteBuffer ciphertext, ByteBuffer plaintext, byte[] nonce)
-      throws GeneralSecurityException;
+    /**
+     * Encrypt plaintext into ciphertext buffer using the given nonce.
+     *
+     * @param ciphertext the encrypted plaintext and the tag will be written into this buffer.
+     * @param plaintext  the input that should be encrypted.
+     * @param nonce      the unique nonce used for the encryption.
+     * @throws GeneralSecurityException if ciphertext buffer is short or the nonce does not have the
+     *                                  expected size.
+     */
+    void encrypt(ByteBuffer ciphertext, ByteBuffer plaintext, byte[] nonce)
+            throws GeneralSecurityException;
 
-  /**
-   * Encrypt plaintext into ciphertext buffer using the given nonce with authenticated data.
-   *
-   * @param ciphertext the encrypted plaintext and the tag will be written into this buffer.
-   * @param plaintext the input that should be encrypted.
-   * @param aad additional data that should be authenticated, but not encrypted.
-   * @param nonce the unique nonce used for the encryption.
-   * @throws GeneralSecurityException if ciphertext buffer is short or the nonce does not have the
-   *     expected size.
-   */
-  void encrypt(ByteBuffer ciphertext, ByteBuffer plaintext, ByteBuffer aad, byte[] nonce)
-      throws GeneralSecurityException;
+    /**
+     * Encrypt plaintext into ciphertext buffer using the given nonce with authenticated data.
+     *
+     * @param ciphertext the encrypted plaintext and the tag will be written into this buffer.
+     * @param plaintext  the input that should be encrypted.
+     * @param aad        additional data that should be authenticated, but not encrypted.
+     * @param nonce      the unique nonce used for the encryption.
+     * @throws GeneralSecurityException if ciphertext buffer is short or the nonce does not have the
+     *                                  expected size.
+     */
+    void encrypt(ByteBuffer ciphertext, ByteBuffer plaintext, ByteBuffer aad, byte[] nonce)
+            throws GeneralSecurityException;
 
-  /**
-   * Decrypt ciphertext into plaintext buffer using the given nonce.
-   *
-   * @param plaintext the decrypted plaintext will be written into this buffer.
-   * @param ciphertext the ciphertext and tag that should be decrypted.
-   * @param nonce the nonce that was used for the encryption.
-   * @throws GeneralSecurityException if the tag is invalid or any of the inputs do not have the
-   *     expected size.
-   */
-  void decrypt(ByteBuffer plaintext, ByteBuffer ciphertext, byte[] nonce)
-      throws GeneralSecurityException;
+    /**
+     * Decrypt ciphertext into plaintext buffer using the given nonce.
+     *
+     * @param plaintext  the decrypted plaintext will be written into this buffer.
+     * @param ciphertext the ciphertext and tag that should be decrypted.
+     * @param nonce      the nonce that was used for the encryption.
+     * @throws GeneralSecurityException if the tag is invalid or any of the inputs do not have the
+     *                                  expected size.
+     */
+    void decrypt(ByteBuffer plaintext, ByteBuffer ciphertext, byte[] nonce)
+            throws GeneralSecurityException;
 
-  /**
-   * Decrypt ciphertext into plaintext buffer using the given nonce.
-   *
-   * @param plaintext the decrypted plaintext will be written into this buffer.
-   * @param ciphertext the ciphertext and tag that should be decrypted.
-   * @param aad additional data that is checked for authenticity.
-   * @param nonce the nonce that was used for the encryption.
-   * @throws GeneralSecurityException if the tag is invalid or any of the inputs do not have the
-   *     expected size.
-   */
-  void decrypt(ByteBuffer plaintext, ByteBuffer ciphertext, ByteBuffer aad, byte[] nonce)
-      throws GeneralSecurityException;
+    /**
+     * Decrypt ciphertext into plaintext buffer using the given nonce.
+     *
+     * @param plaintext  the decrypted plaintext will be written into this buffer.
+     * @param ciphertext the ciphertext and tag that should be decrypted.
+     * @param aad        additional data that is checked for authenticity.
+     * @param nonce      the nonce that was used for the encryption.
+     * @throws GeneralSecurityException if the tag is invalid or any of the inputs do not have the
+     *                                  expected size.
+     */
+    void decrypt(ByteBuffer plaintext, ByteBuffer ciphertext, ByteBuffer aad, byte[] nonce)
+            throws GeneralSecurityException;
 }

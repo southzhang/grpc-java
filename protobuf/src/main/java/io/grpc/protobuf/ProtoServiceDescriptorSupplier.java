@@ -24,8 +24,8 @@ import com.google.protobuf.Descriptors.ServiceDescriptor;
  * @since 1.7.0
  */
 public interface ProtoServiceDescriptorSupplier extends ProtoFileDescriptorSupplier {
-  /**
-   * Returns service descriptor to the proto service.
-   */
-  ServiceDescriptor getServiceDescriptor();
+    /**
+     * Returns service descriptor to the proto service.
+     */
+    ServiceDescriptor getServiceDescriptor();
 }

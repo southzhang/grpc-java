@@ -17,70 +17,66 @@
 package io.grpc.util;
 
 import com.google.common.base.MoreObjects;
-import io.grpc.Attributes;
-import io.grpc.Channel;
-import io.grpc.ChannelLogger;
-import io.grpc.EquivalentAddressGroup;
-import io.grpc.ExperimentalApi;
-import io.grpc.LoadBalancer;
+import io.grpc.*;
 import io.grpc.LoadBalancer.Subchannel;
 import io.grpc.LoadBalancer.SubchannelStateListener;
+
 import java.util.List;
 
 @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1771")
 public abstract class ForwardingSubchannel extends LoadBalancer.Subchannel {
-  /**
-   * Returns the underlying Subchannel.
-   */
-  protected abstract Subchannel delegate();
+    /**
+     * Returns the underlying Subchannel.
+     */
+    protected abstract Subchannel delegate();
 
-  @Override
-  public void start(SubchannelStateListener listener) {
-    delegate().start(listener);
-  }
+    @Override
+    public void start(SubchannelStateListener listener) {
+        delegate().start(listener);
+    }
 
-  @Override
-  public void shutdown() {
-    delegate().shutdown();
-  }
+    @Override
+    public void shutdown() {
+        delegate().shutdown();
+    }
 
-  @Override
-  public void requestConnection() {
-    delegate().requestConnection();
-  }
+    @Override
+    public void requestConnection() {
+        delegate().requestConnection();
+    }
 
-  @Override
-  public List<EquivalentAddressGroup> getAllAddresses() {
-    return delegate().getAllAddresses();
-  }
+    @Override
+    public List<EquivalentAddressGroup> getAllAddresses() {
+        return delegate().getAllAddresses();
+    }
 
-  @Override
-  public Attributes getAttributes() {
-    return delegate().getAttributes();
-  }
+    @Override
+    public Attributes getAttributes() {
+        return delegate().getAttributes();
+    }
 
-  @Override
-  public Channel asChannel() {
-    return delegate().asChannel();
-  }
+    @Override
+    public Channel asChannel() {
+        return delegate().asChannel();
+    }
 
-  @Override
-  public ChannelLogger getChannelLogger() {
-    return delegate().getChannelLogger();
-  }
+    @Override
+    public ChannelLogger getChannelLogger() {
+        return delegate().getChannelLogger();
+    }
 
-  @Override
-  public Object getInternalSubchannel() {
-    return delegate().getInternalSubchannel();
-  }
+    @Override
+    public Object getInternalSubchannel() {
+        return delegate().getInternalSubchannel();
+    }
 
-  @Override
-  public void updateAddresses(List<EquivalentAddressGroup> addrs) {
-    delegate().updateAddresses(addrs);
-  }
+    @Override
+    public void updateAddresses(List<EquivalentAddressGroup> addrs) {
+        delegate().updateAddresses(addrs);
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this).add("delegate", delegate()).toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("delegate", delegate()).toString();
+    }
 }

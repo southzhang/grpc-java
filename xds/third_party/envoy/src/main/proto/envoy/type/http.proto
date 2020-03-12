@@ -9,12 +9,12 @@ option java_multiple_files = true;
 // [#protodoc-title: HTTP]
 
 enum CodecClientType {
-  HTTP1 = 0;
+    HTTP1 = 0;
 
-  HTTP2 = 1;
+    HTTP2 = 1;
 
-  // [#not-implemented-hide:] QUIC implementation is not production ready yet. Use this enum with
-  // caution to prevent accidental execution of QUIC code. I.e. `!= HTTP2` is no longer sufficient
-  // to distinguish HTTP1 and HTTP2 traffic.
-  HTTP3 = 2;
+    // [#not-implemented-hide:] QUIC implementation is not production ready yet. Use this enum with
+    // caution to prevent accidental execution of QUIC code. I.e. `!= HTTP2` is no longer sufficient
+    // to distinguish HTTP1 and HTTP2 traffic.
+    HTTP3 = 2;
 }

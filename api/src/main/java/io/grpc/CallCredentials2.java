@@ -26,48 +26,49 @@ import java.util.concurrent.Executor;
  * All consumers should be always referencing {@link CallCredentials}.
  *
  * @deprecated the new interface has been promoted into {@link CallCredentials}.  Implementations
- *             should switch back to "{@code extends CallCredentials}".
+ * should switch back to "{@code extends CallCredentials}".
  */
 @Deprecated
 @ExperimentalApi("https://github.com/grpc/grpc-java/issues/4901")
 public abstract class CallCredentials2 extends CallCredentials {
-  /**
-   * Pass the credential data to the given {@link MetadataApplier}, which will propagate it to the
-   * request metadata.
-   *
-   * <p>It is called for each individual RPC, within the {@link Context} of the call, before the
-   * stream is about to be created on a transport. Implementations should not block in this
-   * method. If metadata is not immediately available, e.g., needs to be fetched from network, the
-   * implementation may give the {@code applier} to an asynchronous task which will eventually call
-   * the {@code applier}. The RPC proceeds only after the {@code applier} is called.
-   *
-   * @param requestInfo request-related information
-   * @param appExecutor The application thread-pool. It is provided to the implementation in case it
-   *        needs to perform blocking operations.
-   * @param applier The outlet of the produced headers. It can be called either before or after this
-   *        method returns.
-   */
-  @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1914")
-  public abstract void applyRequestMetadata(
-      RequestInfo requestInfo, Executor appExecutor, MetadataApplier applier);
+    /**
+     * Pass the credential data to the given {@link MetadataApplier}, which will propagate it to the
+     * request metadata.
+     *
+     * <p>It is called for each individual RPC, within the {@link Context} of the call, before the
+     * stream is about to be created on a transport. Implementations should not block in this
+     * method. If metadata is not immediately available, e.g., needs to be fetched from network, the
+     * implementation may give the {@code applier} to an asynchronous task which will eventually call
+     * the {@code applier}. The RPC proceeds only after the {@code applier} is called.
+     *
+     * @param requestInfo request-related information
+     * @param appExecutor The application thread-pool. It is provided to the implementation in case it
+     *                    needs to perform blocking operations.
+     * @param applier     The outlet of the produced headers. It can be called either before or after this
+     *                    method returns.
+     */
+    @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1914")
+    public abstract void applyRequestMetadata(
+            RequestInfo requestInfo, Executor appExecutor, MetadataApplier applier);
 
-  @Override
-  public final void applyRequestMetadata(
-      RequestInfo requestInfo, Executor appExecutor,
-      final CallCredentials.MetadataApplier applier) {
-    applyRequestMetadata(requestInfo, appExecutor, new MetadataApplier() {
-        @Override
-        public void apply(Metadata headers) {
-          applier.apply(headers);
-        }
+    @Override
+    public final void applyRequestMetadata(
+            RequestInfo requestInfo, Executor appExecutor,
+            final CallCredentials.MetadataApplier applier) {
+        applyRequestMetadata(requestInfo, appExecutor, new MetadataApplier() {
+            @Override
+            public void apply(Metadata headers) {
+                applier.apply(headers);
+            }
 
-        @Override
-        public void fail(Status status) {
-          applier.fail(status);
-        }
-      });
-  }
+            @Override
+            public void fail(Status status) {
+                applier.fail(status);
+            }
+        });
+    }
 
-  @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1914")
-  public abstract static class MetadataApplier extends CallCredentials.MetadataApplier {}
+    @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1914")
+    public abstract static class MetadataApplier extends CallCredentials.MetadataApplier {
+    }
 }

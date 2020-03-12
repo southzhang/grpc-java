@@ -16,29 +16,29 @@
 
 package io.grpc.cronet;
 
-import static org.junit.Assert.assertEquals;
-
 import io.grpc.internal.WritableBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import static org.junit.Assert.assertEquals;
+
 @RunWith(JUnit4.class)
 public final class CronetWritableBufferAllocatorTest {
 
-  @Test
-  public void testAllocate() throws Exception {
-    CronetWritableBufferAllocator allocator = new CronetWritableBufferAllocator();
-    WritableBuffer buffer = allocator.allocate(1000);
-    assertEquals(1000, buffer.writableBytes());
-  }
+    @Test
+    public void testAllocate() throws Exception {
+        CronetWritableBufferAllocator allocator = new CronetWritableBufferAllocator();
+        WritableBuffer buffer = allocator.allocate(1000);
+        assertEquals(1000, buffer.writableBytes());
+    }
 
-  @Test
-  public void testAllocateLargeBuffer() throws Exception {
-    CronetWritableBufferAllocator allocator = new CronetWritableBufferAllocator();
-    // Ask for 1GB
-    WritableBuffer buffer = allocator.allocate(1024 * 1024 * 1024);
-    // Only get 1MB
-    assertEquals(1024 * 1024, buffer.writableBytes());
-  }
+    @Test
+    public void testAllocateLargeBuffer() throws Exception {
+        CronetWritableBufferAllocator allocator = new CronetWritableBufferAllocator();
+        // Ask for 1GB
+        WritableBuffer buffer = allocator.allocate(1024 * 1024 * 1024);
+        // Only get 1MB
+        assertEquals(1024 * 1024, buffer.writableBytes());
+    }
 }

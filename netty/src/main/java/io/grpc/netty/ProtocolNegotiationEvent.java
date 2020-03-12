@@ -16,15 +16,16 @@
 
 package io.grpc.netty;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import io.grpc.Attributes;
 import io.grpc.Internal;
 import io.grpc.InternalChannelz.Security;
+
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Represents a completion of a protocol negotiation stage.
@@ -33,58 +34,58 @@ import javax.annotation.Nullable;
 @Internal
 public final class ProtocolNegotiationEvent {
 
-  static final ProtocolNegotiationEvent DEFAULT =
-      new ProtocolNegotiationEvent(Attributes.EMPTY, /*security=*/ null);
+    static final ProtocolNegotiationEvent DEFAULT =
+            new ProtocolNegotiationEvent(Attributes.EMPTY, /*security=*/ null);
 
-  private final Attributes attributes;
-  @Nullable
-  private final Security security;
+    private final Attributes attributes;
+    @Nullable
+    private final Security security;
 
-  private ProtocolNegotiationEvent(Attributes attributes, @Nullable Security security) {
-    this.attributes = checkNotNull(attributes, "attributes");
-    this.security = security;
-  }
-
-  @Nullable
-  Security getSecurity() {
-    return security;
-  }
-
-  Attributes getAttributes() {
-    return attributes;
-  }
-
-  ProtocolNegotiationEvent withAttributes(Attributes attributes) {
-    return new ProtocolNegotiationEvent(attributes, this.security);
-  }
-
-  ProtocolNegotiationEvent withSecurity(@Nullable Security security) {
-    return new ProtocolNegotiationEvent(this.attributes, security);
-  }
-
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("attributes", attributes)
-        .add("security", security)
-        .toString();
-  }
-
-  /**
-   * This method is not efficient and is intended for testing.
-   */
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(attributes, security);
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (!(other instanceof ProtocolNegotiationEvent)) {
-      return false;
+    private ProtocolNegotiationEvent(Attributes attributes, @Nullable Security security) {
+        this.attributes = checkNotNull(attributes, "attributes");
+        this.security = security;
     }
-    ProtocolNegotiationEvent that = (ProtocolNegotiationEvent) other;
-    return Objects.equal(this.attributes, that.attributes)
-        && Objects.equal(this.security, that.security);
-  }
+
+    @Nullable
+    Security getSecurity() {
+        return security;
+    }
+
+    Attributes getAttributes() {
+        return attributes;
+    }
+
+    ProtocolNegotiationEvent withAttributes(Attributes attributes) {
+        return new ProtocolNegotiationEvent(attributes, this.security);
+    }
+
+    ProtocolNegotiationEvent withSecurity(@Nullable Security security) {
+        return new ProtocolNegotiationEvent(this.attributes, security);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("attributes", attributes)
+                .add("security", security)
+                .toString();
+    }
+
+    /**
+     * This method is not efficient and is intended for testing.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(attributes, security);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof ProtocolNegotiationEvent)) {
+            return false;
+        }
+        ProtocolNegotiationEvent that = (ProtocolNegotiationEvent) other;
+        return Objects.equal(this.attributes, that.attributes)
+                && Objects.equal(this.security, that.security);
+    }
 }

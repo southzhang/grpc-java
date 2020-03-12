@@ -23,8 +23,8 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public final class AltsServerBuilderTest {
 
-  @Test
-  public void buildsNettyServer() throws Exception {
-    AltsServerBuilder.forPort(1234).enableUntrustedAltsForTesting().build();
-  }
+    @Test
+    public void buildsNettyServer() throws Exception {
+        AltsServerBuilder.forPort(1234).enableUntrustedAltsForTesting().build();
+    }
 }

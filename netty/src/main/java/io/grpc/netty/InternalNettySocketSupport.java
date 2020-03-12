@@ -18,6 +18,7 @@ package io.grpc.netty;
 
 import io.grpc.Internal;
 import io.grpc.InternalChannelz.TcpInfo;
+
 import java.util.Map;
 
 /**
@@ -26,21 +27,22 @@ import java.util.Map;
 @Internal
 public final class InternalNettySocketSupport {
 
-  public interface InternalHelper extends NettySocketSupport.Helper {
-    @Override
-    InternalNativeSocketOptions getNativeSocketOptions(io.netty.channel.Channel ch);
-  }
-
-  public static final class InternalNativeSocketOptions
-      extends NettySocketSupport.NativeSocketOptions {
-    public InternalNativeSocketOptions(TcpInfo tcpInfo, Map<String, String> otherInfo) {
-      super(tcpInfo, otherInfo);
+    public interface InternalHelper extends NettySocketSupport.Helper {
+        @Override
+        InternalNativeSocketOptions getNativeSocketOptions(io.netty.channel.Channel ch);
     }
-  }
 
-  public static void setHelper(InternalHelper helper) {
-    NettySocketSupport.setHelper(helper);
-  }
+    public static final class InternalNativeSocketOptions
+            extends NettySocketSupport.NativeSocketOptions {
+        public InternalNativeSocketOptions(TcpInfo tcpInfo, Map<String, String> otherInfo) {
+            super(tcpInfo, otherInfo);
+        }
+    }
 
-  private InternalNettySocketSupport() {}
+    public static void setHelper(InternalHelper helper) {
+        NettySocketSupport.setHelper(helper);
+    }
+
+    private InternalNettySocketSupport() {
+    }
 }

@@ -21,44 +21,44 @@ import okio.Buffer;
 
 class OkHttpWritableBuffer implements WritableBuffer {
 
-  private final Buffer buffer;
-  private int writableBytes;
-  private int readableBytes;
+    private final Buffer buffer;
+    private int writableBytes;
+    private int readableBytes;
 
-  OkHttpWritableBuffer(Buffer buffer, int capacity) {
-    this.buffer = buffer;
-    writableBytes = capacity;
-  }
+    OkHttpWritableBuffer(Buffer buffer, int capacity) {
+        this.buffer = buffer;
+        writableBytes = capacity;
+    }
 
-  @Override
-  public void write(byte[] src, int srcIndex, int length) {
-    buffer.write(src, srcIndex, length);
-    writableBytes -= length;
-    readableBytes += length;
-  }
+    @Override
+    public void write(byte[] src, int srcIndex, int length) {
+        buffer.write(src, srcIndex, length);
+        writableBytes -= length;
+        readableBytes += length;
+    }
 
-  @Override
-  public void write(byte b) {
-    buffer.writeByte(b);
-    writableBytes -= 1;
-    readableBytes += 1;
-  }
+    @Override
+    public void write(byte b) {
+        buffer.writeByte(b);
+        writableBytes -= 1;
+        readableBytes += 1;
+    }
 
-  @Override
-  public int writableBytes() {
-    return writableBytes;
-  }
+    @Override
+    public int writableBytes() {
+        return writableBytes;
+    }
 
-  @Override
-  public int readableBytes() {
-    return readableBytes;
-  }
+    @Override
+    public int readableBytes() {
+        return readableBytes;
+    }
 
-  @Override
-  public void release() {
-  }
+    @Override
+    public void release() {
+    }
 
-  Buffer buffer() {
-    return buffer;
-  }
+    Buffer buffer() {
+        return buffer;
+    }
 }

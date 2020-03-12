@@ -16,27 +16,27 @@
 
 package io.grpc.alts.internal;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link AltsHandshakerOptions}. */
+/**
+ * Unit tests for {@link AltsHandshakerOptions}.
+ */
 @RunWith(JUnit4.class)
 public final class AltsHandshakerOptionsTest {
 
-  @Test
-  public void setAndGet() throws Exception {
-    RpcProtocolVersions rpcVersions =
-        RpcProtocolVersions.newBuilder()
-            .setMaxRpcVersion(
-                RpcProtocolVersions.Version.newBuilder().setMajor(2).setMinor(1).build())
-            .setMinRpcVersion(
-                RpcProtocolVersions.Version.newBuilder().setMajor(2).setMinor(1).build())
-            .build();
+    @Test
+    public void setAndGet() throws Exception {
+        RpcProtocolVersions rpcVersions =
+                RpcProtocolVersions.newBuilder()
+                        .setMaxRpcVersion(
+                                RpcProtocolVersions.Version.newBuilder().setMajor(2).setMinor(1).build())
+                        .setMinRpcVersion(
+                                RpcProtocolVersions.Version.newBuilder().setMajor(2).setMinor(1).build())
+                        .build();
 
-    AltsHandshakerOptions options = new AltsHandshakerOptions(rpcVersions);
-    assertThat(options.getRpcProtocolVersions()).isEqualTo(rpcVersions);
-  }
+        AltsHandshakerOptions options = new AltsHandshakerOptions(rpcVersions);
+        assertThat(options.getRpcProtocolVersions()).isEqualTo(rpcVersions);
+    }
 }

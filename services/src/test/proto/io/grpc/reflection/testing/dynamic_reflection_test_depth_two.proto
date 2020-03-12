@@ -20,18 +20,18 @@ option java_outer_classname = "DynamicReflectionTestDepthTwoProto";
 package grpc.reflection.testing;
 
 message DynamicRequest {
-  optional string message = 1;
+    optional string message = 1;
 }
 
 message DynamicReply {
-  optional string message = 1;
+    optional string message = 1;
 }
 
 message TypeWithExtensions {
-  optional string message = 1;
-  extensions 200 to 299;
+    optional string message = 1;
+    extensions 200 to 299;
 }
 
 extend TypeWithExtensions {
-  optional int32 extension = 200;
+    optional int32 extension = 200;
 }

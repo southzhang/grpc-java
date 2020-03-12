@@ -18,34 +18,36 @@ package io.grpc.netty;
 
 import io.grpc.Attributes;
 import io.grpc.InternalChannelz.Security;
+
 import javax.annotation.Nullable;
 
 /**
  * Internal accessor for {@link ProtocolNegotiationEvent}.
  */
 public final class InternalProtocolNegotiationEvent {
-  private InternalProtocolNegotiationEvent() {}
+    private InternalProtocolNegotiationEvent() {
+    }
 
-  public static ProtocolNegotiationEvent getDefault() {
-    return ProtocolNegotiationEvent.DEFAULT;
-  }
+    public static ProtocolNegotiationEvent getDefault() {
+        return ProtocolNegotiationEvent.DEFAULT;
+    }
 
-  public static ProtocolNegotiationEvent withAttributes(
-      ProtocolNegotiationEvent event, Attributes attributes) {
-    return event.withAttributes(attributes);
-  }
+    public static ProtocolNegotiationEvent withAttributes(
+            ProtocolNegotiationEvent event, Attributes attributes) {
+        return event.withAttributes(attributes);
+    }
 
-  public static ProtocolNegotiationEvent withSecurity(
-      ProtocolNegotiationEvent event, @Nullable Security security) {
-    return event.withSecurity(security);
-  }
+    public static ProtocolNegotiationEvent withSecurity(
+            ProtocolNegotiationEvent event, @Nullable Security security) {
+        return event.withSecurity(security);
+    }
 
-  public static Attributes getAttributes(ProtocolNegotiationEvent event) {
-    return event.getAttributes();
-  }
+    public static Attributes getAttributes(ProtocolNegotiationEvent event) {
+        return event.getAttributes();
+    }
 
-  @Nullable
-  public static Security getSecurity(ProtocolNegotiationEvent event) {
-    return event.getSecurity();
-  }
+    @Nullable
+    public static Security getSecurity(ProtocolNegotiationEvent event) {
+        return event.getSecurity();
+    }
 }

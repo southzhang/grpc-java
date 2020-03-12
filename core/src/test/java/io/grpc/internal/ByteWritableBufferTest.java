@@ -16,25 +16,26 @@
 
 package io.grpc.internal;
 
-import java.util.Arrays;
 import org.junit.Before;
+
+import java.util.Arrays;
 
 public class ByteWritableBufferTest extends WritableBufferTestBase {
 
-  private MessageFramerTest.ByteWritableBuffer buffer;
+    private MessageFramerTest.ByteWritableBuffer buffer;
 
-  @Before
-  public void setup() {
-    buffer = new MessageFramerTest.ByteWritableBuffer(100);
-  }
+    @Before
+    public void setup() {
+        buffer = new MessageFramerTest.ByteWritableBuffer(100);
+    }
 
-  @Override
-  protected WritableBuffer buffer() {
-    return buffer;
-  }
+    @Override
+    protected WritableBuffer buffer() {
+        return buffer;
+    }
 
-  @Override
-  protected byte[] writtenBytes() {
-    return Arrays.copyOf(buffer.data, buffer.readableBytes());
-  }
+    @Override
+    protected byte[] writtenBytes() {
+        return Arrays.copyOf(buffer.data, buffer.readableBytes());
+    }
 }

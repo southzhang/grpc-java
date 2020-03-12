@@ -18,24 +18,25 @@ package io.grpc.cronet;
 
 import io.grpc.internal.WritableBuffer;
 import io.grpc.internal.WritableBufferAllocator;
+
 import java.nio.ByteBuffer;
 
 /**
  * The default allocator for {@link CronetWritableBuffer}s used by the Cronet transport.
  */
 class CronetWritableBufferAllocator implements WritableBufferAllocator {
-  // Set the maximum buffer size to 1MB
-  private static final int MAX_BUFFER = 1024 * 1024;
+    // Set the maximum buffer size to 1MB
+    private static final int MAX_BUFFER = 1024 * 1024;
 
-  /**
-   * Construct a new instance.
-   */
-  CronetWritableBufferAllocator() {
-  }
+    /**
+     * Construct a new instance.
+     */
+    CronetWritableBufferAllocator() {
+    }
 
-  @Override
-  public WritableBuffer allocate(int capacityHint) {
-    capacityHint = Math.min(MAX_BUFFER, capacityHint);
-    return new CronetWritableBuffer(ByteBuffer.allocateDirect(capacityHint), capacityHint);
-  }
+    @Override
+    public WritableBuffer allocate(int capacityHint) {
+        capacityHint = Math.min(MAX_BUFFER, capacityHint);
+        return new CronetWritableBuffer(ByteBuffer.allocateDirect(capacityHint), capacityHint);
+    }
 }

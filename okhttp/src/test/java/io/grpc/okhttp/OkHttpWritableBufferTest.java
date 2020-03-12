@@ -29,20 +29,20 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class OkHttpWritableBufferTest extends WritableBufferTestBase {
 
-  private OkHttpWritableBuffer buffer;
+    private OkHttpWritableBuffer buffer;
 
-  @Before
-  public void setup() {
-    buffer = new OkHttpWritableBuffer(new Buffer(), 100);
-  }
+    @Before
+    public void setup() {
+        buffer = new OkHttpWritableBuffer(new Buffer(), 100);
+    }
 
-  @Override
-  protected WritableBuffer buffer() {
-    return buffer;
-  }
+    @Override
+    protected WritableBuffer buffer() {
+        return buffer;
+    }
 
-  @Override
-  protected byte[] writtenBytes() {
-    return buffer.buffer().readByteArray();
-  }
+    @Override
+    protected byte[] writtenBytes() {
+        return buffer.buffer().readByteArray();
+    }
 }

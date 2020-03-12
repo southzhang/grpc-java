@@ -20,29 +20,33 @@ import io.grpc.ServerCall;
 import io.grpc.Status;
 import io.grpc.alts.internal.AltsAuthContext;
 import io.grpc.alts.internal.AltsProtocolNegotiator;
+
 import java.util.Collection;
 
-/** Utility class for ALTS client authorization. */
+/**
+ * Utility class for ALTS client authorization.
+ */
 public final class AuthorizationUtil {
 
-  private AuthorizationUtil() {}
+    private AuthorizationUtil() {
+    }
 
-  /**
-   * Given a server call, performs client authorization check, i.e., checks if the client service
-   * account matches one of the expected service accounts. It returns OK if client is authorized and
-   * an error otherwise.
-   */
-  public static Status clientAuthorizationCheck(
-      ServerCall<?, ?> call, Collection<String> expectedServiceAccounts) {
-    AltsAuthContext altsContext =
-        (AltsAuthContext) call.getAttributes().get(AltsProtocolNegotiator.AUTH_CONTEXT_KEY);
-    if (altsContext == null) {
-      return Status.PERMISSION_DENIED.withDescription("Peer ALTS AuthContext not found");
+    /**
+     * Given a server call, performs client authorization check, i.e., checks if the client service
+     * account matches one of the expected service accounts. It returns OK if client is authorized and
+     * an error otherwise.
+     */
+    public static Status clientAuthorizationCheck(
+            ServerCall<?, ?> call, Collection<String> expectedServiceAccounts) {
+        AltsAuthContext altsContext =
+                (AltsAuthContext) call.getAttributes().get(AltsProtocolNegotiator.AUTH_CONTEXT_KEY);
+        if (altsContext == null) {
+            return Status.PERMISSION_DENIED.withDescription("Peer ALTS AuthContext not found");
+        }
+        if (expectedServiceAccounts.contains(altsContext.getPeerServiceAccount())) {
+            return Status.OK;
+        }
+        return Status.PERMISSION_DENIED.withDescription(
+                "Client " + altsContext.getPeerServiceAccount() + " is not authorized");
     }
-    if (expectedServiceAccounts.contains(altsContext.getPeerServiceAccount())) {
-      return Status.OK;
-    }
-    return Status.PERMISSION_DENIED.withDescription(
-        "Client " + altsContext.getPeerServiceAccount() + " is not authorized");
-  }
 }

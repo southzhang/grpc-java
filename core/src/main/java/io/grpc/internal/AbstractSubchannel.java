@@ -27,10 +27,10 @@ import io.grpc.LoadBalancer;
  */
 abstract class AbstractSubchannel extends LoadBalancer.Subchannel {
 
-  /**
-   * Returns the InternalSubchannel as an {@code Instrumented<T>} for the sole purpose of channelz
-   * unit tests.
-   */
-  @VisibleForTesting
-  abstract InternalInstrumented<ChannelStats> getInstrumentedInternalSubchannel();
+    /**
+     * Returns the InternalSubchannel as an {@code Instrumented<T>} for the sole purpose of channelz
+     * unit tests.
+     */
+    @VisibleForTesting
+    abstract InternalInstrumented<ChannelStats> getInstrumentedInternalSubchannel();
 }

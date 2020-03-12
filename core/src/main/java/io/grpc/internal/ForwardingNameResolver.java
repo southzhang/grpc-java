@@ -16,50 +16,50 @@
 
 package io.grpc.internal;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.base.MoreObjects;
 import io.grpc.NameResolver;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
-* A forwarding class to ensure non overridden methods are forwarded to the delegate.
+ * A forwarding class to ensure non overridden methods are forwarded to the delegate.
  */
 abstract class ForwardingNameResolver extends NameResolver {
-  private final NameResolver delegate;
+    private final NameResolver delegate;
 
-  ForwardingNameResolver(NameResolver delegate) {
-    checkNotNull(delegate, "delegate can not be null");
-    this.delegate = delegate;
-  }
+    ForwardingNameResolver(NameResolver delegate) {
+        checkNotNull(delegate, "delegate can not be null");
+        this.delegate = delegate;
+    }
 
-  @Override
-  public String getServiceAuthority() {
-    return delegate.getServiceAuthority();
-  }
+    @Override
+    public String getServiceAuthority() {
+        return delegate.getServiceAuthority();
+    }
 
-  @Override
-  @Deprecated
-  public void start(Listener listener) {
-    delegate.start(listener);
-  }
+    @Override
+    @Deprecated
+    public void start(Listener listener) {
+        delegate.start(listener);
+    }
 
-  @Override
-  public void start(Listener2 listener) {
-    delegate.start(listener);
-  }
+    @Override
+    public void start(Listener2 listener) {
+        delegate.start(listener);
+    }
 
-  @Override
-  public void shutdown() {
-    delegate.shutdown();
-  }
+    @Override
+    public void shutdown() {
+        delegate.shutdown();
+    }
 
-  @Override
-  public void refresh() {
-    delegate.refresh();
-  }
+    @Override
+    public void refresh() {
+        delegate.refresh();
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this).add("delegate", delegate).toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("delegate", delegate).toString();
+    }
 }

@@ -16,28 +16,31 @@
 
 package io.grpc;
 
-import static com.google.common.base.Charsets.UTF_8;
-
 import com.google.common.io.ByteStreams;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-/** Marshalls UTF-8 encoded strings. */
+import static com.google.common.base.Charsets.UTF_8;
+
+/**
+ * Marshalls UTF-8 encoded strings.
+ */
 public class StringMarshaller implements MethodDescriptor.Marshaller<String> {
-  public static StringMarshaller INSTANCE = new StringMarshaller();
+    public static StringMarshaller INSTANCE = new StringMarshaller();
 
-  @Override
-  public InputStream stream(String value) {
-    return new ByteArrayInputStream(value.getBytes(UTF_8));
-  }
-
-  @Override
-  public String parse(InputStream stream) {
-    try {
-      return new String(ByteStreams.toByteArray(stream), UTF_8);
-    } catch (IOException ex) {
-      throw new RuntimeException(ex);
+    @Override
+    public InputStream stream(String value) {
+        return new ByteArrayInputStream(value.getBytes(UTF_8));
     }
-  }
+
+    @Override
+    public String parse(InputStream stream) {
+        try {
+            return new String(ByteStreams.toByteArray(stream), UTF_8);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 }

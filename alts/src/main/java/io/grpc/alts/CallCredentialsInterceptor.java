@@ -16,32 +16,30 @@
 
 package io.grpc.alts;
 
-import io.grpc.CallCredentials;
-import io.grpc.CallOptions;
-import io.grpc.Channel;
-import io.grpc.ClientCall;
-import io.grpc.ClientInterceptor;
-import io.grpc.MethodDescriptor;
-import io.grpc.Status;
+import io.grpc.*;
+
 import javax.annotation.Nullable;
 
-/** An implementation of {@link ClientInterceptor} that adds call credentials on each call. */
+/**
+ * An implementation of {@link ClientInterceptor} that adds call credentials on each call.
+ */
 final class CallCredentialsInterceptor implements ClientInterceptor {
 
-  @Nullable private final CallCredentials credentials;
-  private final Status status;
+    @Nullable
+    private final CallCredentials credentials;
+    private final Status status;
 
-  public CallCredentialsInterceptor(@Nullable CallCredentials credentials, Status status) {
-    this.credentials = credentials;
-    this.status = status;
-  }
-
-  @Override
-  public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
-      MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
-    if (!status.isOk()) {
-      return new FailingClientCall<>(status);
+    public CallCredentialsInterceptor(@Nullable CallCredentials credentials, Status status) {
+        this.credentials = credentials;
+        this.status = status;
     }
-    return next.newCall(method, callOptions.withCallCredentials(credentials));
-  }
+
+    @Override
+    public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+            MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
+        if (!status.isOk()) {
+            return new FailingClientCall<>(status);
+        }
+        return next.newCall(method, callOptions.withCallCredentials(credentials));
+    }
 }

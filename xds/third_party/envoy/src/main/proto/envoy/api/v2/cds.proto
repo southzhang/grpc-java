@@ -21,18 +21,18 @@ option (udpa.annotations.file_migrate).move_to_package = "envoy.service.cluster.
 
 // Return list of all clusters this proxy will load balance to.
 service ClusterDiscoveryService {
-  option (envoy.annotations.resource).type = "envoy.api.v2.Cluster";
+    option (envoy.annotations.resource).type = "envoy.api.v2.Cluster";
 
-  rpc StreamClusters(stream DiscoveryRequest) returns (stream DiscoveryResponse) {
-  }
+    rpc StreamClusters (stream DiscoveryRequest) returns (stream DiscoveryResponse) {
+    }
 
-  rpc DeltaClusters(stream DeltaDiscoveryRequest) returns (stream DeltaDiscoveryResponse) {
-  }
+    rpc DeltaClusters (stream DeltaDiscoveryRequest) returns (stream DeltaDiscoveryResponse) {
+    }
 
-  rpc FetchClusters(DiscoveryRequest) returns (DiscoveryResponse) {
-    option (google.api.http).post = "/v2/discovery:clusters";
-    option (google.api.http).body = "*";
-  }
+    rpc FetchClusters (DiscoveryRequest) returns (DiscoveryResponse) {
+        option (google.api.http).post = "/v2/discovery:clusters";
+        option (google.api.http).body = "*";
+    }
 }
 
 // [#not-implemented-hide:] Not configuration. Workaround c++ protobuf issue with importing

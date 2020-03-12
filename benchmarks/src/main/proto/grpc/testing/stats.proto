@@ -19,59 +19,59 @@ option java_package = "io.grpc.benchmarks.proto";
 option java_outer_classname = "Stats";
 
 message ServerStats {
-  // wall clock time change in seconds since last reset
-  double time_elapsed = 1;
+    // wall clock time change in seconds since last reset
+    double time_elapsed = 1;
 
-  // change in user time (in seconds) used by the server since last reset
-  double time_user = 2;
+    // change in user time (in seconds) used by the server since last reset
+    double time_user = 2;
 
-  // change in server time (in seconds) used by the server process and all
-  // threads since last reset
-  double time_system = 3;
+    // change in server time (in seconds) used by the server process and all
+    // threads since last reset
+    double time_system = 3;
 
-  // change in total cpu time of the server (data from proc/stat)
-  uint64 total_cpu_time = 4;
+    // change in total cpu time of the server (data from proc/stat)
+    uint64 total_cpu_time = 4;
 
-  // change in idle time of the server (data from proc/stat)
-  uint64 idle_cpu_time = 5;
+    // change in idle time of the server (data from proc/stat)
+    uint64 idle_cpu_time = 5;
 
-  // Number of polls called inside completion queue
-  uint64 cq_poll_count = 6;
+    // Number of polls called inside completion queue
+    uint64 cq_poll_count = 6;
 }
 
 // Histogram params based on grpc/support/histogram.c
 message HistogramParams {
-  double resolution = 1;   // first bucket is [0, 1 + resolution)
-  double max_possible = 2; // use enough buckets to allow this value
+    double resolution = 1; // first bucket is [0, 1 + resolution)
+    double max_possible = 2; // use enough buckets to allow this value
 }
 
 // Histogram data based on grpc/support/histogram.c
 message HistogramData {
-  repeated uint32 bucket = 1;
-  double min_seen = 2;
-  double max_seen = 3;
-  double sum = 4;
-  double sum_of_squares = 5;
-  double count = 6;
+    repeated uint32 bucket = 1;
+    double min_seen = 2;
+    double max_seen = 3;
+    double sum = 4;
+    double sum_of_squares = 5;
+    double count = 6;
 }
 
 message RequestResultCount {
-  int32 status_code = 1;
-  int64 count = 2;
+    int32 status_code = 1;
+    int64 count = 2;
 }
 
 message ClientStats {
-  // Latency histogram. Data points are in nanoseconds.
-  HistogramData latencies = 1;
+    // Latency histogram. Data points are in nanoseconds.
+    HistogramData latencies = 1;
 
-  // See ServerStats for details.
-  double time_elapsed = 2;
-  double time_user = 3;
-  double time_system = 4;
+    // See ServerStats for details.
+    double time_elapsed = 2;
+    double time_user = 3;
+    double time_system = 4;
 
-  // Number of failed requests (one row per status code seen)
-  repeated RequestResultCount request_results = 5;
+    // Number of failed requests (one row per status code seen)
+    repeated RequestResultCount request_results = 5;
 
-  // Number of polls called inside completion queue
-  uint64 cq_poll_count = 6;
+    // Number of polls called inside completion queue
+    uint64 cq_poll_count = 6;
 }

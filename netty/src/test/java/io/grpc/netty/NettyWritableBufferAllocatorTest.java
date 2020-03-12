@@ -16,8 +16,6 @@
 
 package io.grpc.netty;
 
-import static org.junit.Assert.assertEquals;
-
 import io.grpc.internal.WritableBuffer;
 import io.grpc.internal.WritableBufferAllocator;
 import io.grpc.internal.WritableBufferAllocatorTestBase;
@@ -26,39 +24,41 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Tests for {@link NettyWritableBufferAllocator}.
  */
 @RunWith(JUnit4.class)
 public class NettyWritableBufferAllocatorTest extends WritableBufferAllocatorTestBase {
 
-  private final NettyWritableBufferAllocator allocator =
-          new NettyWritableBufferAllocator(ByteBufAllocator.DEFAULT);
+    private final NettyWritableBufferAllocator allocator =
+            new NettyWritableBufferAllocator(ByteBufAllocator.DEFAULT);
 
-  @Override
-  protected WritableBufferAllocator allocator() {
-    return allocator;
-  }
+    @Override
+    protected WritableBufferAllocator allocator() {
+        return allocator;
+    }
 
-  @Test
-  public void testCapacityHasMinimum() {
-    WritableBuffer buffer = allocator().allocate(100);
-    assertEquals(0, buffer.readableBytes());
-    assertEquals(4096, buffer.writableBytes());
-  }
+    @Test
+    public void testCapacityHasMinimum() {
+        WritableBuffer buffer = allocator().allocate(100);
+        assertEquals(0, buffer.readableBytes());
+        assertEquals(4096, buffer.writableBytes());
+    }
 
-  @Test
-  public void testCapacityIsExactAboveMinimum() {
-    WritableBuffer buffer = allocator().allocate(9000);
-    assertEquals(0, buffer.readableBytes());
-    assertEquals(9000, buffer.writableBytes());
-  }
+    @Test
+    public void testCapacityIsExactAboveMinimum() {
+        WritableBuffer buffer = allocator().allocate(9000);
+        assertEquals(0, buffer.readableBytes());
+        assertEquals(9000, buffer.writableBytes());
+    }
 
-  @Test
-  public void testCapacityIsCappedAtMaximum() {
-    // Current max is 1MB
-    WritableBuffer buffer = allocator().allocate(1024 * 1025);
-    assertEquals(0, buffer.readableBytes());
-    assertEquals(1024 * 1024, buffer.writableBytes());
-  }
+    @Test
+    public void testCapacityIsCappedAtMaximum() {
+        // Current max is 1MB
+        WritableBuffer buffer = allocator().allocate(1024 * 1025);
+        assertEquals(0, buffer.readableBytes());
+        assertEquals(1024 * 1024, buffer.writableBytes());
+    }
 }

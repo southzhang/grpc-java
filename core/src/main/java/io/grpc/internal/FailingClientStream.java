@@ -27,40 +27,40 @@ import io.grpc.internal.ClientStreamListener.RpcProgress;
  * ClientStreamListener#closed}) when started, and silently does nothing for the other operations.
  */
 public final class FailingClientStream extends NoopClientStream {
-  private boolean started;
-  private final Status error;
-  private final RpcProgress rpcProgress;
+    private boolean started;
+    private final Status error;
+    private final RpcProgress rpcProgress;
 
-  /**
-   * Creates a {@code FailingClientStream} that would fail with the given error.
-   */
-  public FailingClientStream(Status error) {
-    this(error, RpcProgress.PROCESSED);
-  }
+    /**
+     * Creates a {@code FailingClientStream} that would fail with the given error.
+     */
+    public FailingClientStream(Status error) {
+        this(error, RpcProgress.PROCESSED);
+    }
 
-  /**
-   * Creates a {@code FailingClientStream} that would fail with the given error.
-   */
-  public FailingClientStream(Status error, RpcProgress rpcProgress) {
-    Preconditions.checkArgument(!error.isOk(), "error must not be OK");
-    this.error = error;
-    this.rpcProgress = rpcProgress;
-  }
+    /**
+     * Creates a {@code FailingClientStream} that would fail with the given error.
+     */
+    public FailingClientStream(Status error, RpcProgress rpcProgress) {
+        Preconditions.checkArgument(!error.isOk(), "error must not be OK");
+        this.error = error;
+        this.rpcProgress = rpcProgress;
+    }
 
-  @Override
-  public void start(ClientStreamListener listener) {
-    Preconditions.checkState(!started, "already started");
-    started = true;
-    listener.closed(error, rpcProgress, new Metadata());
-  }
+    @Override
+    public void start(ClientStreamListener listener) {
+        Preconditions.checkState(!started, "already started");
+        started = true;
+        listener.closed(error, rpcProgress, new Metadata());
+    }
 
-  @VisibleForTesting
-  Status getError() {
-    return error;
-  }
+    @VisibleForTesting
+    Status getError() {
+        return error;
+    }
 
-  @Override
-  public void appendTimeoutInsight(InsightBuilder insight) {
-    insight.appendKeyValue("error", error).appendKeyValue("progress", rpcProgress);
-  }
+    @Override
+    public void appendTimeoutInsight(InsightBuilder insight) {
+        insight.appendKeyValue("error", error).appendKeyValue("progress", rpcProgress);
+    }
 }

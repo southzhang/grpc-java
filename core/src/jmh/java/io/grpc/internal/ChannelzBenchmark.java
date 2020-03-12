@@ -22,127 +22,121 @@ import io.grpc.InternalChannelz.ServerStats;
 import io.grpc.InternalChannelz.SocketStats;
 import io.grpc.InternalInstrumented;
 import io.grpc.InternalLogId;
+import org.openjdk.jmh.annotations.*;
+
 import java.util.concurrent.TimeUnit;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Param;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
 
 /**
  * Javadoc.
  */
 @State(Scope.Benchmark)
 public class ChannelzBenchmark {
-  // Number of items already present
-  @Param({"10", "100", "1000", "10000"})
-  public int preexisting;
+    // Number of items already present
+    @Param({"10", "100", "1000", "10000"})
+    public int preexisting;
 
-  public InternalChannelz channelz = new InternalChannelz();
+    public InternalChannelz channelz = new InternalChannelz();
 
-  public InternalInstrumented<ServerStats> serverToRemove;
+    public InternalInstrumented<ServerStats> serverToRemove;
 
-  public InternalInstrumented<ServerStats> serverToAdd;
+    public InternalInstrumented<ServerStats> serverToAdd;
 
-  public InternalInstrumented<ServerStats> serverForServerSocket;
-  public InternalInstrumented<SocketStats> serverSocketToAdd;
-  public InternalInstrumented<SocketStats> serverSocketToRemove;
+    public InternalInstrumented<ServerStats> serverForServerSocket;
+    public InternalInstrumented<SocketStats> serverSocketToAdd;
+    public InternalInstrumented<SocketStats> serverSocketToRemove;
 
-  /**
-   * Javadoc.
-   */
-  @Setup
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public void setUp() {
-    serverToRemove = create();
-    channelz.addServer(serverToRemove);
+    /**
+     * Javadoc.
+     */
+    @Setup
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public void setUp() {
+        serverToRemove = create();
+        channelz.addServer(serverToRemove);
 
-    serverForServerSocket = create();
-    channelz.addServer(serverForServerSocket);
+        serverForServerSocket = create();
+        channelz.addServer(serverForServerSocket);
 
-    serverSocketToRemove = create();
-    channelz.addClientSocket(serverSocketToRemove);
-    channelz.addServerSocket(serverForServerSocket, serverSocketToRemove);
+        serverSocketToRemove = create();
+        channelz.addClientSocket(serverSocketToRemove);
+        channelz.addServerSocket(serverForServerSocket, serverSocketToRemove);
 
-    populate(preexisting);
+        populate(preexisting);
 
-    serverToAdd = create();
-    serverSocketToAdd = create();
-  }
-
-  private void populate(int count) {
-    for (int i = 0; i < count; i++) {
-      // for addNavigable / removeNavigable
-      InternalInstrumented<ServerStats> srv = create();
-      channelz.addServer(srv);
-
-      // for add / remove
-      InternalInstrumented<SocketStats> sock = create();
-      channelz.addClientSocket(sock);
-
-      // for addServerSocket / removeServerSocket
-      channelz.addServerSocket(serverForServerSocket, sock);
+        serverToAdd = create();
+        serverSocketToAdd = create();
     }
-  }
 
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public void addNavigable() {
-    channelz.addServer(serverToAdd);
-  }
+    private void populate(int count) {
+        for (int i = 0; i < count; i++) {
+            // for addNavigable / removeNavigable
+            InternalInstrumented<ServerStats> srv = create();
+            channelz.addServer(srv);
 
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public void add() {
-    channelz.addClientSocket(serverSocketToAdd);
-  }
+            // for add / remove
+            InternalInstrumented<SocketStats> sock = create();
+            channelz.addClientSocket(sock);
 
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public void addServerSocket() {
-    channelz.addServerSocket(serverForServerSocket, serverSocketToAdd);
-  }
+            // for addServerSocket / removeServerSocket
+            channelz.addServerSocket(serverForServerSocket, sock);
+        }
+    }
 
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public void removeNavigable() {
-    channelz.removeServer(serverToRemove);
-  }
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public void addNavigable() {
+        channelz.addServer(serverToAdd);
+    }
 
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public void remove() {
-    channelz.removeClientSocket(serverSocketToRemove);
-  }
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public void add() {
+        channelz.addClientSocket(serverSocketToAdd);
+    }
 
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public void removeServerSocket() {
-    channelz.removeServerSocket(serverForServerSocket, serverSocketToRemove);
-  }
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public void addServerSocket() {
+        channelz.addServerSocket(serverForServerSocket, serverSocketToAdd);
+    }
 
-  private static <T> InternalInstrumented<T> create() {
-    return new InternalInstrumented<T>() {
-      final InternalLogId id = InternalLogId.allocate(getClass(), "fake-tag");
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public void removeNavigable() {
+        channelz.removeServer(serverToRemove);
+    }
 
-      @Override
-      public ListenableFuture<T> getStats() {
-        throw new UnsupportedOperationException();
-      }
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public void remove() {
+        channelz.removeClientSocket(serverSocketToRemove);
+    }
 
-      @Override
-      public InternalLogId getLogId() {
-        return id;
-      }
-    };
-  }
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public void removeServerSocket() {
+        channelz.removeServerSocket(serverForServerSocket, serverSocketToRemove);
+    }
+
+    private static <T> InternalInstrumented<T> create() {
+        return new InternalInstrumented<T>() {
+            final InternalLogId id = InternalLogId.allocate(getClass(), "fake-tag");
+
+            @Override
+            public ListenableFuture<T> getStats() {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public InternalLogId getLogId() {
+                return id;
+            }
+        };
+    }
 }

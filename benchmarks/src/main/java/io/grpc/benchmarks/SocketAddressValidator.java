@@ -17,6 +17,7 @@
 package io.grpc.benchmarks;
 
 import com.google.errorprone.annotations.Immutable;
+
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
@@ -25,28 +26,28 @@ import java.net.SocketAddress;
  */
 @Immutable
 public interface SocketAddressValidator {
-  /**
-   * Verifier for {@link InetSocketAddress}es.
-   */
-  SocketAddressValidator INET = new SocketAddressValidator() {
-    @Override
-    public boolean isValidSocketAddress(SocketAddress address) {
-      return address instanceof InetSocketAddress;
-    }
-  };
+    /**
+     * Verifier for {@link InetSocketAddress}es.
+     */
+    SocketAddressValidator INET = new SocketAddressValidator() {
+        @Override
+        public boolean isValidSocketAddress(SocketAddress address) {
+            return address instanceof InetSocketAddress;
+        }
+    };
 
-  /**
-   * Verifier for Netty Unix Domain Socket addresses.
-   */
-  SocketAddressValidator UDS = new SocketAddressValidator() {
-    @Override
-    public boolean isValidSocketAddress(SocketAddress address) {
-      return "DomainSocketAddress".equals(address.getClass().getSimpleName());
-    }
-  };
+    /**
+     * Verifier for Netty Unix Domain Socket addresses.
+     */
+    SocketAddressValidator UDS = new SocketAddressValidator() {
+        @Override
+        public boolean isValidSocketAddress(SocketAddress address) {
+            return "DomainSocketAddress".equals(address.getClass().getSimpleName());
+        }
+    };
 
-  /**
-   * Returns {@code true} if the given address is valid.
-   */
-  boolean isValidSocketAddress(SocketAddress address);
+    /**
+     * Returns {@code true} if the given address is valid.
+     */
+    boolean isValidSocketAddress(SocketAddress address);
 }

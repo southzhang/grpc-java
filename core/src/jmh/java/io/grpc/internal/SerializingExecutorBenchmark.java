@@ -16,18 +16,9 @@
 
 package io.grpc.internal;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Phaser;
-import java.util.concurrent.TimeUnit;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.TearDown;
+import org.openjdk.jmh.annotations.*;
+
+import java.util.concurrent.*;
 
 /**
  * SerializingExecutor benchmark.
@@ -40,59 +31,59 @@ import org.openjdk.jmh.annotations.TearDown;
 @State(Scope.Thread)
 public class SerializingExecutorBenchmark {
 
-  private ExecutorService executorService = Executors.newSingleThreadExecutor();
-  private Executor executor = new SerializingExecutor(executorService);
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private Executor executor = new SerializingExecutor(executorService);
 
-  private static class IncrRunnable implements Runnable {
-    int val;
+    private static class IncrRunnable implements Runnable {
+        int val;
 
-    @Override
-    public void run() {
-      val++;
+        @Override
+        public void run() {
+            val++;
+        }
     }
-  }
 
-  private final IncrRunnable incrRunnable = new IncrRunnable();
+    private final IncrRunnable incrRunnable = new IncrRunnable();
 
-  private final Phaser phaser = new Phaser(2);
-  private final Runnable phaserRunnable = new Runnable() {
-    @Override
-    public void run() {
-      phaser.arrive();
+    private final Phaser phaser = new Phaser(2);
+    private final Runnable phaserRunnable = new Runnable() {
+        @Override
+        public void run() {
+            phaser.arrive();
+        }
+    };
+
+    @TearDown
+    public void tearDown() throws Exception {
+        executorService.shutdownNow();
+        if (!executorService.awaitTermination(1, TimeUnit.SECONDS)) {
+            throw new RuntimeException("executor failed to shut down in a timely fashion");
+        }
     }
-  };
 
-  @TearDown
-  public void tearDown() throws Exception {
-    executorService.shutdownNow();
-    if (!executorService.awaitTermination(1, TimeUnit.SECONDS)) {
-      throw new RuntimeException("executor failed to shut down in a timely fashion");
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public void oneRunnableLatency() throws Exception {
+        executor.execute(phaserRunnable);
+        phaser.arriveAndAwaitAdvance();
     }
-  }
 
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public void oneRunnableLatency() throws Exception {
-    executor.execute(phaserRunnable);
-    phaser.arriveAndAwaitAdvance();
-  }
-
-  /**
-   * Queue many runnables, to better see queuing/consumption cost instead of just context switch.
-   */
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public void manyRunnables() throws Exception {
-    incrRunnable.val = 0;
-    for (int i = 0; i < 500; i++) {
-      executor.execute(incrRunnable);
+    /**
+     * Queue many runnables, to better see queuing/consumption cost instead of just context switch.
+     */
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public void manyRunnables() throws Exception {
+        incrRunnable.val = 0;
+        for (int i = 0; i < 500; i++) {
+            executor.execute(incrRunnable);
+        }
+        executor.execute(phaserRunnable);
+        phaser.arriveAndAwaitAdvance();
+        if (incrRunnable.val != 500) {
+            throw new AssertionError();
+        }
     }
-    executor.execute(phaserRunnable);
-    phaser.arriveAndAwaitAdvance();
-    if (incrRunnable.val != 500) {
-      throw new AssertionError();
-    }
-  }
 }

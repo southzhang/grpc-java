@@ -16,33 +16,36 @@
 
 package io.grpc.util;
 
-import static org.mockito.Mockito.mock;
-
 import io.grpc.ForwardingTestUtil;
 import io.grpc.LoadBalancer.Subchannel;
-import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link ForwardingSubchannel}. */
+import java.util.Arrays;
+
+import static org.mockito.Mockito.mock;
+
+/**
+ * Unit tests for {@link ForwardingSubchannel}.
+ */
 @RunWith(JUnit4.class)
 public class ForwardingSubchannelTest {
-  private final Subchannel mockDelegate = mock(Subchannel.class);
+    private final Subchannel mockDelegate = mock(Subchannel.class);
 
-  private final class TestSubchannel extends ForwardingSubchannel {
-    @Override
-    protected Subchannel delegate() {
-      return mockDelegate;
+    private final class TestSubchannel extends ForwardingSubchannel {
+        @Override
+        protected Subchannel delegate() {
+            return mockDelegate;
+        }
     }
-  }
 
-  @Test
-  public void allMethodsForwarded() throws Exception {
-    ForwardingTestUtil.testMethodsForwarded(
-        Subchannel.class,
-        mockDelegate,
-        new TestSubchannel(),
-        Arrays.asList(Subchannel.class.getMethod("getAddresses")));
-  }
+    @Test
+    public void allMethodsForwarded() throws Exception {
+        ForwardingTestUtil.testMethodsForwarded(
+                Subchannel.class,
+                mockDelegate,
+                new TestSubchannel(),
+                Arrays.asList(Subchannel.class.getMethod("getAddresses")));
+    }
 }

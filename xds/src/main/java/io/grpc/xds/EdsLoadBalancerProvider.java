@@ -23,6 +23,7 @@ import io.grpc.LoadBalancerProvider;
 import io.grpc.LoadBalancerRegistry;
 import io.grpc.NameResolver.ConfigOrError;
 import io.grpc.xds.EdsLoadBalancer.ResourceUpdateCallback;
+
 import java.util.Map;
 
 /**
@@ -33,43 +34,46 @@ import java.util.Map;
 @Internal
 public class EdsLoadBalancerProvider extends LoadBalancerProvider {
 
-  static final String EDS_POLICY_NAME = "eds_experimental";
+    static final String EDS_POLICY_NAME = "eds_experimental";
 
-  @Override
-  public boolean isAvailable() {
-    return true;
-  }
+    @Override
+    public boolean isAvailable() {
+        return true;
+    }
 
-  @Override
-  public int getPriority() {
-    return 5;
-  }
+    @Override
+    public int getPriority() {
+        return 5;
+    }
 
-  @Override
-  public String getPolicyName() {
-    return EDS_POLICY_NAME;
-  }
+    @Override
+    public String getPolicyName() {
+        return EDS_POLICY_NAME;
+    }
 
-  @Override
-  public LoadBalancer newLoadBalancer(Helper helper) {
-    return new EdsLoadBalancer(
-        helper,
-        new ResourceUpdateCallback() {
-          @Override
-          public void onWorking() {}
+    @Override
+    public LoadBalancer newLoadBalancer(Helper helper) {
+        return new EdsLoadBalancer(
+                helper,
+                new ResourceUpdateCallback() {
+                    @Override
+                    public void onWorking() {
+                    }
 
-          @Override
-          public void onError() {}
+                    @Override
+                    public void onError() {
+                    }
 
-          @Override
-          public void onAllDrop() {}
-        });
-  }
+                    @Override
+                    public void onAllDrop() {
+                    }
+                });
+    }
 
-  @Override
-  public ConfigOrError parseLoadBalancingPolicyConfig(
-      Map<String, ?> rawLoadBalancingPolicyConfig) {
-    return XdsLoadBalancerProvider.parseLoadBalancingConfigPolicy(
-        rawLoadBalancingPolicyConfig, LoadBalancerRegistry.getDefaultRegistry());
-  }
+    @Override
+    public ConfigOrError parseLoadBalancingPolicyConfig(
+            Map<String, ?> rawLoadBalancingPolicyConfig) {
+        return XdsLoadBalancerProvider.parseLoadBalancingConfigPolicy(
+                rawLoadBalancingPolicyConfig, LoadBalancerRegistry.getDefaultRegistry());
+    }
 }

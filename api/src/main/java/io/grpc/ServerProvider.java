@@ -18,6 +18,7 @@ package io.grpc;
 
 import io.grpc.ManagedChannelProvider.ProviderNotFoundException;
 import io.grpc.ServiceProviders.PriorityAccessor;
+
 import java.util.Collections;
 
 /**
@@ -29,51 +30,51 @@ import java.util.Collections;
  */
 @Internal
 public abstract class ServerProvider {
-  private static final ServerProvider provider = ServiceProviders.load(
-      ServerProvider.class,
-      Collections.<Class<?>>emptyList(),
-      ServerProvider.class.getClassLoader(),
-      new PriorityAccessor<ServerProvider>() {
-        @Override
-        public boolean isAvailable(ServerProvider provider) {
-          return provider.isAvailable();
-        }
+    private static final ServerProvider provider = ServiceProviders.load(
+            ServerProvider.class,
+            Collections.<Class<?>>emptyList(),
+            ServerProvider.class.getClassLoader(),
+            new PriorityAccessor<ServerProvider>() {
+                @Override
+                public boolean isAvailable(ServerProvider provider) {
+                    return provider.isAvailable();
+                }
 
-        @Override
-        public int getPriority(ServerProvider provider) {
-          return provider.priority();
-        }
-      });
+                @Override
+                public int getPriority(ServerProvider provider) {
+                    return provider.priority();
+                }
+            });
 
-  /**
-   * Returns the ClassLoader-wide default server.
-   *
-   * @throws ProviderNotFoundException if no provider is available
-   */
-  public static ServerProvider provider() {
-    if (provider == null) {
-      throw new ProviderNotFoundException("No functional server found. "
-          + "Try adding a dependency on the grpc-netty or grpc-netty-shaded artifact");
+    /**
+     * Returns the ClassLoader-wide default server.
+     *
+     * @throws ProviderNotFoundException if no provider is available
+     */
+    public static ServerProvider provider() {
+        if (provider == null) {
+            throw new ProviderNotFoundException("No functional server found. "
+                    + "Try adding a dependency on the grpc-netty or grpc-netty-shaded artifact");
+        }
+        return provider;
     }
-    return provider;
-  }
 
-  /**
-   * Whether this provider is available for use, taking the current environment into consideration.
-   * If {@code false}, no other methods are safe to be called.
-   */
-  protected abstract boolean isAvailable();
+    /**
+     * Whether this provider is available for use, taking the current environment into consideration.
+     * If {@code false}, no other methods are safe to be called.
+     */
+    protected abstract boolean isAvailable();
 
-  /**
-   * A priority, from 0 to 10 that this provider should be used, taking the current environment into
-   * consideration. 5 should be considered the default, and then tweaked based on environment
-   * detection. A priority of 0 does not imply that the provider wouldn't work; just that it should
-   * be last in line.
-   */
-  protected abstract int priority();
+    /**
+     * A priority, from 0 to 10 that this provider should be used, taking the current environment into
+     * consideration. 5 should be considered the default, and then tweaked based on environment
+     * detection. A priority of 0 does not imply that the provider wouldn't work; just that it should
+     * be last in line.
+     */
+    protected abstract int priority();
 
-  /**
-   * Creates a new builder with the given port.
-   */
-  protected abstract ServerBuilder<?> builderForPort(int port);
+    /**
+     * Creates a new builder with the given port.
+     */
+    protected abstract ServerBuilder<?> builderForPort(int port);
 }

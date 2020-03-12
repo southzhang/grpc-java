@@ -17,22 +17,14 @@
 package io.grpc.xds.internal.sds;
 
 import io.envoyproxy.envoy.api.v2.auth.DownstreamTlsContext;
-import io.grpc.BindableService;
-import io.grpc.CompressorRegistry;
-import io.grpc.DecompressorRegistry;
-import io.grpc.HandlerRegistry;
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
-import io.grpc.ServerInterceptor;
-import io.grpc.ServerServiceDefinition;
-import io.grpc.ServerStreamTracer;
-import io.grpc.ServerTransportFilter;
+import io.grpc.*;
 import io.grpc.netty.NettyServerBuilder;
+
+import javax.annotation.Nullable;
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
 
 /**
  * A version of {@link ServerBuilder} to create xDS managed servers that will use SDS to set up SSL
@@ -40,106 +32,109 @@ import javax.annotation.Nullable;
  */
 public final class XdsServerBuilder extends ServerBuilder<XdsServerBuilder> {
 
-  private final NettyServerBuilder delegate;
+    private final NettyServerBuilder delegate;
 
-  // TODO (sanjaypujare) integrate with xDS client to get downstreamTlsContext from LDS
-  @Nullable private DownstreamTlsContext downstreamTlsContext;
+    // TODO (sanjaypujare) integrate with xDS client to get downstreamTlsContext from LDS
+    @Nullable
+    private DownstreamTlsContext downstreamTlsContext;
 
-  private XdsServerBuilder(NettyServerBuilder nettyDelegate) {
-    this.delegate = nettyDelegate;
-  }
+    private XdsServerBuilder(NettyServerBuilder nettyDelegate) {
+        this.delegate = nettyDelegate;
+    }
 
-  @Override
-  public XdsServerBuilder handshakeTimeout(long timeout, TimeUnit unit) {
-    delegate.handshakeTimeout(timeout, unit);
-    return this;
-  }
+    @Override
+    public XdsServerBuilder handshakeTimeout(long timeout, TimeUnit unit) {
+        delegate.handshakeTimeout(timeout, unit);
+        return this;
+    }
 
-  @Override
-  public XdsServerBuilder directExecutor() {
-    delegate.directExecutor();
-    return this;
-  }
+    @Override
+    public XdsServerBuilder directExecutor() {
+        delegate.directExecutor();
+        return this;
+    }
 
-  @Override
-  public XdsServerBuilder addStreamTracerFactory(ServerStreamTracer.Factory factory) {
-    delegate.addStreamTracerFactory(factory);
-    return this;
-  }
+    @Override
+    public XdsServerBuilder addStreamTracerFactory(ServerStreamTracer.Factory factory) {
+        delegate.addStreamTracerFactory(factory);
+        return this;
+    }
 
-  @Override
-  public XdsServerBuilder addTransportFilter(ServerTransportFilter filter) {
-    delegate.addTransportFilter(filter);
-    return this;
-  }
+    @Override
+    public XdsServerBuilder addTransportFilter(ServerTransportFilter filter) {
+        delegate.addTransportFilter(filter);
+        return this;
+    }
 
-  @Override
-  public XdsServerBuilder executor(Executor executor) {
-    delegate.executor(executor);
-    return this;
-  }
+    @Override
+    public XdsServerBuilder executor(Executor executor) {
+        delegate.executor(executor);
+        return this;
+    }
 
-  @Override
-  public XdsServerBuilder addService(ServerServiceDefinition service) {
-    delegate.addService(service);
-    return this;
-  }
+    @Override
+    public XdsServerBuilder addService(ServerServiceDefinition service) {
+        delegate.addService(service);
+        return this;
+    }
 
-  @Override
-  public XdsServerBuilder addService(BindableService bindableService) {
-    delegate.addService(bindableService);
-    return this;
-  }
+    @Override
+    public XdsServerBuilder addService(BindableService bindableService) {
+        delegate.addService(bindableService);
+        return this;
+    }
 
-  @Override
-  public XdsServerBuilder fallbackHandlerRegistry(@Nullable HandlerRegistry fallbackRegistry) {
-    delegate.fallbackHandlerRegistry(fallbackRegistry);
-    return this;
-  }
+    @Override
+    public XdsServerBuilder fallbackHandlerRegistry(@Nullable HandlerRegistry fallbackRegistry) {
+        delegate.fallbackHandlerRegistry(fallbackRegistry);
+        return this;
+    }
 
-  @Override
-  public XdsServerBuilder useTransportSecurity(File certChain, File privateKey) {
-    throw new UnsupportedOperationException("Cannot set security parameters on XdsServerBuilder");
-  }
+    @Override
+    public XdsServerBuilder useTransportSecurity(File certChain, File privateKey) {
+        throw new UnsupportedOperationException("Cannot set security parameters on XdsServerBuilder");
+    }
 
-  @Override
-  public XdsServerBuilder decompressorRegistry(@Nullable DecompressorRegistry registry) {
-    delegate.decompressorRegistry(registry);
-    return this;
-  }
+    @Override
+    public XdsServerBuilder decompressorRegistry(@Nullable DecompressorRegistry registry) {
+        delegate.decompressorRegistry(registry);
+        return this;
+    }
 
-  @Override
-  public XdsServerBuilder compressorRegistry(@Nullable CompressorRegistry registry) {
-    delegate.compressorRegistry(registry);
-    return this;
-  }
+    @Override
+    public XdsServerBuilder compressorRegistry(@Nullable CompressorRegistry registry) {
+        delegate.compressorRegistry(registry);
+        return this;
+    }
 
-  @Override
-  public XdsServerBuilder intercept(ServerInterceptor interceptor) {
-    delegate.intercept(interceptor);
-    return this;
-  }
+    @Override
+    public XdsServerBuilder intercept(ServerInterceptor interceptor) {
+        delegate.intercept(interceptor);
+        return this;
+    }
 
-  /**
-   * Set the DownstreamTlsContext for the server. This is a temporary workaround until integration
-   * with xDS client is implemented to get LDS. Passing {@code null} will fall back to plaintext.
-   */
-  public XdsServerBuilder tlsContext(@Nullable DownstreamTlsContext downstreamTlsContext) {
-    this.downstreamTlsContext = downstreamTlsContext;
-    return this;
-  }
+    /**
+     * Set the DownstreamTlsContext for the server. This is a temporary workaround until integration
+     * with xDS client is implemented to get LDS. Passing {@code null} will fall back to plaintext.
+     */
+    public XdsServerBuilder tlsContext(@Nullable DownstreamTlsContext downstreamTlsContext) {
+        this.downstreamTlsContext = downstreamTlsContext;
+        return this;
+    }
 
-  /** Creates a gRPC server builder for the given port. */
-  public static XdsServerBuilder forPort(int port) {
-    NettyServerBuilder nettyDelegate = NettyServerBuilder.forAddress(new InetSocketAddress(port));
-    return new XdsServerBuilder(nettyDelegate);
-  }
+    /**
+     * Creates a gRPC server builder for the given port.
+     */
+    public static XdsServerBuilder forPort(int port) {
+        NettyServerBuilder nettyDelegate = NettyServerBuilder.forAddress(new InetSocketAddress(port));
+        return new XdsServerBuilder(nettyDelegate);
+    }
 
-  @Override
-  public Server build() {
-    // note: doing it in build() will overwrite any previously set ProtocolNegotiator
-    delegate.protocolNegotiator(
-        SdsProtocolNegotiators.serverProtocolNegotiator(this.downstreamTlsContext));
-    return delegate.build();
-  }
+    @Override
+    public Server build() {
+        // note: doing it in build() will overwrite any previously set ProtocolNegotiator
+        delegate.protocolNegotiator(
+                SdsProtocolNegotiators.serverProtocolNegotiator(this.downstreamTlsContext));
+        return delegate.build();
+    }
 }

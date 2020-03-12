@@ -20,15 +20,11 @@ import io.grpc.InternalKnownTransport;
 import io.grpc.InternalMethodDescriptor;
 import io.grpc.MethodDescriptor;
 import io.netty.util.AsciiString;
+import org.openjdk.jmh.annotations.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
 
 /**
  * Benchmark for Method Descriptors.
@@ -36,57 +32,63 @@ import org.openjdk.jmh.annotations.State;
 @State(Scope.Benchmark)
 public class MethodDescriptorBenchmark {
 
-  private static final MethodDescriptor.Marshaller<Void> marshaller =
-      new MethodDescriptor.Marshaller<Void>() {
-    @Override
-    public InputStream stream(Void value) {
-      return new ByteArrayInputStream(new byte[]{});
+    private static final MethodDescriptor.Marshaller<Void> marshaller =
+            new MethodDescriptor.Marshaller<Void>() {
+                @Override
+                public InputStream stream(Void value) {
+                    return new ByteArrayInputStream(new byte[]{});
+                }
+
+                @Override
+                public Void parse(InputStream stream) {
+                    return null;
+                }
+            };
+
+    MethodDescriptor<Void, Void> method = MethodDescriptor.<Void, Void>newBuilder()
+            .setType(MethodDescriptor.MethodType.UNARY)
+            .setFullMethodName("Service/Method")
+            .setRequestMarshaller(marshaller)
+            .setResponseMarshaller(marshaller)
+            .build();
+
+    InternalMethodDescriptor imd = new InternalMethodDescriptor(InternalKnownTransport.NETTY);
+
+    byte[] directBytes = new AsciiString("/" + method.getFullMethodName()).toByteArray();
+
+    /**
+     * Foo bar.
+     */
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public AsciiString old() {
+        return new AsciiString("/" + method.getFullMethodName());
     }
 
-    @Override
-    public Void parse(InputStream stream) {
-      return null;
+    /**
+     * Foo bar.
+     */
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public AsciiString transportSpecific() {
+        AsciiString path;
+        if ((path = (AsciiString) imd.geRawMethodName(method)) != null) {
+            path = new AsciiString("/" + method.getFullMethodName());
+            imd.setRawMethodName(method, path);
+        }
+        return path;
     }
-  };
 
-  MethodDescriptor<Void, Void> method = MethodDescriptor.<Void, Void>newBuilder()
-      .setType(MethodDescriptor.MethodType.UNARY)
-      .setFullMethodName("Service/Method")
-      .setRequestMarshaller(marshaller)
-      .setResponseMarshaller(marshaller)
-      .build();
-
-  InternalMethodDescriptor imd = new InternalMethodDescriptor(InternalKnownTransport.NETTY);
-
-  byte[] directBytes = new AsciiString("/" + method.getFullMethodName()).toByteArray();
-
-  /** Foo bar. */
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public AsciiString old() {
-    return new AsciiString("/" + method.getFullMethodName());
-  }
-
-  /** Foo bar. */
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public AsciiString transportSpecific() {
-    AsciiString path;
-    if ((path = (AsciiString) imd.geRawMethodName(method)) != null) {
-      path = new AsciiString("/" + method.getFullMethodName());
-      imd.setRawMethodName(method, path);
+    /**
+     * Foo bar.
+     */
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public AsciiString direct() {
+        return new AsciiString(directBytes, false);
     }
-    return path;
-  }
-
-  /** Foo bar. */
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public AsciiString direct() {
-    return new AsciiString(directBytes, false);
-  }
 }
 

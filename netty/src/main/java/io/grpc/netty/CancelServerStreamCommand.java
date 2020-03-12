@@ -25,47 +25,47 @@ import io.grpc.Status;
  * Command sent from a Netty server stream to the handler to cancel the stream.
  */
 final class CancelServerStreamCommand extends WriteQueue.AbstractQueuedCommand {
-  private final NettyServerStream.TransportState stream;
-  private final Status reason;
+    private final NettyServerStream.TransportState stream;
+    private final Status reason;
 
-  CancelServerStreamCommand(NettyServerStream.TransportState stream, Status reason) {
-    this.stream = Preconditions.checkNotNull(stream, "stream");
-    this.reason = Preconditions.checkNotNull(reason, "reason");
-  }
-
-  NettyServerStream.TransportState stream() {
-    return stream;
-  }
-
-  Status reason() {
-    return reason;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+    CancelServerStreamCommand(NettyServerStream.TransportState stream, Status reason) {
+        this.stream = Preconditions.checkNotNull(stream, "stream");
+        this.reason = Preconditions.checkNotNull(reason, "reason");
     }
 
-    CancelServerStreamCommand that = (CancelServerStreamCommand) o;
+    NettyServerStream.TransportState stream() {
+        return stream;
+    }
 
-    return Objects.equal(this.stream, that.stream)
-        && Objects.equal(this.reason, that.reason);
-  }
+    Status reason() {
+        return reason;
+    }
 
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(stream, reason);
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("stream", stream)
-        .add("reason", reason)
-        .toString();
-  }
+        CancelServerStreamCommand that = (CancelServerStreamCommand) o;
+
+        return Objects.equal(this.stream, that.stream)
+                && Objects.equal(this.reason, that.reason);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(stream, reason);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("stream", stream)
+                .add("reason", reason)
+                .toString();
+    }
 }

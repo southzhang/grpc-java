@@ -22,9 +22,9 @@ package io.grpc.internal;
  */
 public interface WritableBufferAllocator {
 
-  /**
-   * Request a new {@link WritableBuffer} with the given {@code capacityHint}. The allocator is
-   * free to return a buffer with a greater or lesser capacity.
-   */
-  WritableBuffer allocate(int capacityHint);
+    /**
+     * Request a new {@link WritableBuffer} with the given {@code capacityHint}. The allocator is
+     * free to return a buffer with a greater or lesser capacity.
+     */
+    WritableBuffer allocate(int capacityHint);
 }

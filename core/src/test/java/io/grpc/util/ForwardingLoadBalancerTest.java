@@ -16,34 +16,37 @@
 
 package io.grpc.util;
 
-import static org.mockito.Mockito.mock;
-
 import io.grpc.ForwardingTestUtil;
 import io.grpc.LoadBalancer;
-import java.lang.reflect.Method;
-import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link ForwardingLoadBalancer}. */
+import java.lang.reflect.Method;
+import java.util.Collections;
+
+import static org.mockito.Mockito.mock;
+
+/**
+ * Unit tests for {@link ForwardingLoadBalancer}.
+ */
 @RunWith(JUnit4.class)
 public class ForwardingLoadBalancerTest {
-  private final LoadBalancer mockDelegate = mock(LoadBalancer.class);
+    private final LoadBalancer mockDelegate = mock(LoadBalancer.class);
 
-  private final class TestBalancer extends ForwardingLoadBalancer {
-    @Override
-    protected LoadBalancer delegate() {
-      return mockDelegate;
+    private final class TestBalancer extends ForwardingLoadBalancer {
+        @Override
+        protected LoadBalancer delegate() {
+            return mockDelegate;
+        }
     }
-  }
 
-  @Test
-  public void allMethodsForwarded() throws Exception {
-    ForwardingTestUtil.testMethodsForwarded(
-        LoadBalancer.class,
-        mockDelegate,
-        new TestBalancer(),
-        Collections.<Method>emptyList());
-  }
+    @Test
+    public void allMethodsForwarded() throws Exception {
+        ForwardingTestUtil.testMethodsForwarded(
+                LoadBalancer.class,
+                mockDelegate,
+                new TestBalancer(),
+                Collections.<Method>emptyList());
+    }
 }

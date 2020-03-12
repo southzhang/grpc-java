@@ -18,12 +18,14 @@ package io.grpc.netty;
 
 import io.perfmark.Tag;
 
-/** Container for stream ids. */
+/**
+ * Container for stream ids.
+ */
 interface StreamIdHolder {
-  /**
-   * Returns the id.
-   */
-  int id();
+    /**
+     * Returns the id.
+     */
+    int id();
 
-  Tag tag();
+    Tag tag();
 }

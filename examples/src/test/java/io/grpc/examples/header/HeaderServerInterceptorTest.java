@@ -16,20 +16,8 @@
 
 package io.grpc.examples.header;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.AdditionalAnswers.delegatesTo;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
-import io.grpc.CallOptions;
-import io.grpc.Channel;
-import io.grpc.ClientCall;
-import io.grpc.ClientInterceptor;
+import io.grpc.*;
 import io.grpc.ForwardingClientCall.SimpleForwardingClientCall;
-import io.grpc.Metadata;
-import io.grpc.MethodDescriptor;
-import io.grpc.ServerInterceptors;
 import io.grpc.examples.helloworld.GreeterGrpc;
 import io.grpc.examples.helloworld.GreeterGrpc.GreeterBlockingStub;
 import io.grpc.examples.helloworld.GreeterGrpc.GreeterImplBase;
@@ -46,6 +34,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.AdditionalAnswers.delegatesTo;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 /**
  * Unit tests for {@link HeaderClientInterceptor}.
  * For demonstrating how to write gRPC unit test only.
@@ -56,66 +50,66 @@ import org.mockito.ArgumentCaptor;
  */
 @RunWith(JUnit4.class)
 public class HeaderServerInterceptorTest {
-  /**
-   * This rule manages automatic graceful shutdown for the registered servers and channels at the
-   * end of test.
-   */
-  @Rule
-  public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
+    /**
+     * This rule manages automatic graceful shutdown for the registered servers and channels at the
+     * end of test.
+     */
+    @Rule
+    public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
 
-  private Channel channel;
+    private Channel channel;
 
-  @Before
-  public void setUp() throws Exception {
-    GreeterImplBase greeterImplBase =
-        new GreeterImplBase() {
-          @Override
-          public void sayHello(HelloRequest request, StreamObserver<HelloReply> responseObserver) {
-            responseObserver.onNext(HelloReply.getDefaultInstance());
-            responseObserver.onCompleted();
-          }
-        };
-    // Generate a unique in-process server name.
-    String serverName = InProcessServerBuilder.generateName();
-    // Create a server, add service, start, and register for automatic graceful shutdown.
-    grpcCleanup.register(InProcessServerBuilder.forName(serverName).directExecutor()
-        .addService(ServerInterceptors.intercept(greeterImplBase, new HeaderServerInterceptor()))
-        .build().start());
-    // Create a client channel and register for automatic graceful shutdown.
-    channel =
-        grpcCleanup.register(InProcessChannelBuilder.forName(serverName).directExecutor().build());
-  }
-
-  @Test
-  public void serverHeaderDeliveredToClient() {
-    class SpyingClientInterceptor implements ClientInterceptor {
-      ClientCall.Listener<?> spyListener;
-
-      @Override
-      public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
-          MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
-        return new SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
-          @Override
-          public void start(Listener<RespT> responseListener, Metadata headers) {
-            spyListener = responseListener =
-                mock(ClientCall.Listener.class, delegatesTo(responseListener));
-            super.start(responseListener, headers);
-          }
-        };
-      }
+    @Before
+    public void setUp() throws Exception {
+        GreeterImplBase greeterImplBase =
+                new GreeterImplBase() {
+                    @Override
+                    public void sayHello(HelloRequest request, StreamObserver<HelloReply> responseObserver) {
+                        responseObserver.onNext(HelloReply.getDefaultInstance());
+                        responseObserver.onCompleted();
+                    }
+                };
+        // Generate a unique in-process server name.
+        String serverName = InProcessServerBuilder.generateName();
+        // Create a server, add service, start, and register for automatic graceful shutdown.
+        grpcCleanup.register(InProcessServerBuilder.forName(serverName).directExecutor()
+                .addService(ServerInterceptors.intercept(greeterImplBase, new HeaderServerInterceptor()))
+                .build().start());
+        // Create a client channel and register for automatic graceful shutdown.
+        channel =
+                grpcCleanup.register(InProcessChannelBuilder.forName(serverName).directExecutor().build());
     }
 
-    SpyingClientInterceptor clientInterceptor = new SpyingClientInterceptor();
-    GreeterBlockingStub blockingStub = GreeterGrpc.newBlockingStub(channel)
-        .withInterceptors(clientInterceptor);
-    ArgumentCaptor<Metadata> metadataCaptor = ArgumentCaptor.forClass(Metadata.class);
+    @Test
+    public void serverHeaderDeliveredToClient() {
+        class SpyingClientInterceptor implements ClientInterceptor {
+            ClientCall.Listener<?> spyListener;
 
-    blockingStub.sayHello(HelloRequest.getDefaultInstance());
+            @Override
+            public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+                    MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
+                return new SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
+                    @Override
+                    public void start(Listener<RespT> responseListener, Metadata headers) {
+                        spyListener = responseListener =
+                                mock(ClientCall.Listener.class, delegatesTo(responseListener));
+                        super.start(responseListener, headers);
+                    }
+                };
+            }
+        }
 
-    assertNotNull(clientInterceptor.spyListener);
-    verify(clientInterceptor.spyListener).onHeaders(metadataCaptor.capture());
-    assertEquals(
-        "customRespondValue",
-        metadataCaptor.getValue().get(HeaderServerInterceptor.CUSTOM_HEADER_KEY));
-  }
+        SpyingClientInterceptor clientInterceptor = new SpyingClientInterceptor();
+        GreeterBlockingStub blockingStub = GreeterGrpc.newBlockingStub(channel)
+                .withInterceptors(clientInterceptor);
+        ArgumentCaptor<Metadata> metadataCaptor = ArgumentCaptor.forClass(Metadata.class);
+
+        blockingStub.sayHello(HelloRequest.getDefaultInstance());
+
+        assertNotNull(clientInterceptor.spyListener);
+        verify(clientInterceptor.spyListener).onHeaders(metadataCaptor.capture());
+        assertEquals(
+                "customRespondValue",
+                metadataCaptor.getValue().get(HeaderServerInterceptor.CUSTOM_HEADER_KEY));
+    }
 }

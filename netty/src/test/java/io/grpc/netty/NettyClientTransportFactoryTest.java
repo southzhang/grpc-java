@@ -23,9 +23,10 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class NettyClientTransportFactoryTest extends AbstractClientTransportFactoryTest {
-  @Override protected ClientTransportFactory newClientTransportFactory() {
-    return NettyChannelBuilder
-        .forAddress("localhost", 0)
-        .buildTransportFactory();
-  }
+    @Override
+    protected ClientTransportFactory newClientTransportFactory() {
+        return NettyChannelBuilder
+                .forAddress("localhost", 0)
+                .buildTransportFactory();
+    }
 }

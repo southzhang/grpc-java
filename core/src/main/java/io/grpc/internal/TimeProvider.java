@@ -23,13 +23,15 @@ import java.util.concurrent.TimeUnit;
  * into unit tests.
  */
 public interface TimeProvider {
-  /** Returns the current nano time. */
-  long currentTimeNanos();
+    /**
+     * Returns the current nano time.
+     */
+    long currentTimeNanos();
 
-  TimeProvider SYSTEM_TIME_PROVIDER = new TimeProvider() {
-    @Override
-    public long currentTimeNanos() {
-      return TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis());
-    }
-  };
+    TimeProvider SYSTEM_TIME_PROVIDER = new TimeProvider() {
+        @Override
+        public long currentTimeNanos() {
+            return TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis());
+        }
+    };
 }

@@ -24,21 +24,21 @@ import io.grpc.Context;
  */
 abstract class ContextRunnable implements Runnable {
 
-  private final Context context;
+    private final Context context;
 
-  public ContextRunnable(Context context) {
-    this.context = context;
-  }
-
-  @Override
-  public final void run() {
-    Context previous = context.attach();
-    try {
-      runInContext();
-    } finally {
-      context.detach(previous);
+    public ContextRunnable(Context context) {
+        this.context = context;
     }
-  }
 
-  public abstract void runInContext();
+    @Override
+    public final void run() {
+        Context previous = context.attach();
+        try {
+            runInContext();
+        } finally {
+            context.detach(previous);
+        }
+    }
+
+    public abstract void runInContext();
 }

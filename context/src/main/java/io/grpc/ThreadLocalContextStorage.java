@@ -23,51 +23,51 @@ import java.util.logging.Logger;
  * A {@link ThreadLocal}-based context storage implementation.  Used by default.
  */
 final class ThreadLocalContextStorage extends Context.Storage {
-  private static final Logger log = Logger.getLogger(ThreadLocalContextStorage.class.getName());
+    private static final Logger log = Logger.getLogger(ThreadLocalContextStorage.class.getName());
 
-  /**
-   * Currently bound context.
-   */
-  // VisibleForTesting
-  static final ThreadLocal<Context> localContext = new ThreadLocal<>();
+    /**
+     * Currently bound context.
+     */
+    // VisibleForTesting
+    static final ThreadLocal<Context> localContext = new ThreadLocal<>();
 
-  @Override
-  public Context doAttach(Context toAttach) {
-    Context current = current();
-    localContext.set(toAttach);
-    return current;
-  }
-
-  @Override
-  public void detach(Context toDetach, Context toRestore) {
-    if (current() != toDetach) {
-      // Log a severe message instead of throwing an exception as the context to attach is assumed
-      // to be the correct one and the unbalanced state represents a coding mistake in a lower
-      // layer in the stack that cannot be recovered from here.
-      log.log(Level.SEVERE, "Context was not attached when detaching",
-          new Throwable().fillInStackTrace());
+    @Override
+    public Context doAttach(Context toAttach) {
+        Context current = current();
+        localContext.set(toAttach);
+        return current;
     }
-    if (toRestore != Context.ROOT) {
-      localContext.set(toRestore);
-    } else {
-      // Avoid leaking our ClassLoader via ROOT if this Thread is reused across multiple
-      // ClassLoaders, as is common for Servlet Containers. The ThreadLocal is weakly referenced by
-      // the Thread, but its current value is strongly referenced and only lazily collected as new
-      // ThreadLocals are created.
-      //
-      // Use set(null) instead of remove() since remove() deletes the entry which is then re-created
-      // on the next get() (because of initialValue() handling). set(null) has same performance as
-      // set(toRestore).
-      localContext.set(null);
-    }
-  }
 
-  @Override
-  public Context current() {
-    Context current = localContext.get();
-    if (current == null) {
-      return Context.ROOT;
+    @Override
+    public void detach(Context toDetach, Context toRestore) {
+        if (current() != toDetach) {
+            // Log a severe message instead of throwing an exception as the context to attach is assumed
+            // to be the correct one and the unbalanced state represents a coding mistake in a lower
+            // layer in the stack that cannot be recovered from here.
+            log.log(Level.SEVERE, "Context was not attached when detaching",
+                    new Throwable().fillInStackTrace());
+        }
+        if (toRestore != Context.ROOT) {
+            localContext.set(toRestore);
+        } else {
+            // Avoid leaking our ClassLoader via ROOT if this Thread is reused across multiple
+            // ClassLoaders, as is common for Servlet Containers. The ThreadLocal is weakly referenced by
+            // the Thread, but its current value is strongly referenced and only lazily collected as new
+            // ThreadLocals are created.
+            //
+            // Use set(null) instead of remove() since remove() deletes the entry which is then re-created
+            // on the next get() (because of initialValue() handling). set(null) has same performance as
+            // set(toRestore).
+            localContext.set(null);
+        }
     }
-    return current;
-  }
+
+    @Override
+    public Context current() {
+        Context current = localContext.get();
+        if (current == null) {
+            return Context.ROOT;
+        }
+        return current;
+    }
 }

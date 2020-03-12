@@ -23,15 +23,15 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public interface ObjectPool<T> {
-  /**
-   * Get an object from the pool.
-   */
-  T getObject();
+    /**
+     * Get an object from the pool.
+     */
+    T getObject();
 
-  /**
-   * Return the object to the pool.  The caller should not use the object beyond this point.
-   *
-   * @return always {@code null}
-   */
-  T returnObject(Object object);
+    /**
+     * Return the object to the pool.  The caller should not use the object beyond this point.
+     *
+     * @return always {@code null}
+     */
+    T returnObject(Object object);
 }

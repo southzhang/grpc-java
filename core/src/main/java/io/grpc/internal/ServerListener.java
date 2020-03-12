@@ -22,18 +22,18 @@ package io.grpc.internal;
  */
 public interface ServerListener {
 
-  /**
-   * Called upon the establishment of a new client connection.
-   *
-   * @param transport the new transport to be observed.
-   * @return a listener for stream creation events on the transport.
-   */
-  ServerTransportListener transportCreated(ServerTransport transport);
+    /**
+     * Called upon the establishment of a new client connection.
+     *
+     * @param transport the new transport to be observed.
+     * @return a listener for stream creation events on the transport.
+     */
+    ServerTransportListener transportCreated(ServerTransport transport);
 
-  /**
-   * The server is shutting down. No new transports will be processed, but existing transports may
-   * continue. Shutdown is only caused by a call to {@link InternalServer#shutdown()}. All
-   * resources have been released.
-   */
-  void serverShutdown();
+    /**
+     * The server is shutting down. No new transports will be processed, but existing transports may
+     * continue. Shutdown is only caused by a call to {@link InternalServer#shutdown()}. All
+     * resources have been released.
+     */
+    void serverShutdown();
 }

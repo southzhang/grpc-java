@@ -16,14 +16,15 @@
 
 package io.grpc.internal;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
-import java.util.ArrayList;
-import java.util.concurrent.Executor;
+
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
+import java.util.ArrayList;
+import java.util.concurrent.Executor;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Manages connectivity states of the channel. Used for {@link ManagedChannel#getState} to read the
@@ -33,71 +34,71 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 final class ConnectivityStateManager {
-  private ArrayList<Listener> listeners = new ArrayList<>();
+    private ArrayList<Listener> listeners = new ArrayList<>();
 
-  private volatile ConnectivityState state = ConnectivityState.IDLE;
+    private volatile ConnectivityState state = ConnectivityState.IDLE;
 
-  /**
-   * Adds a listener for state change event.
-   *
-   * <p>The {@code executor} must be one that can run RPC call listeners.
-   */
-  void notifyWhenStateChanged(Runnable callback, Executor executor, ConnectivityState source) {
-    checkNotNull(callback, "callback");
-    checkNotNull(executor, "executor");
-    checkNotNull(source, "source");
+    /**
+     * Adds a listener for state change event.
+     *
+     * <p>The {@code executor} must be one that can run RPC call listeners.
+     */
+    void notifyWhenStateChanged(Runnable callback, Executor executor, ConnectivityState source) {
+        checkNotNull(callback, "callback");
+        checkNotNull(executor, "executor");
+        checkNotNull(source, "source");
 
-    Listener stateChangeListener = new Listener(callback, executor);
-    if (state != source) {
-      stateChangeListener.runInExecutor();
-    } else {
-      listeners.add(stateChangeListener);
-    }
-  }
-
-  /**
-   * Connectivity state is changed to the specified value. Will trigger some notifications that have
-   * been registered earlier by {@link ManagedChannel#notifyWhenStateChanged}.
-   */
-  void gotoState(@Nonnull ConnectivityState newState) {
-    checkNotNull(newState, "newState");
-    if (state != newState && state != ConnectivityState.SHUTDOWN) {
-      state = newState;
-      if (listeners.isEmpty()) {
-        return;
-      }
-      // Swap out callback list before calling them, because a callback may register new callbacks,
-      // if run in direct executor, can cause ConcurrentModificationException.
-      ArrayList<Listener> savedListeners = listeners;
-      listeners = new ArrayList<>();
-      for (Listener listener : savedListeners) {
-        listener.runInExecutor();
-      }
-    }
-  }
-
-  /**
-   * Gets the current connectivity state of the channel. This method is threadsafe.
-   */
-  ConnectivityState getState() {
-    ConnectivityState stateCopy = state;
-    if (stateCopy == null) {
-      throw new UnsupportedOperationException("Channel state API is not implemented");
-    }
-    return stateCopy;
-  }
-
-  private static final class Listener {
-    final Runnable callback;
-    final Executor executor;
-
-    Listener(Runnable callback, Executor executor) {
-      this.callback = callback;
-      this.executor = executor;
+        Listener stateChangeListener = new Listener(callback, executor);
+        if (state != source) {
+            stateChangeListener.runInExecutor();
+        } else {
+            listeners.add(stateChangeListener);
+        }
     }
 
-    void runInExecutor() {
-      executor.execute(callback);
+    /**
+     * Connectivity state is changed to the specified value. Will trigger some notifications that have
+     * been registered earlier by {@link ManagedChannel#notifyWhenStateChanged}.
+     */
+    void gotoState(@Nonnull ConnectivityState newState) {
+        checkNotNull(newState, "newState");
+        if (state != newState && state != ConnectivityState.SHUTDOWN) {
+            state = newState;
+            if (listeners.isEmpty()) {
+                return;
+            }
+            // Swap out callback list before calling them, because a callback may register new callbacks,
+            // if run in direct executor, can cause ConcurrentModificationException.
+            ArrayList<Listener> savedListeners = listeners;
+            listeners = new ArrayList<>();
+            for (Listener listener : savedListeners) {
+                listener.runInExecutor();
+            }
+        }
     }
-  }
+
+    /**
+     * Gets the current connectivity state of the channel. This method is threadsafe.
+     */
+    ConnectivityState getState() {
+        ConnectivityState stateCopy = state;
+        if (stateCopy == null) {
+            throw new UnsupportedOperationException("Channel state API is not implemented");
+        }
+        return stateCopy;
+    }
+
+    private static final class Listener {
+        final Runnable callback;
+        final Executor executor;
+
+        Listener(Runnable callback, Executor executor) {
+            this.callback = callback;
+            this.executor = executor;
+        }
+
+        void runInExecutor() {
+            executor.execute(callback);
+        }
+    }
 }

@@ -23,6 +23,8 @@ package io.grpc;
  */
 @Internal
 public interface InternalNotifyOnServerBuild {
-  /** Notifies the service that the server has been built. */
-  void notifyOnBuild(Server server);
+    /**
+     * Notifies the service that the server has been built.
+     */
+    void notifyOnBuild(Server server);
 }

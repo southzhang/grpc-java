@@ -72,11 +72,11 @@ model {
     components {
         java_plugin(NativeExecutableSpec) {
             if (arch in [
-                'x86_32',
-                'x86_64',
-                'ppcle_64',
-                'aarch_64',
-                's390_64'
+                    'x86_32',
+                    'x86_64',
+                    'ppcle_64',
+                    'aarch_64',
+                    's390_64'
             ]) {
                 // If arch is not within the defined platforms, we do not specify the
                 // targetPlatform so that Gradle will choose what is appropriate.
@@ -151,7 +151,7 @@ compileTestJava {
 compileTestLiteJava {
     options.compilerArgs = compileTestJava.options.compilerArgs
     options.compilerArgs += [
-        "-Xlint:-cast"
+            "-Xlint:-cast"
     ]
     options.errorprone.excludedPaths = ".*/build/generated/source/proto/.*"
 }

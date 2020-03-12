@@ -16,24 +16,27 @@
 
 package io.grpc.okhttp;
 
-import static io.grpc.okhttp.OkHttpTlsUpgrader.canonicalizeHost;
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link io.grpc.okhttp.OkHttpTlsUpgrader}. */
+import static io.grpc.okhttp.OkHttpTlsUpgrader.canonicalizeHost;
+import static org.junit.Assert.assertEquals;
+
+/**
+ * Unit tests for {@link io.grpc.okhttp.OkHttpTlsUpgrader}.
+ */
 @RunWith(JUnit4.class)
 public class OkHttpTlsUpgraderTest {
 
-  @Test public void canonicalizeHosts() {
-    assertEquals("::1", canonicalizeHost("::1"));
-    assertEquals("::1", canonicalizeHost("[::1]"));
-    assertEquals("127.0.0.1", canonicalizeHost("127.0.0.1"));
-    assertEquals("some.long.url.com", canonicalizeHost("some.long.url.com"));
+    @Test
+    public void canonicalizeHosts() {
+        assertEquals("::1", canonicalizeHost("::1"));
+        assertEquals("::1", canonicalizeHost("[::1]"));
+        assertEquals("127.0.0.1", canonicalizeHost("127.0.0.1"));
+        assertEquals("some.long.url.com", canonicalizeHost("some.long.url.com"));
 
-    // Extra square brackets in a malformed URI are retained
-    assertEquals("[::1]", canonicalizeHost("[[::1]]"));
-  }
+        // Extra square brackets in a malformed URI are retained
+        assertEquals("[::1]", canonicalizeHost("[[::1]]"));
+    }
 }

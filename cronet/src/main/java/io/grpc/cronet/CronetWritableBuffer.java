@@ -18,40 +18,41 @@ package io.grpc.cronet;
 
 import com.google.common.base.Preconditions;
 import io.grpc.internal.WritableBuffer;
+
 import java.nio.ByteBuffer;
 
 class CronetWritableBuffer implements WritableBuffer {
-  private final ByteBuffer buffer;
+    private final ByteBuffer buffer;
 
-  public CronetWritableBuffer(ByteBuffer buffer, int capacity) {
-    this.buffer = Preconditions.checkNotNull(buffer, "buffer");
-  }
+    public CronetWritableBuffer(ByteBuffer buffer, int capacity) {
+        this.buffer = Preconditions.checkNotNull(buffer, "buffer");
+    }
 
-  @Override
-  public void write(byte[] src, int srcIndex, int length) {
-    buffer.put(src, srcIndex, length);
-  }
+    @Override
+    public void write(byte[] src, int srcIndex, int length) {
+        buffer.put(src, srcIndex, length);
+    }
 
-  @Override
-  public void write(byte b) {
-    buffer.put(b);
-  }
+    @Override
+    public void write(byte b) {
+        buffer.put(b);
+    }
 
-  @Override
-  public int writableBytes() {
-    return buffer.remaining();
-  }
+    @Override
+    public int writableBytes() {
+        return buffer.remaining();
+    }
 
-  @Override
-  public int readableBytes() {
-    return buffer.position();
-  }
+    @Override
+    public int readableBytes() {
+        return buffer.position();
+    }
 
-  @Override
-  public void release() {
-  }
+    @Override
+    public void release() {
+    }
 
-  ByteBuffer buffer() {
-    return buffer;
-  }
+    ByteBuffer buffer() {
+        return buffer;
+    }
 }

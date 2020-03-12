@@ -16,81 +16,80 @@
 
 package io.grpc.stub;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-
 import io.grpc.CallOptions;
 import io.grpc.Channel;
-import java.util.concurrent.Executor;
-import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Standard unit tests for AbstractStub and its subclasses. */
+import javax.annotation.Nullable;
+import java.util.concurrent.Executor;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+
+/**
+ * Standard unit tests for AbstractStub and its subclasses.
+ */
 abstract class BaseAbstractStubTest<T extends AbstractStub<T>> {
 
-  @Mock
-  Channel channel;
+    @Mock
+    Channel channel;
 
-  @Before
-  public void setup() {
-    MockitoAnnotations.initMocks(this);
-  }
-
-  T create(Channel channel) {
-    return create(channel, CallOptions.DEFAULT);
-  }
-
-  abstract T create(@Nullable Channel channel, @Nullable CallOptions callOptions);
-
-  @Test
-  public void callOptionsMustNotBeNull() {
-    try {
-      create(channel, null);
-      fail("NullPointerException expected");
-    } catch (NullPointerException npe) {
-      // expected
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
     }
-  }
 
-  @Test
-  public void channelMustNotBeNull2() {
-    try {
-      create(null, CallOptions.DEFAULT);
-      fail("NullPointerException expected");
-    } catch (NullPointerException npe) {
-      // expected
+    T create(Channel channel) {
+        return create(channel, CallOptions.DEFAULT);
     }
-  }
 
-  @Test
-  public void withWaitForReady() {
-    T stub = create(channel);
-    CallOptions callOptions = stub.getCallOptions();
-    assertFalse(callOptions.isWaitForReady());
+    abstract T create(@Nullable Channel channel, @Nullable CallOptions callOptions);
 
-    stub = stub.withWaitForReady();
-    callOptions = stub.getCallOptions();
-    assertTrue(callOptions.isWaitForReady());
-  }
+    @Test
+    public void callOptionsMustNotBeNull() {
+        try {
+            create(channel, null);
+            fail("NullPointerException expected");
+        } catch (NullPointerException npe) {
+            // expected
+        }
+    }
 
-  @Test
-  public void withExecutor() {
-    T stub = create(channel);
-    CallOptions callOptions = stub.getCallOptions();
+    @Test
+    public void channelMustNotBeNull2() {
+        try {
+            create(null, CallOptions.DEFAULT);
+            fail("NullPointerException expected");
+        } catch (NullPointerException npe) {
+            // expected
+        }
+    }
 
-    assertNull(callOptions.getExecutor());
+    @Test
+    public void withWaitForReady() {
+        T stub = create(channel);
+        CallOptions callOptions = stub.getCallOptions();
+        assertFalse(callOptions.isWaitForReady());
 
-    Executor executor = mock(Executor.class);
-    stub = stub.withExecutor(executor);
-    callOptions = stub.getCallOptions();
+        stub = stub.withWaitForReady();
+        callOptions = stub.getCallOptions();
+        assertTrue(callOptions.isWaitForReady());
+    }
 
-    assertEquals(callOptions.getExecutor(), executor);
-  }
+    @Test
+    public void withExecutor() {
+        T stub = create(channel);
+        CallOptions callOptions = stub.getCallOptions();
+
+        assertNull(callOptions.getExecutor());
+
+        Executor executor = mock(Executor.class);
+        stub = stub.withExecutor(executor);
+        callOptions = stub.getCallOptions();
+
+        assertEquals(callOptions.getExecutor(), executor);
+    }
 }

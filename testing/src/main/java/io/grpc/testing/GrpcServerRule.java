@@ -16,21 +16,18 @@
 
 package io.grpc.testing;
 
-import static com.google.common.base.Preconditions.checkState;
-
-import io.grpc.BindableService;
-import io.grpc.ExperimentalApi;
-import io.grpc.ManagedChannel;
-import io.grpc.Server;
-import io.grpc.ServerServiceDefinition;
+import io.grpc.*;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.stub.AbstractStub;
 import io.grpc.util.MutableHandlerRegistry;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TestRule;
+
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * {@code GrpcServerRule} is a JUnit {@link TestRule} that starts an in-process gRPC service with
@@ -49,101 +46,101 @@ import org.junit.rules.TestRule;
 @ExperimentalApi("https://github.com/grpc/grpc-java/issues/2488")
 public final class GrpcServerRule extends ExternalResource {
 
-  private ManagedChannel channel;
-  private Server server;
-  private String serverName;
-  private MutableHandlerRegistry serviceRegistry;
-  private boolean useDirectExecutor;
+    private ManagedChannel channel;
+    private Server server;
+    private String serverName;
+    private MutableHandlerRegistry serviceRegistry;
+    private boolean useDirectExecutor;
 
-  /**
-   * Returns {@code this} configured to use a direct executor for the {@link ManagedChannel} and
-   * {@link Server}. This can only be called at the rule instantiation.
-   */
-  public final GrpcServerRule directExecutor() {
-    checkState(serverName == null, "directExecutor() can only be called at the rule instantiation");
-    useDirectExecutor = true;
-    return this;
-  }
-
-  /**
-   * Returns a {@link ManagedChannel} connected to this service.
-   */
-  public final ManagedChannel getChannel() {
-    return channel;
-  }
-
-  /**
-   * Returns the underlying gRPC {@link Server} for this service.
-   */
-  public final Server getServer() {
-    return server;
-  }
-
-  /**
-   * Returns the randomly generated server name for this service.
-   */
-  public final String getServerName() {
-    return serverName;
-  }
-
-  /**
-   * Returns the service registry for this service. The registry is used to add service instances
-   * (e.g. {@link BindableService} or {@link ServerServiceDefinition} to the server.
-   */
-  public final MutableHandlerRegistry getServiceRegistry() {
-    return serviceRegistry;
-  }
-
-  /**
-   * After the test has completed, clean up the channel and server.
-   */
-  @Override
-  protected void after() {
-    serverName = null;
-    serviceRegistry = null;
-
-    channel.shutdown();
-    server.shutdown();
-
-    try {
-      channel.awaitTermination(1, TimeUnit.MINUTES);
-      server.awaitTermination(1, TimeUnit.MINUTES);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new RuntimeException(e);
-    } finally {
-      channel.shutdownNow();
-      channel = null;
-
-      server.shutdownNow();
-      server = null;
-    }
-  }
-
-  /**
-   * Before the test has started, create the server and channel.
-   */
-  @Override
-  protected void before() throws Throwable {
-    serverName = UUID.randomUUID().toString();
-
-    serviceRegistry = new MutableHandlerRegistry();
-
-    InProcessServerBuilder serverBuilder = InProcessServerBuilder.forName(serverName)
-        .fallbackHandlerRegistry(serviceRegistry);
-
-    if (useDirectExecutor) {
-      serverBuilder.directExecutor();
+    /**
+     * Returns {@code this} configured to use a direct executor for the {@link ManagedChannel} and
+     * {@link Server}. This can only be called at the rule instantiation.
+     */
+    public final GrpcServerRule directExecutor() {
+        checkState(serverName == null, "directExecutor() can only be called at the rule instantiation");
+        useDirectExecutor = true;
+        return this;
     }
 
-    server = serverBuilder.build().start();
-
-    InProcessChannelBuilder channelBuilder = InProcessChannelBuilder.forName(serverName);
-
-    if (useDirectExecutor) {
-      channelBuilder.directExecutor();
+    /**
+     * Returns a {@link ManagedChannel} connected to this service.
+     */
+    public final ManagedChannel getChannel() {
+        return channel;
     }
 
-    channel = channelBuilder.build();
-  }
+    /**
+     * Returns the underlying gRPC {@link Server} for this service.
+     */
+    public final Server getServer() {
+        return server;
+    }
+
+    /**
+     * Returns the randomly generated server name for this service.
+     */
+    public final String getServerName() {
+        return serverName;
+    }
+
+    /**
+     * Returns the service registry for this service. The registry is used to add service instances
+     * (e.g. {@link BindableService} or {@link ServerServiceDefinition} to the server.
+     */
+    public final MutableHandlerRegistry getServiceRegistry() {
+        return serviceRegistry;
+    }
+
+    /**
+     * After the test has completed, clean up the channel and server.
+     */
+    @Override
+    protected void after() {
+        serverName = null;
+        serviceRegistry = null;
+
+        channel.shutdown();
+        server.shutdown();
+
+        try {
+            channel.awaitTermination(1, TimeUnit.MINUTES);
+            server.awaitTermination(1, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        } finally {
+            channel.shutdownNow();
+            channel = null;
+
+            server.shutdownNow();
+            server = null;
+        }
+    }
+
+    /**
+     * Before the test has started, create the server and channel.
+     */
+    @Override
+    protected void before() throws Throwable {
+        serverName = UUID.randomUUID().toString();
+
+        serviceRegistry = new MutableHandlerRegistry();
+
+        InProcessServerBuilder serverBuilder = InProcessServerBuilder.forName(serverName)
+                .fallbackHandlerRegistry(serviceRegistry);
+
+        if (useDirectExecutor) {
+            serverBuilder.directExecutor();
+        }
+
+        server = serverBuilder.build().start();
+
+        InProcessChannelBuilder channelBuilder = InProcessChannelBuilder.forName(serverName);
+
+        if (useDirectExecutor) {
+            channelBuilder.directExecutor();
+        }
+
+        channel = channelBuilder.build();
+    }
 }

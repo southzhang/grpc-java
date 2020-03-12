@@ -1,56 +1,55 @@
 {
-  "loadBalancingPolicy":"round_robin",
-  "methodConfig":[
+  "loadBalancingPolicy": "round_robin",
+  "methodConfig": [
     {
-      "name":[
+      "name": [
         {
-          "service":"SimpleService1"
+          "service": "SimpleService1"
         }
       ],
-      "waitForReady":false,
-      "retryPolicy":{
-        "maxAttempts":3,
-        "initialBackoff":"2.1s",
-        "maxBackoff":"2.2s",
-        "backoffMultiplier":3,
-        "retryableStatusCodes":[
+      "waitForReady": false,
+      "retryPolicy": {
+        "maxAttempts": 3,
+        "initialBackoff": "2.1s",
+        "maxBackoff": "2.2s",
+        "backoffMultiplier": 3,
+        "retryableStatusCodes": [
           "UNAVAILABLE",
           "RESOURCE_EXHAUSTED"
         ]
       }
     },
     {
-      "name":[
+      "name": [
         {
-          "service":"SimpleService2"
+          "service": "SimpleService2"
         }
       ],
-      "waitForReady":false
+      "waitForReady": false
     },
     {
-      "name":[
+      "name": [
         {
-          "service":"SimpleService1",
-          "method":"Foo1"
+          "service": "SimpleService1",
+          "method": "Foo1"
         },
         {
-          "service":"SimpleService2",
-          "method":"Foo2"
+          "service": "SimpleService2",
+          "method": "Foo2"
         }
       ],
-      "waitForReady":true,
-      "retryPolicy":{
-        "maxAttempts":5,
-        "initialBackoff":"0.1s",
-        "maxBackoff":"1s",
-        "backoffMultiplier":2,
-        "retryableStatusCodes":[
+      "waitForReady": true,
+      "retryPolicy": {
+        "maxAttempts": 5,
+        "initialBackoff": "0.1s",
+        "maxBackoff": "1s",
+        "backoffMultiplier": 2,
+        "retryableStatusCodes": [
           "UNAVAILABLE"
         ]
       }
     }
   ],
-
   "retryThrottling": {
     "maxTokens": 10,
     "tokenRatio": 0.1

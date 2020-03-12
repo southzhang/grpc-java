@@ -16,9 +16,9 @@
 
 package io.grpc.internal;
 
-import static com.google.common.base.Charsets.UTF_8;
-
 import java.nio.ByteBuffer;
+
+import static com.google.common.base.Charsets.UTF_8;
 
 /**
  * Tests for the array-backed {@link ReadableBuffer} returned by {@link
@@ -26,8 +26,8 @@ import java.nio.ByteBuffer;
  */
 public class ReadableBuffersByteBufferTest extends ReadableBufferTestBase {
 
-  @Override
-  protected ReadableBuffer buffer() {
-    return ReadableBuffers.wrap(ByteBuffer.wrap(msg.getBytes(UTF_8)));
-  }
+    @Override
+    protected ReadableBuffer buffer() {
+        return ReadableBuffers.wrap(ByteBuffer.wrap(msg.getBytes(UTF_8)));
+    }
 }

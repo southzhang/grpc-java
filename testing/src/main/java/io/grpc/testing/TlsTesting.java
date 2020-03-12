@@ -17,22 +17,25 @@
 package io.grpc.testing;
 
 import io.grpc.ExperimentalApi;
+
 import java.io.InputStream;
 
-/** Convenience utilities for using TLS in tests. */
+/**
+ * Convenience utilities for using TLS in tests.
+ */
 @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1791")
 public final class TlsTesting {
-  /**
-   * Retrieves the specified test certificate or key resource in src/main/resources/certs/ as an
-   * {@code InputStream}.
-   *
-   * @param name name of a file in src/main/resources/certs/, e.g., {@code "ca.key"}.
-   *
-   * @since 1.8.0
-   */
-  public static InputStream loadCert(String name) {
-    return TestUtils.class.getResourceAsStream("/certs/" + name);
-  }
+    /**
+     * Retrieves the specified test certificate or key resource in src/main/resources/certs/ as an
+     * {@code InputStream}.
+     *
+     * @param name name of a file in src/main/resources/certs/, e.g., {@code "ca.key"}.
+     * @since 1.8.0
+     */
+    public static InputStream loadCert(String name) {
+        return TestUtils.class.getResourceAsStream("/certs/" + name);
+    }
 
-  private TlsTesting() {}
+    private TlsTesting() {
+    }
 }

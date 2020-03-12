@@ -23,36 +23,35 @@ package io.grpc.internal;
  */
 public interface WritableBuffer {
 
-  /**
-   * Appends {@code length} bytes to the buffer from the source
-   * array starting at {@code srcIndex}.
-   *
-   * @throws IndexOutOfBoundsException
-   *         if the specified {@code srcIndex} is less than {@code 0},
-   *         if {@code srcIndex + length} is greater than
-   *            {@code src.length}, or
-   *         if {@code length} is greater than {@link #writableBytes()}
-   */
-  void write(byte[] src, int srcIndex, int length);
+    /**
+     * Appends {@code length} bytes to the buffer from the source
+     * array starting at {@code srcIndex}.
+     *
+     * @throws IndexOutOfBoundsException if the specified {@code srcIndex} is less than {@code 0},
+     *                                   if {@code srcIndex + length} is greater than
+     *                                   {@code src.length}, or
+     *                                   if {@code length} is greater than {@link #writableBytes()}
+     */
+    void write(byte[] src, int srcIndex, int length);
 
-  /**
-   * Appends a single byte to the buffer.  This is slow so don't call it.
-   */
-  void write(byte b);
+    /**
+     * Appends a single byte to the buffer.  This is slow so don't call it.
+     */
+    void write(byte b);
 
-  /**
-   * Returns the number of bytes one can write to the buffer.
-   */
-  int writableBytes();
+    /**
+     * Returns the number of bytes one can write to the buffer.
+     */
+    int writableBytes();
 
-  /**
-   * Returns the number of bytes one can read from the buffer.
-   */
-  int readableBytes();
+    /**
+     * Returns the number of bytes one can read from the buffer.
+     */
+    int readableBytes();
 
-  /**
-   * Releases the buffer, indicating to the {@link WritableBufferAllocator} that
-   * this buffer is no longer used and its resources can be reused.
-   */
-  void release();
+    /**
+     * Releases the buffer, indicating to the {@link WritableBufferAllocator} that
+     * this buffer is no longer used and its resources can be reused.
+     */
+    void release();
 }

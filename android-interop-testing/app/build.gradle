@@ -41,13 +41,14 @@ android {
 protobuf {
     protoc { artifact = 'com.google.protobuf:protoc:3.11.0' }
     plugins {
-        grpc { artifact = 'io.grpc:protoc-gen-grpc-java:1.29.0-SNAPSHOT' // CURRENT_GRPC_VERSION
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.29.0-SNAPSHOT' // CURRENT_GRPC_VERSION
         }
     }
     generateProtoTasks {
         all().each { task ->
             task.builtins {
-              java { option 'lite' }
+                java { option 'lite' }
             }
             task.plugins {
                 grpc {
@@ -64,7 +65,7 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.android.support:support-annotations:27.1.1'
     implementation 'com.google.android.gms:play-services-base:15.0.1'
-    implementation ('com.google.auth:google-auth-library-oauth2-http:0.9.0') {
+    implementation('com.google.auth:google-auth-library-oauth2-http:0.9.0') {
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
     implementation 'com.google.truth:truth:1.0.1'

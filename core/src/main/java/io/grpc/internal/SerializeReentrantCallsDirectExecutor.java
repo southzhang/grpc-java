@@ -17,6 +17,7 @@
 package io.grpc.internal;
 
 import com.google.common.base.Preconditions;
+
 import java.util.ArrayDeque;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
@@ -33,49 +34,49 @@ import java.util.logging.Logger;
  */
 class SerializeReentrantCallsDirectExecutor implements Executor {
 
-  private static final Logger log =
-      Logger.getLogger(SerializeReentrantCallsDirectExecutor.class.getName());
+    private static final Logger log =
+            Logger.getLogger(SerializeReentrantCallsDirectExecutor.class.getName());
 
-  private boolean executing;
-  // Lazily initialized if a reentrant call is detected.
-  private ArrayDeque<Runnable> taskQueue;
+    private boolean executing;
+    // Lazily initialized if a reentrant call is detected.
+    private ArrayDeque<Runnable> taskQueue;
 
-  @Override
-  public void execute(Runnable task) {
-    Preconditions.checkNotNull(task, "'task' must not be null.");
-    if (!executing) {
-      executing = true;
-      try {
-        task.run();
-      } catch (Throwable t) {
-        log.log(Level.SEVERE, "Exception while executing runnable " + task, t);
-      } finally {
-        if (taskQueue != null) {
-          completeQueuedTasks();
+    @Override
+    public void execute(Runnable task) {
+        Preconditions.checkNotNull(task, "'task' must not be null.");
+        if (!executing) {
+            executing = true;
+            try {
+                task.run();
+            } catch (Throwable t) {
+                log.log(Level.SEVERE, "Exception while executing runnable " + task, t);
+            } finally {
+                if (taskQueue != null) {
+                    completeQueuedTasks();
+                }
+                executing = false;
+            }
+        } else {
+            enqueue(task);
         }
-        executing = false;
-      }
-    } else {
-      enqueue(task);
     }
-  }
 
-  private void completeQueuedTasks() {
-    Runnable task = null;
-    while ((task = taskQueue.poll()) != null) {
-      try {
-        task.run();
-      } catch (Throwable t) {
-        // Log it and keep going
-        log.log(Level.SEVERE, "Exception while executing runnable " + task, t);
-      }
+    private void completeQueuedTasks() {
+        Runnable task = null;
+        while ((task = taskQueue.poll()) != null) {
+            try {
+                task.run();
+            } catch (Throwable t) {
+                // Log it and keep going
+                log.log(Level.SEVERE, "Exception while executing runnable " + task, t);
+            }
+        }
     }
-  }
 
-  private void enqueue(Runnable r) {
-    if (taskQueue == null) {
-      taskQueue = new ArrayDeque<>(4);
+    private void enqueue(Runnable r) {
+        if (taskQueue == null) {
+            taskQueue = new ArrayDeque<>(4);
+        }
+        taskQueue.add(r);
     }
-    taskQueue.add(r);
-  }
 }

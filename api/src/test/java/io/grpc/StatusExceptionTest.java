@@ -16,11 +16,11 @@
 
 package io.grpc;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  * Tests for {@link StatusException}.
@@ -28,40 +28,43 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class StatusExceptionTest {
 
-  @Test
-  public void internalCtorRemovesStack() {
-    StackTraceElement[] trace =
-        new StatusException(Status.CANCELLED, null, false) {}.getStackTrace();
+    @Test
+    public void internalCtorRemovesStack() {
+        StackTraceElement[] trace =
+                new StatusException(Status.CANCELLED, null, false) {
+                }.getStackTrace();
 
-    assertThat(trace).isEmpty();
-  }
+        assertThat(trace).isEmpty();
+    }
 
-  @Test
-  public void normalCtorKeepsStack() {
-    StackTraceElement[] trace =
-        new StatusException(Status.CANCELLED, null) {}.getStackTrace();
+    @Test
+    public void normalCtorKeepsStack() {
+        StackTraceElement[] trace =
+                new StatusException(Status.CANCELLED, null) {
+                }.getStackTrace();
 
-    assertThat(trace).isNotEmpty();
-  }
+        assertThat(trace).isNotEmpty();
+    }
 
-  @Test
-  public void extendPreservesStack() {
-    StackTraceElement[] trace = new StatusException(Status.CANCELLED) {}.getStackTrace();
+    @Test
+    public void extendPreservesStack() {
+        StackTraceElement[] trace = new StatusException(Status.CANCELLED) {
+        }.getStackTrace();
 
-    assertThat(trace).isNotEmpty();
-  }
+        assertThat(trace).isNotEmpty();
+    }
 
-  @Test
-  public void extendAndOverridePreservesStack() {
-    final StackTraceElement element = new StackTraceElement("a", "b", "c", 4);
-    StatusException exception = new StatusException(Status.CANCELLED, new Metadata()) {
+    @Test
+    public void extendAndOverridePreservesStack() {
+        final StackTraceElement element = new StackTraceElement("a", "b", "c", 4);
+        StatusException exception = new StatusException(Status.CANCELLED, new Metadata()) {
 
-      @Override
-      public synchronized Throwable fillInStackTrace() {
-        setStackTrace(new StackTraceElement[]{element});
-        return this;
-      }
-    };
-    assertThat(exception.getStackTrace()).asList().containsExactly(element);
-  }
+            @Override
+            public synchronized Throwable fillInStackTrace() {
+                setStackTrace(new StackTraceElement[]{element});
+                return this;
+            }
+        };
+        assertThat(exception.getStackTrace()).asList().containsExactly(element);
+    }
 }

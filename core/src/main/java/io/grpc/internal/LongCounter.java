@@ -20,9 +20,13 @@ package io.grpc.internal;
  * An interface for a long base counter.
  */
 public interface LongCounter {
-  /** Adds the delta to this counter. */
-  void add(long delta);
+    /**
+     * Adds the delta to this counter.
+     */
+    void add(long delta);
 
-  /** Returns the value of this counter. */
-  long value();
+    /**
+     * Returns the value of this counter.
+     */
+    long value();
 }

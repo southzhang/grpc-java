@@ -12,7 +12,7 @@ description = "gRPC: Services"
     // v1alpha of reflection.proto is deprecated at the file level.
     // Without this workaround, the project can not compile.
     it.options.compilerArgs += [
-        "-Xlint:-deprecation",
+            "-Xlint:-deprecation",
     ]
 }
 
@@ -22,7 +22,7 @@ dependencies {
     compile project(':grpc-protobuf'),
             project(':grpc-stub'),
             project(':grpc-core')
-    compile (libraries.protobuf_util) {
+    compile(libraries.protobuf_util) {
         // prefer our own versions instead of protobuf-util's dependency
         exclude group: 'com.google.guava', module: 'guava'
         exclude group: 'com.google.errorprone', module: 'error_prone_annotations'

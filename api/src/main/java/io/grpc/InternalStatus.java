@@ -21,17 +21,18 @@ package io.grpc;
  */
 @Internal
 public final class InternalStatus {
-  private InternalStatus() {}
+    private InternalStatus() {
+    }
 
-  /**
-   * Key to bind status message to trailing metadata.
-   */
-  @Internal
-  public static final Metadata.Key<String> MESSAGE_KEY = Status.MESSAGE_KEY;
+    /**
+     * Key to bind status message to trailing metadata.
+     */
+    @Internal
+    public static final Metadata.Key<String> MESSAGE_KEY = Status.MESSAGE_KEY;
 
-  /**
-   * Key to bind status code to trailing metadata.
-   */
-  @Internal
-  public static final Metadata.Key<Status> CODE_KEY = Status.CODE_KEY;
+    /**
+     * Key to bind status code to trailing metadata.
+     */
+    @Internal
+    public static final Metadata.Key<Status> CODE_KEY = Status.CODE_KEY;
 }

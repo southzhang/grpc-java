@@ -19,17 +19,19 @@ package io.grpc.netty;
 import io.grpc.Internal;
 import io.netty.channel.Channel;
 
-/** Utility class for {@link WriteBufferingAndExceptionHandler}. */
+/**
+ * Utility class for {@link WriteBufferingAndExceptionHandler}.
+ */
 @Internal
 public final class InternalWriteBufferingAndExceptionHandlerUtils {
 
-  /**
-   * Writes buffered data and removes {@link WriteBufferingAndExceptionHandler} from {@link
-   * io.netty.channel.ChannelPipeline}.
-   *
-   * <p>Internal use only. Do not use.
-   */
-  public static void writeBufferingAndRemove(Channel channel) {
-    NettyClientHandler.writeBufferingAndRemove(channel);
-  }
+    /**
+     * Writes buffered data and removes {@link WriteBufferingAndExceptionHandler} from {@link
+     * io.netty.channel.ChannelPipeline}.
+     *
+     * <p>Internal use only. Do not use.
+     */
+    public static void writeBufferingAndRemove(Channel channel) {
+        NettyClientHandler.writeBufferingAndRemove(channel);
+    }
 }

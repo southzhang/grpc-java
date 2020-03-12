@@ -16,69 +16,72 @@
 
 package io.grpc.netty;
 
-import static io.netty.util.CharsetUtil.UTF_8;
-
 import com.google.common.io.ByteStreams;
 import io.grpc.internal.ObjectPool;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.util.concurrent.Executor;
+
+import static io.netty.util.CharsetUtil.UTF_8;
 
 /**
  * Utility methods for supporting Netty tests.
  */
 public class NettyTestUtil {
 
-  static String toString(InputStream in) throws Exception {
-    byte[] bytes = new byte[in.available()];
-    ByteStreams.readFully(in, bytes);
-    return new String(bytes, UTF_8);
-  }
+    static String toString(InputStream in) throws Exception {
+        byte[] bytes = new byte[in.available()];
+        ByteStreams.readFully(in, bytes);
+        return new String(bytes, UTF_8);
+    }
 
-  static ByteBuf messageFrame(String message) throws Exception {
-    ByteArrayOutputStream os = new ByteArrayOutputStream();
-    DataOutputStream dos = new DataOutputStream(os);
-    dos.write(message.getBytes(UTF_8));
-    dos.close();
+    static ByteBuf messageFrame(String message) throws Exception {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(os);
+        dos.write(message.getBytes(UTF_8));
+        dos.close();
 
-    // Write the compression header followed by the context frame.
-    return compressionFrame(os.toByteArray());
-  }
+        // Write the compression header followed by the context frame.
+        return compressionFrame(os.toByteArray());
+    }
 
-  static ByteBuf compressionFrame(byte[] data) {
-    ByteBuf buf = Unpooled.buffer();
-    buf.writeByte(0);
-    buf.writeInt(data.length);
-    buf.writeBytes(data);
-    return buf;
-  }
+    static ByteBuf compressionFrame(byte[] data) {
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(0);
+        buf.writeInt(data.length);
+        buf.writeBytes(data);
+        return buf;
+    }
 
-  // A simple implementation of ObjectPool<Executor> that could track if the resource is returned.
-  public static class TrackingObjectPoolForTest implements ObjectPool<Executor> {
-    private boolean inUse;
+    // A simple implementation of ObjectPool<Executor> that could track if the resource is returned.
+    public static class TrackingObjectPoolForTest implements ObjectPool<Executor> {
+        private boolean inUse;
 
-    public TrackingObjectPoolForTest() { }
+        public TrackingObjectPoolForTest() {
+        }
 
-    @Override
-    public Executor getObject() {
-      inUse = true;
-      return new Executor() {
         @Override
-        public void execute(Runnable var1) { }
-      };
-    }
+        public Executor getObject() {
+            inUse = true;
+            return new Executor() {
+                @Override
+                public void execute(Runnable var1) {
+                }
+            };
+        }
 
-    @Override
-    public Executor returnObject(Object object) {
-      inUse = false;
-      return null;
-    }
+        @Override
+        public Executor returnObject(Object object) {
+            inUse = false;
+            return null;
+        }
 
-    public boolean isInUse() {
-      return this.inUse;
+        public boolean isInUse() {
+            return this.inUse;
+        }
     }
-  }
 }

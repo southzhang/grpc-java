@@ -18,61 +18,57 @@ package io.grpc.internal;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.util.concurrent.ListenableFuture;
-import io.grpc.Attributes;
-import io.grpc.CallOptions;
+import io.grpc.*;
 import io.grpc.InternalChannelz.SocketStats;
-import io.grpc.InternalLogId;
-import io.grpc.Metadata;
-import io.grpc.MethodDescriptor;
-import io.grpc.Status;
+
 import java.util.concurrent.Executor;
 
 abstract class ForwardingConnectionClientTransport implements ConnectionClientTransport {
-  @Override
-  public Runnable start(Listener listener) {
-    return delegate().start(listener);
-  }
+    @Override
+    public Runnable start(Listener listener) {
+        return delegate().start(listener);
+    }
 
-  @Override
-  public void shutdown(Status status) {
-    delegate().shutdown(status);
-  }
+    @Override
+    public void shutdown(Status status) {
+        delegate().shutdown(status);
+    }
 
-  @Override
-  public void shutdownNow(Status status) {
-    delegate().shutdownNow(status);
-  }
+    @Override
+    public void shutdownNow(Status status) {
+        delegate().shutdownNow(status);
+    }
 
-  @Override
-  public ClientStream newStream(
-      MethodDescriptor<?, ?> method, Metadata headers, CallOptions callOptions) {
-    return delegate().newStream(method, headers, callOptions);
-  }
+    @Override
+    public ClientStream newStream(
+            MethodDescriptor<?, ?> method, Metadata headers, CallOptions callOptions) {
+        return delegate().newStream(method, headers, callOptions);
+    }
 
-  @Override
-  public void ping(PingCallback callback, Executor executor) {
-    delegate().ping(callback, executor);
-  }
+    @Override
+    public void ping(PingCallback callback, Executor executor) {
+        delegate().ping(callback, executor);
+    }
 
-  @Override
-  public InternalLogId getLogId() {
-    return delegate().getLogId();
-  }
+    @Override
+    public InternalLogId getLogId() {
+        return delegate().getLogId();
+    }
 
-  @Override
-  public Attributes getAttributes() {
-    return delegate().getAttributes();
-  }
+    @Override
+    public Attributes getAttributes() {
+        return delegate().getAttributes();
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this).add("delegate", delegate()).toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("delegate", delegate()).toString();
+    }
 
-  @Override
-  public ListenableFuture<SocketStats> getStats() {
-    return delegate().getStats();
-  }
+    @Override
+    public ListenableFuture<SocketStats> getStats() {
+        return delegate().getStats();
+    }
 
-  protected abstract ConnectionClientTransport delegate();
+    protected abstract ConnectionClientTransport delegate();
 }

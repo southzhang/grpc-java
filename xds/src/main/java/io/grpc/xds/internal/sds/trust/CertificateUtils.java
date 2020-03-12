@@ -16,11 +16,7 @@
 
 package io.grpc.xds.internal.sds.trust;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -32,34 +28,35 @@ import java.util.Collection;
  */
 final class CertificateUtils {
 
-  private static CertificateFactory factory;
+    private static CertificateFactory factory;
 
-  private static synchronized void initInstance() throws CertificateException {
-    if (factory == null) {
-      factory = CertificateFactory.getInstance("X.509");
+    private static synchronized void initInstance() throws CertificateException {
+        if (factory == null) {
+            factory = CertificateFactory.getInstance("X.509");
+        }
     }
-  }
 
-  /**
-   * Generates X509Certificate array from a file on disk.
-   *
-   * @param file a {@link File} containing the cert data
-   */
-  static X509Certificate[] toX509Certificates(File file) throws CertificateException, IOException {
-    FileInputStream fis = new FileInputStream(file);
-    return toX509Certificates(new BufferedInputStream(fis));
-  }
-
-  static synchronized X509Certificate[] toX509Certificates(InputStream inputStream)
-      throws CertificateException, IOException {
-    initInstance();
-    try {
-      Collection<? extends Certificate> certs = factory.generateCertificates(inputStream);
-      return certs.toArray(new X509Certificate[0]);
-    } finally {
-      inputStream.close();
+    /**
+     * Generates X509Certificate array from a file on disk.
+     *
+     * @param file a {@link File} containing the cert data
+     */
+    static X509Certificate[] toX509Certificates(File file) throws CertificateException, IOException {
+        FileInputStream fis = new FileInputStream(file);
+        return toX509Certificates(new BufferedInputStream(fis));
     }
-  }
 
-  private CertificateUtils() {}
+    static synchronized X509Certificate[] toX509Certificates(InputStream inputStream)
+            throws CertificateException, IOException {
+        initInstance();
+        try {
+            Collection<? extends Certificate> certs = factory.generateCertificates(inputStream);
+            return certs.toArray(new X509Certificate[0]);
+        } finally {
+            inputStream.close();
+        }
+    }
+
+    private CertificateUtils() {
+    }
 }

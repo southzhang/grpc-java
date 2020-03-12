@@ -27,8 +27,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 @Internal
 public interface InternalInstrumented<T> extends InternalWithLogId {
 
-  /**
-   * Returns the stats object.
-   */
-  ListenableFuture<T> getStats();
+    /**
+     * Returns the stats object.
+     */
+    ListenableFuture<T> getStats();
 }

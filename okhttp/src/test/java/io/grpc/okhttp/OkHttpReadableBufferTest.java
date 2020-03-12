@@ -30,35 +30,37 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class OkHttpReadableBufferTest extends ReadableBufferTestBase {
 
-  private OkHttpReadableBuffer buffer;
+    private OkHttpReadableBuffer buffer;
 
-  /** Initialize buffer. */
-  @SuppressWarnings("resource")
-  @Before
-  public void setup() {
-    Buffer empty = new Buffer();
-    try {
-      buffer = new OkHttpReadableBuffer(empty.writeUtf8(msg));
-    } finally {
-      empty.close();
+    /**
+     * Initialize buffer.
+     */
+    @SuppressWarnings("resource")
+    @Before
+    public void setup() {
+        Buffer empty = new Buffer();
+        try {
+            buffer = new OkHttpReadableBuffer(empty.writeUtf8(msg));
+        } finally {
+            empty.close();
+        }
     }
-  }
 
-  @Override
-  @Test
-  public void readToByteBufferShouldSucceed() {
-    // Not supported.
-  }
+    @Override
+    @Test
+    public void readToByteBufferShouldSucceed() {
+        // Not supported.
+    }
 
-  @Override
-  @Test
-  public void partialReadToByteBufferShouldSucceed() {
-    // Not supported.
-  }
+    @Override
+    @Test
+    public void partialReadToByteBufferShouldSucceed() {
+        // Not supported.
+    }
 
-  @Override
-  protected ReadableBuffer buffer() {
-    return buffer;
-  }
+    @Override
+    protected ReadableBuffer buffer() {
+        return buffer;
+    }
 }
 

@@ -18,17 +18,19 @@ package io.grpc;
 
 import java.io.InputStream;
 
-/** Marshalls decimal-encoded integers. */
+/**
+ * Marshalls decimal-encoded integers.
+ */
 public class IntegerMarshaller implements MethodDescriptor.Marshaller<Integer> {
-  public static final IntegerMarshaller INSTANCE = new IntegerMarshaller();
+    public static final IntegerMarshaller INSTANCE = new IntegerMarshaller();
 
-  @Override
-  public InputStream stream(Integer value) {
-    return StringMarshaller.INSTANCE.stream(value.toString());
-  }
+    @Override
+    public InputStream stream(Integer value) {
+        return StringMarshaller.INSTANCE.stream(value.toString());
+    }
 
-  @Override
-  public Integer parse(InputStream stream) {
-    return Integer.valueOf(StringMarshaller.INSTANCE.parse(stream));
-  }
+    @Override
+    public Integer parse(InputStream stream) {
+        return Integer.valueOf(StringMarshaller.INSTANCE.parse(stream));
+    }
 }

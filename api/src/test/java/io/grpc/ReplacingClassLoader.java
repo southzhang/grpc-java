@@ -24,32 +24,32 @@ import java.util.Enumeration;
  * A ClassLoader to help test service providers.
  */
 public class ReplacingClassLoader extends ClassLoader {
-  private final String resource;
-  private final String replacement;
+    private final String resource;
+    private final String replacement;
 
-  /**
-   * Construct an instance where {@code replacement} is loaded instead of {@code resource}.
-   */
-  public ReplacingClassLoader(ClassLoader parent, String resource, String replacement) {
-    super(parent);
-    this.resource = resource;
-    this.replacement = replacement;
-  }
-
-  @Override
-  public URL getResource(String name) {
-    if (resource.equals(name)) {
-      return getParent().getResource(replacement);
+    /**
+     * Construct an instance where {@code replacement} is loaded instead of {@code resource}.
+     */
+    public ReplacingClassLoader(ClassLoader parent, String resource, String replacement) {
+        super(parent);
+        this.resource = resource;
+        this.replacement = replacement;
     }
-    return super.getResource(name);
-  }
 
-  @Override
-  public Enumeration<URL> getResources(String name) throws IOException {
-    if (resource.equals(name)) {
-      return getParent().getResources(replacement);
+    @Override
+    public URL getResource(String name) {
+        if (resource.equals(name)) {
+            return getParent().getResource(replacement);
+        }
+        return super.getResource(name);
     }
-    return super.getResources(name);
-  }
+
+    @Override
+    public Enumeration<URL> getResources(String name) throws IOException {
+        if (resource.equals(name)) {
+            return getParent().getResources(replacement);
+        }
+        return super.getResources(name);
+    }
 }
 

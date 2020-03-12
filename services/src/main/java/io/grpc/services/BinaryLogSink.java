@@ -18,6 +18,7 @@ package io.grpc.services;
 
 import com.google.protobuf.MessageLite;
 import io.grpc.ExperimentalApi;
+
 import java.io.Closeable;
 
 /**
@@ -25,8 +26,8 @@ import java.io.Closeable;
  */
 @ExperimentalApi("https://github.com/grpc/grpc-java/issues/4017")
 public interface BinaryLogSink extends Closeable {
-  /**
-   * Writes the {@code message} to the destination.
-   */
-  void write(MessageLite message);
+    /**
+     * Writes the {@code message} to the destination.
+     */
+    void write(MessageLite message);
 }

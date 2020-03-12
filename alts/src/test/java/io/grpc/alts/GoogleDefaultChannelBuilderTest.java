@@ -16,23 +16,23 @@
 
 package io.grpc.alts;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import io.grpc.netty.InternalProtocolNegotiator.ProtocolNegotiator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import static com.google.common.truth.Truth.assertThat;
+
 @RunWith(JUnit4.class)
 public final class GoogleDefaultChannelBuilderTest {
 
-  @Test
-  public void buildsNettyChannel() throws Exception {
-    GoogleDefaultChannelBuilder builder = GoogleDefaultChannelBuilder.forTarget("localhost:8080");
-    builder.build();
+    @Test
+    public void buildsNettyChannel() throws Exception {
+        GoogleDefaultChannelBuilder builder = GoogleDefaultChannelBuilder.forTarget("localhost:8080");
+        builder.build();
 
-    ProtocolNegotiator protocolNegotiator = builder.getProtocolNegotiatorForTest();
-    assertThat(protocolNegotiator.getClass().getSimpleName())
-        .isEqualTo("GoogleDefaultProtocolNegotiator");
-  }
+        ProtocolNegotiator protocolNegotiator = builder.getProtocolNegotiatorForTest();
+        assertThat(protocolNegotiator.getClass().getSimpleName())
+                .isEqualTo("GoogleDefaultProtocolNegotiator");
+    }
 }

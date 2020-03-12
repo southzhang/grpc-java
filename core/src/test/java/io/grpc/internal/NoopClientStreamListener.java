@@ -23,18 +23,23 @@ import io.grpc.Status;
  * No-op base class for testing.
  */
 public class NoopClientStreamListener implements ClientStreamListener {
-  @Override
-  public void messagesAvailable(MessageProducer producer) {}
+    @Override
+    public void messagesAvailable(MessageProducer producer) {
+    }
 
-  @Override
-  public void onReady() {}
+    @Override
+    public void onReady() {
+    }
 
-  @Override
-  public void headersRead(Metadata headers) {}
+    @Override
+    public void headersRead(Metadata headers) {
+    }
 
-  @Override
-  public void closed(Status status, Metadata trailers) {}
+    @Override
+    public void closed(Status status, Metadata trailers) {
+    }
 
-  @Override
-  public void closed(Status status, RpcProgress rpcProgress, Metadata trailers) {}
+    @Override
+    public void closed(Status status, RpcProgress rpcProgress, Metadata trailers) {
+    }
 }

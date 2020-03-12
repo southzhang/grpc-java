@@ -21,34 +21,34 @@ package io.grpc;
  * ClientCall.Listener}.
  */
 public abstract class ForwardingClientCallListener<RespT>
-    extends PartialForwardingClientCallListener<RespT> {
-  /**
-   * Returns the delegated {@code ClientCall.Listener}.
-   */
-  @Override
-  protected abstract ClientCall.Listener<RespT> delegate();
-
-  @Override
-  public void onMessage(RespT message) {
-    delegate().onMessage(message);
-  }
-
-  /**
-   * A simplified version of {@link ForwardingClientCallListener} where subclasses can pass in a
-   * {@link ClientCall.Listener} as the delegate.
-   */
-  public abstract static class SimpleForwardingClientCallListener<RespT>
-      extends ForwardingClientCallListener<RespT> {
-
-    private final ClientCall.Listener<RespT> delegate;
-
-    protected SimpleForwardingClientCallListener(ClientCall.Listener<RespT> delegate) {
-      this.delegate = delegate;
-    }
+        extends PartialForwardingClientCallListener<RespT> {
+    /**
+     * Returns the delegated {@code ClientCall.Listener}.
+     */
+    @Override
+    protected abstract ClientCall.Listener<RespT> delegate();
 
     @Override
-    protected ClientCall.Listener<RespT> delegate() {
-      return delegate;
+    public void onMessage(RespT message) {
+        delegate().onMessage(message);
     }
-  }
+
+    /**
+     * A simplified version of {@link ForwardingClientCallListener} where subclasses can pass in a
+     * {@link ClientCall.Listener} as the delegate.
+     */
+    public abstract static class SimpleForwardingClientCallListener<RespT>
+            extends ForwardingClientCallListener<RespT> {
+
+        private final ClientCall.Listener<RespT> delegate;
+
+        protected SimpleForwardingClientCallListener(ClientCall.Listener<RespT> delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        protected ClientCall.Listener<RespT> delegate() {
+            return delegate;
+        }
+    }
 }

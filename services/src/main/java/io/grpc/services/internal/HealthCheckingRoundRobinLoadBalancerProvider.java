@@ -24,6 +24,7 @@ import io.grpc.LoadBalancer.Helper;
 import io.grpc.LoadBalancerProvider;
 import io.grpc.NameResolver.ConfigOrError;
 import io.grpc.services.HealthCheckingLoadBalancerUtil;
+
 import java.util.Map;
 
 /**
@@ -32,48 +33,48 @@ import java.util.Map;
  */
 @Internal
 public final class HealthCheckingRoundRobinLoadBalancerProvider extends LoadBalancerProvider {
-  private final LoadBalancerProvider rrProvider;
+    private final LoadBalancerProvider rrProvider;
 
-  public HealthCheckingRoundRobinLoadBalancerProvider() {
-    rrProvider = newRoundRobinProvider();
-  }
-
-  @Override
-  public boolean isAvailable() {
-    return rrProvider.isAvailable();
-  }
-
-  @Override
-  public int getPriority() {
-    return rrProvider.getPriority() + 1;
-  }
-
-  @Override
-  public String getPolicyName() {
-    return rrProvider.getPolicyName();
-  }
-
-  @Override
-  public LoadBalancer newLoadBalancer(Helper helper) {
-    return HealthCheckingLoadBalancerUtil.newHealthCheckingLoadBalancer(rrProvider, helper);
-  }
-
-  @Override
-  public ConfigOrError parseLoadBalancingPolicyConfig(
-      Map<String, ?> rawLoadBalancingPolicyConfig) {
-    return rrProvider.parseLoadBalancingPolicyConfig(rawLoadBalancingPolicyConfig);
-  }
-
-  @VisibleForTesting
-  static LoadBalancerProvider newRoundRobinProvider() {
-    try {
-      Class<? extends LoadBalancerProvider> rrProviderClass =
-          Class.forName("io.grpc.util.SecretRoundRobinLoadBalancerProvider$Provider")
-              .asSubclass(LoadBalancerProvider.class);
-      return rrProviderClass.getDeclaredConstructor().newInstance();
-    } catch (Exception e) {
-      Throwables.throwIfUnchecked(e);
-      throw new RuntimeException(e);
+    public HealthCheckingRoundRobinLoadBalancerProvider() {
+        rrProvider = newRoundRobinProvider();
     }
-  }
+
+    @Override
+    public boolean isAvailable() {
+        return rrProvider.isAvailable();
+    }
+
+    @Override
+    public int getPriority() {
+        return rrProvider.getPriority() + 1;
+    }
+
+    @Override
+    public String getPolicyName() {
+        return rrProvider.getPolicyName();
+    }
+
+    @Override
+    public LoadBalancer newLoadBalancer(Helper helper) {
+        return HealthCheckingLoadBalancerUtil.newHealthCheckingLoadBalancer(rrProvider, helper);
+    }
+
+    @Override
+    public ConfigOrError parseLoadBalancingPolicyConfig(
+            Map<String, ?> rawLoadBalancingPolicyConfig) {
+        return rrProvider.parseLoadBalancingPolicyConfig(rawLoadBalancingPolicyConfig);
+    }
+
+    @VisibleForTesting
+    static LoadBalancerProvider newRoundRobinProvider() {
+        try {
+            Class<? extends LoadBalancerProvider> rrProviderClass =
+                    Class.forName("io.grpc.util.SecretRoundRobinLoadBalancerProvider$Provider")
+                            .asSubclass(LoadBalancerProvider.class);
+            return rrProviderClass.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            Throwables.throwIfUnchecked(e);
+            throw new RuntimeException(e);
+        }
+    }
 }

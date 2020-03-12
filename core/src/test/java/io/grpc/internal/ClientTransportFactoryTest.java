@@ -16,79 +16,80 @@
 
 package io.grpc.internal;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.testing.EqualsTester;
 import io.grpc.Attributes;
 import io.grpc.HttpConnectProxiedSocketAddress;
 import io.grpc.internal.ClientTransportFactory.ClientTransportOptions;
-import java.net.InetSocketAddress;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.net.InetSocketAddress;
+
+import static com.google.common.truth.Truth.assertThat;
+
 @RunWith(JUnit4.class)
 public final class ClientTransportFactoryTest {
-  private String authority = "testing123";
-  private Attributes eagAttributes =
-      Attributes.newBuilder().set(Attributes.Key.create("fake key"), "fake value").build();
-  private String userAgent = "best-ua/3.14";
-  private HttpConnectProxiedSocketAddress proxySocketAddress =
-      HttpConnectProxiedSocketAddress.newBuilder()
-      .setTargetAddress(InetSocketAddress.createUnresolved("localhost", 100))
-      .setProxyAddress(new InetSocketAddress(0))
-      .build();
+    private String authority = "testing123";
+    private Attributes eagAttributes =
+            Attributes.newBuilder().set(Attributes.Key.create("fake key"), "fake value").build();
+    private String userAgent = "best-ua/3.14";
+    private HttpConnectProxiedSocketAddress proxySocketAddress =
+            HttpConnectProxiedSocketAddress.newBuilder()
+                    .setTargetAddress(InetSocketAddress.createUnresolved("localhost", 100))
+                    .setProxyAddress(new InetSocketAddress(0))
+                    .build();
 
-  @Test
-  public void clientTransportOptions_init_checkNotNulls() {
-    ClientTransportOptions cto = new ClientTransportOptions();
-    assertThat(cto.getAuthority()).isNotNull();
-    assertThat(cto.getEagAttributes()).isEqualTo(Attributes.EMPTY);
-  }
+    @Test
+    public void clientTransportOptions_init_checkNotNulls() {
+        ClientTransportOptions cto = new ClientTransportOptions();
+        assertThat(cto.getAuthority()).isNotNull();
+        assertThat(cto.getEagAttributes()).isEqualTo(Attributes.EMPTY);
+    }
 
-  @Test
-  public void clientTransportOptions_getsMatchSets() {
-    ClientTransportOptions cto = new ClientTransportOptions()
-        .setAuthority(authority)
-        .setEagAttributes(eagAttributes)
-        .setUserAgent(userAgent)
-        .setHttpConnectProxiedSocketAddress(proxySocketAddress);
-    assertThat(cto.getAuthority()).isEqualTo(authority);
-    assertThat(cto.getEagAttributes()).isEqualTo(eagAttributes);
-    assertThat(cto.getUserAgent()).isEqualTo(userAgent);
-    assertThat(cto.getHttpConnectProxiedSocketAddress()).isSameInstanceAs(proxySocketAddress);
-  }
+    @Test
+    public void clientTransportOptions_getsMatchSets() {
+        ClientTransportOptions cto = new ClientTransportOptions()
+                .setAuthority(authority)
+                .setEagAttributes(eagAttributes)
+                .setUserAgent(userAgent)
+                .setHttpConnectProxiedSocketAddress(proxySocketAddress);
+        assertThat(cto.getAuthority()).isEqualTo(authority);
+        assertThat(cto.getEagAttributes()).isEqualTo(eagAttributes);
+        assertThat(cto.getUserAgent()).isEqualTo(userAgent);
+        assertThat(cto.getHttpConnectProxiedSocketAddress()).isSameInstanceAs(proxySocketAddress);
+    }
 
-  @Test
-  public void clientTransportOptions_equals() {
-    new EqualsTester()
-        .addEqualityGroup(new ClientTransportOptions())
-        .addEqualityGroup(
-            new ClientTransportOptions()
-              .setAuthority(authority),
-            new ClientTransportOptions()
-              .setAuthority(authority)
-              .setEagAttributes(Attributes.EMPTY))
-        .addEqualityGroup(
-            new ClientTransportOptions()
-              .setAuthority(authority)
-              .setEagAttributes(eagAttributes))
-        .addEqualityGroup(
-            new ClientTransportOptions()
-              .setAuthority(authority)
-              .setEagAttributes(eagAttributes)
-              .setUserAgent(userAgent))
-        .addEqualityGroup(
-            new ClientTransportOptions()
-              .setAuthority(authority)
-              .setEagAttributes(eagAttributes)
-              .setUserAgent(userAgent)
-              .setHttpConnectProxiedSocketAddress(proxySocketAddress),
-            new ClientTransportOptions()
-              .setAuthority(authority)
-              .setEagAttributes(eagAttributes)
-              .setUserAgent(userAgent)
-              .setHttpConnectProxiedSocketAddress(proxySocketAddress))
-        .testEquals();
-  }
+    @Test
+    public void clientTransportOptions_equals() {
+        new EqualsTester()
+                .addEqualityGroup(new ClientTransportOptions())
+                .addEqualityGroup(
+                        new ClientTransportOptions()
+                                .setAuthority(authority),
+                        new ClientTransportOptions()
+                                .setAuthority(authority)
+                                .setEagAttributes(Attributes.EMPTY))
+                .addEqualityGroup(
+                        new ClientTransportOptions()
+                                .setAuthority(authority)
+                                .setEagAttributes(eagAttributes))
+                .addEqualityGroup(
+                        new ClientTransportOptions()
+                                .setAuthority(authority)
+                                .setEagAttributes(eagAttributes)
+                                .setUserAgent(userAgent))
+                .addEqualityGroup(
+                        new ClientTransportOptions()
+                                .setAuthority(authority)
+                                .setEagAttributes(eagAttributes)
+                                .setUserAgent(userAgent)
+                                .setHttpConnectProxiedSocketAddress(proxySocketAddress),
+                        new ClientTransportOptions()
+                                .setAuthority(authority)
+                                .setEagAttributes(eagAttributes)
+                                .setUserAgent(userAgent)
+                                .setHttpConnectProxiedSocketAddress(proxySocketAddress))
+                .testEquals();
+    }
 }

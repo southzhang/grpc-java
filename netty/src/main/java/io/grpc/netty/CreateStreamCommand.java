@@ -24,34 +24,34 @@ import io.netty.handler.codec.http2.Http2Headers;
  * {@link NettyClientHandler} for processing in the Channel thread.
  */
 class CreateStreamCommand extends WriteQueue.AbstractQueuedCommand {
-  private final Http2Headers headers;
-  private final NettyClientStream.TransportState stream;
-  private final boolean shouldBeCountedForInUse;
-  private final boolean get;
+    private final Http2Headers headers;
+    private final NettyClientStream.TransportState stream;
+    private final boolean shouldBeCountedForInUse;
+    private final boolean get;
 
-  CreateStreamCommand(
-      Http2Headers headers,
-      NettyClientStream.TransportState stream,
-      boolean shouldBeCountedForInUse, boolean get) {
-    this.stream = Preconditions.checkNotNull(stream, "stream");
-    this.headers = Preconditions.checkNotNull(headers, "headers");
-    this.shouldBeCountedForInUse = shouldBeCountedForInUse;
-    this.get = get;
-  }
+    CreateStreamCommand(
+            Http2Headers headers,
+            NettyClientStream.TransportState stream,
+            boolean shouldBeCountedForInUse, boolean get) {
+        this.stream = Preconditions.checkNotNull(stream, "stream");
+        this.headers = Preconditions.checkNotNull(headers, "headers");
+        this.shouldBeCountedForInUse = shouldBeCountedForInUse;
+        this.get = get;
+    }
 
-  NettyClientStream.TransportState stream() {
-    return stream;
-  }
+    NettyClientStream.TransportState stream() {
+        return stream;
+    }
 
-  Http2Headers headers() {
-    return headers;
-  }
+    Http2Headers headers() {
+        return headers;
+    }
 
-  boolean shouldBeCountedForInUse() {
-    return shouldBeCountedForInUse;
-  }
+    boolean shouldBeCountedForInUse() {
+        return shouldBeCountedForInUse;
+    }
 
-  boolean isGet() {
-    return get;
-  }
+    boolean isGet() {
+        return get;
+    }
 }

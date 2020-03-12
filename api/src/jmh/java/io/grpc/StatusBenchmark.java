@@ -16,79 +16,77 @@
 
 package io.grpc;
 
+import org.openjdk.jmh.annotations.*;
+
 import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
 
-/** StatusBenchmark. */
+/**
+ * StatusBenchmark.
+ */
 @State(Scope.Benchmark)
 public class StatusBenchmark {
 
-  /**
-   * Javadoc comment.
-   */
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public byte[] messageEncodePlain() {
-    return Status.MESSAGE_KEY.toBytes("Unexpected RST in stream");
-  }
+    /**
+     * Javadoc comment.
+     */
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public byte[] messageEncodePlain() {
+        return Status.MESSAGE_KEY.toBytes("Unexpected RST in stream");
+    }
 
-  /**
-   * Javadoc comment.
-   */
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public byte[] messageEncodeEscape() {
-    return Status.MESSAGE_KEY.toBytes("Some Error\nWasabi and Horseradish are the same");
-  }
+    /**
+     * Javadoc comment.
+     */
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public byte[] messageEncodeEscape() {
+        return Status.MESSAGE_KEY.toBytes("Some Error\nWasabi and Horseradish are the same");
+    }
 
-  /**
-   * Javadoc comment.
-   */
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public String messageDecodePlain() {
-    return Status.MESSAGE_KEY.parseBytes(
-        "Unexpected RST in stream".getBytes(Charset.forName("US-ASCII")));
-  }
+    /**
+     * Javadoc comment.
+     */
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public String messageDecodePlain() {
+        return Status.MESSAGE_KEY.parseBytes(
+                "Unexpected RST in stream".getBytes(Charset.forName("US-ASCII")));
+    }
 
-  /**
-   * Javadoc comment.
-   */
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public String messageDecodeEscape() {
-    return Status.MESSAGE_KEY.parseBytes(
-        "Some Error%10Wasabi and Horseradish are the same".getBytes(Charset.forName("US-ASCII")));
-  }
+    /**
+     * Javadoc comment.
+     */
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public String messageDecodeEscape() {
+        return Status.MESSAGE_KEY.parseBytes(
+                "Some Error%10Wasabi and Horseradish are the same".getBytes(Charset.forName("US-ASCII")));
+    }
 
-  /**
-   * Javadoc comment.
-   */
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public byte[] codeEncode() {
-    return Status.CODE_KEY.toBytes(Status.DATA_LOSS);
-  }
+    /**
+     * Javadoc comment.
+     */
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public byte[] codeEncode() {
+        return Status.CODE_KEY.toBytes(Status.DATA_LOSS);
+    }
 
-  /**
-   * Javadoc comment.
-   */
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Status codeDecode() {
-    return Status.CODE_KEY.parseBytes("15".getBytes(Charset.forName("US-ASCII")));
-  }
+    /**
+     * Javadoc comment.
+     */
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public Status codeDecode() {
+        return Status.CODE_KEY.parseBytes("15".getBytes(Charset.forName("US-ASCII")));
+    }
 }
 

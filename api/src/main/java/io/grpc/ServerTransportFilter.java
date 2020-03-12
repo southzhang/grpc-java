@@ -30,28 +30,27 @@ package io.grpc;
  */
 @ExperimentalApi("https://github.com/grpc/grpc-java/issues/2132")
 public abstract class ServerTransportFilter {
-  /**
-   * Called when a transport is ready to process streams.  All necessary handshakes, e.g., TLS
-   * handshake, are done at this point.
-   *
-   * <p>Note the implementation should always inherit the passed-in attributes using {@code
-   * Attributes.newBuilder(transportAttrs)}, instead of creating one from scratch.
-   *
-   * @param transportAttrs current transport attributes
-   *
-   * @return new transport attributes. Default implementation returns the passed-in attributes
-   *         intact.
-   */
-  public Attributes transportReady(Attributes transportAttrs) {
-    return transportAttrs;
-  }
+    /**
+     * Called when a transport is ready to process streams.  All necessary handshakes, e.g., TLS
+     * handshake, are done at this point.
+     *
+     * <p>Note the implementation should always inherit the passed-in attributes using {@code
+     * Attributes.newBuilder(transportAttrs)}, instead of creating one from scratch.
+     *
+     * @param transportAttrs current transport attributes
+     * @return new transport attributes. Default implementation returns the passed-in attributes
+     * intact.
+     */
+    public Attributes transportReady(Attributes transportAttrs) {
+        return transportAttrs;
+    }
 
-  /**
-   * Called when a transport is terminated.  Default implementation is no-op.
-   *
-   * @param transportAttrs the effective transport attributes, which is what returned by {@link
-   * #transportReady} of the last executed filter.
-   */
-  public void transportTerminated(Attributes transportAttrs) {
-  }
+    /**
+     * Called when a transport is terminated.  Default implementation is no-op.
+     *
+     * @param transportAttrs the effective transport attributes, which is what returned by {@link
+     *                       #transportReady} of the last executed filter.
+     */
+    public void transportTerminated(Attributes transportAttrs) {
+    }
 }

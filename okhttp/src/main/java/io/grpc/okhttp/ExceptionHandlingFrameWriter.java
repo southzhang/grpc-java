@@ -16,222 +16,227 @@
 
 package io.grpc.okhttp;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import io.grpc.okhttp.internal.framed.ErrorCode;
 import io.grpc.okhttp.internal.framed.FrameWriter;
 import io.grpc.okhttp.internal.framed.Header;
 import io.grpc.okhttp.internal.framed.Settings;
+import okio.Buffer;
+import okio.ByteString;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import okio.Buffer;
-import okio.ByteString;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 final class ExceptionHandlingFrameWriter implements FrameWriter {
 
-  private static final Logger log = Logger.getLogger(OkHttpClientTransport.class.getName());
+    private static final Logger log = Logger.getLogger(OkHttpClientTransport.class.getName());
 
-  private final TransportExceptionHandler transportExceptionHandler;
+    private final TransportExceptionHandler transportExceptionHandler;
 
-  private final FrameWriter frameWriter;
+    private final FrameWriter frameWriter;
 
-  private final OkHttpFrameLogger frameLogger;
+    private final OkHttpFrameLogger frameLogger;
 
-  ExceptionHandlingFrameWriter(
-      TransportExceptionHandler transportExceptionHandler, FrameWriter frameWriter) {
-    this(transportExceptionHandler, frameWriter,
-        new OkHttpFrameLogger(Level.FINE, OkHttpClientTransport.class));
-  }
-
-  @VisibleForTesting
-  ExceptionHandlingFrameWriter(
-      TransportExceptionHandler transportExceptionHandler,
-      FrameWriter frameWriter,
-      OkHttpFrameLogger frameLogger) {
-    this.transportExceptionHandler =
-        checkNotNull(transportExceptionHandler, "transportExceptionHandler");
-    this.frameWriter = Preconditions.checkNotNull(frameWriter, "frameWriter");
-    this.frameLogger = Preconditions.checkNotNull(frameLogger, "frameLogger");
-  }
-
-  @Override
-  public void connectionPreface() {
-    try {
-      frameWriter.connectionPreface();
-    } catch (IOException e) {
-      transportExceptionHandler.onException(e);
+    ExceptionHandlingFrameWriter(
+            TransportExceptionHandler transportExceptionHandler, FrameWriter frameWriter) {
+        this(transportExceptionHandler, frameWriter,
+                new OkHttpFrameLogger(Level.FINE, OkHttpClientTransport.class));
     }
-  }
 
-  @Override
-  public void ackSettings(Settings peerSettings) {
-    frameLogger.logSettingsAck(OkHttpFrameLogger.Direction.OUTBOUND);
-    try {
-      frameWriter.ackSettings(peerSettings);
-    } catch (IOException e) {
-      transportExceptionHandler.onException(e);
+    @VisibleForTesting
+    ExceptionHandlingFrameWriter(
+            TransportExceptionHandler transportExceptionHandler,
+            FrameWriter frameWriter,
+            OkHttpFrameLogger frameLogger) {
+        this.transportExceptionHandler =
+                checkNotNull(transportExceptionHandler, "transportExceptionHandler");
+        this.frameWriter = Preconditions.checkNotNull(frameWriter, "frameWriter");
+        this.frameLogger = Preconditions.checkNotNull(frameLogger, "frameLogger");
     }
-  }
 
-  @Override
-  public void pushPromise(int streamId, int promisedStreamId, List<Header> requestHeaders) {
-    frameLogger.logPushPromise(OkHttpFrameLogger.Direction.OUTBOUND,
-        streamId, promisedStreamId, requestHeaders);
-    try {
-      frameWriter.pushPromise(streamId, promisedStreamId, requestHeaders);
-    } catch (IOException e) {
-      transportExceptionHandler.onException(e);
+    @Override
+    public void connectionPreface() {
+        try {
+            frameWriter.connectionPreface();
+        } catch (IOException e) {
+            transportExceptionHandler.onException(e);
+        }
     }
-  }
 
-  @Override
-  public void flush() {
-    try {
-      frameWriter.flush();
-    } catch (IOException e) {
-      transportExceptionHandler.onException(e);
+    @Override
+    public void ackSettings(Settings peerSettings) {
+        frameLogger.logSettingsAck(OkHttpFrameLogger.Direction.OUTBOUND);
+        try {
+            frameWriter.ackSettings(peerSettings);
+        } catch (IOException e) {
+            transportExceptionHandler.onException(e);
+        }
     }
-  }
 
-  @Override
-  public void synStream(
-      boolean outFinished,
-      boolean inFinished,
-      int streamId,
-      int associatedStreamId,
-      List<Header> headerBlock) {
-    try {
-      frameWriter.synStream(outFinished, inFinished, streamId, associatedStreamId, headerBlock);
-    } catch (IOException e) {
-      transportExceptionHandler.onException(e);
+    @Override
+    public void pushPromise(int streamId, int promisedStreamId, List<Header> requestHeaders) {
+        frameLogger.logPushPromise(OkHttpFrameLogger.Direction.OUTBOUND,
+                streamId, promisedStreamId, requestHeaders);
+        try {
+            frameWriter.pushPromise(streamId, promisedStreamId, requestHeaders);
+        } catch (IOException e) {
+            transportExceptionHandler.onException(e);
+        }
     }
-  }
 
-  @Override
-  public void synReply(boolean outFinished, int streamId,
-      List<Header> headerBlock) {
-    try {
-      frameWriter.synReply(outFinished, streamId, headerBlock);
-    } catch (IOException e) {
-      transportExceptionHandler.onException(e);
+    @Override
+    public void flush() {
+        try {
+            frameWriter.flush();
+        } catch (IOException e) {
+            transportExceptionHandler.onException(e);
+        }
     }
-  }
 
-  @Override
-  public void headers(int streamId, List<Header> headerBlock) {
-    frameLogger.logHeaders(OkHttpFrameLogger.Direction.OUTBOUND, streamId, headerBlock, false);
-    try {
-      frameWriter.headers(streamId, headerBlock);
-    } catch (IOException e) {
-      transportExceptionHandler.onException(e);
+    @Override
+    public void synStream(
+            boolean outFinished,
+            boolean inFinished,
+            int streamId,
+            int associatedStreamId,
+            List<Header> headerBlock) {
+        try {
+            frameWriter.synStream(outFinished, inFinished, streamId, associatedStreamId, headerBlock);
+        } catch (IOException e) {
+            transportExceptionHandler.onException(e);
+        }
     }
-  }
 
-  @Override
-  public void rstStream(int streamId, ErrorCode errorCode) {
-    frameLogger.logRstStream(OkHttpFrameLogger.Direction.OUTBOUND, streamId, errorCode);
-    try {
-      frameWriter.rstStream(streamId, errorCode);
-    } catch (IOException e) {
-      transportExceptionHandler.onException(e);
+    @Override
+    public void synReply(boolean outFinished, int streamId,
+                         List<Header> headerBlock) {
+        try {
+            frameWriter.synReply(outFinished, streamId, headerBlock);
+        } catch (IOException e) {
+            transportExceptionHandler.onException(e);
+        }
     }
-  }
 
-  @Override
-  public int maxDataLength() {
-    return frameWriter.maxDataLength();
-  }
-
-  @Override
-  public void data(boolean outFinished, int streamId, Buffer source, int byteCount) {
-    frameLogger.logData(OkHttpFrameLogger.Direction.OUTBOUND,
-        streamId, source.buffer(), byteCount, outFinished);
-    try {
-      frameWriter.data(outFinished, streamId, source, byteCount);
-    } catch (IOException e) {
-      transportExceptionHandler.onException(e);
+    @Override
+    public void headers(int streamId, List<Header> headerBlock) {
+        frameLogger.logHeaders(OkHttpFrameLogger.Direction.OUTBOUND, streamId, headerBlock, false);
+        try {
+            frameWriter.headers(streamId, headerBlock);
+        } catch (IOException e) {
+            transportExceptionHandler.onException(e);
+        }
     }
-  }
 
-  @Override
-  public void settings(Settings okHttpSettings) {
-    frameLogger.logSettings(OkHttpFrameLogger.Direction.OUTBOUND, okHttpSettings);
-    try {
-      frameWriter.settings(okHttpSettings);
-    } catch (IOException e) {
-      transportExceptionHandler.onException(e);
+    @Override
+    public void rstStream(int streamId, ErrorCode errorCode) {
+        frameLogger.logRstStream(OkHttpFrameLogger.Direction.OUTBOUND, streamId, errorCode);
+        try {
+            frameWriter.rstStream(streamId, errorCode);
+        } catch (IOException e) {
+            transportExceptionHandler.onException(e);
+        }
     }
-  }
 
-  @Override
-  public void ping(boolean ack, int payload1, int payload2) {
-    if (ack) {
-      frameLogger.logPingAck(OkHttpFrameLogger.Direction.OUTBOUND,
-          ((long) payload1 << 32) | (payload2 & 0xFFFFFFFFL));
-    } else {
-      frameLogger.logPing(OkHttpFrameLogger.Direction.OUTBOUND,
-          ((long) payload1 << 32) | (payload2 & 0xFFFFFFFFL));
+    @Override
+    public int maxDataLength() {
+        return frameWriter.maxDataLength();
     }
-    try {
-      frameWriter.ping(ack, payload1, payload2);
-    } catch (IOException e) {
-      transportExceptionHandler.onException(e);
-    }
-  }
 
-  @Override
-  public void goAway(int lastGoodStreamId, ErrorCode errorCode,
-      byte[] debugData) {
-    frameLogger.logGoAway(OkHttpFrameLogger.Direction.OUTBOUND,
-        lastGoodStreamId, errorCode, ByteString.of(debugData));
-    try {
-      frameWriter.goAway(lastGoodStreamId, errorCode, debugData);
-      // Flush it since after goAway, we are likely to close this writer.
-      frameWriter.flush();
-    } catch (IOException e) {
-      transportExceptionHandler.onException(e);
+    @Override
+    public void data(boolean outFinished, int streamId, Buffer source, int byteCount) {
+        frameLogger.logData(OkHttpFrameLogger.Direction.OUTBOUND,
+                streamId, source.buffer(), byteCount, outFinished);
+        try {
+            frameWriter.data(outFinished, streamId, source, byteCount);
+        } catch (IOException e) {
+            transportExceptionHandler.onException(e);
+        }
     }
-  }
 
-  @Override
-  public void windowUpdate(int streamId, long windowSizeIncrement) {
-    frameLogger.logWindowsUpdate(OkHttpFrameLogger.Direction.OUTBOUND,
-        streamId, windowSizeIncrement);
-    try {
-      frameWriter.windowUpdate(streamId, windowSizeIncrement);
-    } catch (IOException e) {
-      transportExceptionHandler.onException(e);
+    @Override
+    public void settings(Settings okHttpSettings) {
+        frameLogger.logSettings(OkHttpFrameLogger.Direction.OUTBOUND, okHttpSettings);
+        try {
+            frameWriter.settings(okHttpSettings);
+        } catch (IOException e) {
+            transportExceptionHandler.onException(e);
+        }
     }
-  }
 
-  @Override
-  public void close() {
-    try {
-      frameWriter.close();
-    } catch (IOException e) {
-      log.log(getLogLevel(e), "Failed closing connection", e);
+    @Override
+    public void ping(boolean ack, int payload1, int payload2) {
+        if (ack) {
+            frameLogger.logPingAck(OkHttpFrameLogger.Direction.OUTBOUND,
+                    ((long) payload1 << 32) | (payload2 & 0xFFFFFFFFL));
+        } else {
+            frameLogger.logPing(OkHttpFrameLogger.Direction.OUTBOUND,
+                    ((long) payload1 << 32) | (payload2 & 0xFFFFFFFFL));
+        }
+        try {
+            frameWriter.ping(ack, payload1, payload2);
+        } catch (IOException e) {
+            transportExceptionHandler.onException(e);
+        }
     }
-  }
 
-  /**
-   * Accepts a throwable and returns the appropriate logging level. Uninteresting exceptions
-   * should not clutter the log.
-   */
-  @VisibleForTesting
-  static Level getLogLevel(Throwable t) {
-    if (t.getClass().equals(IOException.class)) {
-      return Level.FINE;
+    @Override
+    public void goAway(int lastGoodStreamId, ErrorCode errorCode,
+                       byte[] debugData) {
+        frameLogger.logGoAway(OkHttpFrameLogger.Direction.OUTBOUND,
+                lastGoodStreamId, errorCode, ByteString.of(debugData));
+        try {
+            frameWriter.goAway(lastGoodStreamId, errorCode, debugData);
+            // Flush it since after goAway, we are likely to close this writer.
+            frameWriter.flush();
+        } catch (IOException e) {
+            transportExceptionHandler.onException(e);
+        }
     }
-    return Level.INFO;
-  }
 
-  /** A class that handles transport exception. */
-  interface TransportExceptionHandler {
-    /** Handles exception. */
-    void onException(Throwable throwable);
-  }
+    @Override
+    public void windowUpdate(int streamId, long windowSizeIncrement) {
+        frameLogger.logWindowsUpdate(OkHttpFrameLogger.Direction.OUTBOUND,
+                streamId, windowSizeIncrement);
+        try {
+            frameWriter.windowUpdate(streamId, windowSizeIncrement);
+        } catch (IOException e) {
+            transportExceptionHandler.onException(e);
+        }
+    }
+
+    @Override
+    public void close() {
+        try {
+            frameWriter.close();
+        } catch (IOException e) {
+            log.log(getLogLevel(e), "Failed closing connection", e);
+        }
+    }
+
+    /**
+     * Accepts a throwable and returns the appropriate logging level. Uninteresting exceptions
+     * should not clutter the log.
+     */
+    @VisibleForTesting
+    static Level getLogLevel(Throwable t) {
+        if (t.getClass().equals(IOException.class)) {
+            return Level.FINE;
+        }
+        return Level.INFO;
+    }
+
+    /**
+     * A class that handles transport exception.
+     */
+    interface TransportExceptionHandler {
+        /**
+         * Handles exception.
+         */
+        void onException(Throwable throwable);
+    }
 }

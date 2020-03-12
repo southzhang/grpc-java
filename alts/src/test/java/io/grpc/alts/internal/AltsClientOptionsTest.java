@@ -16,41 +16,43 @@
 
 package io.grpc.alts.internal;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link AltsClientOptions}. */
+import static com.google.common.truth.Truth.assertThat;
+
+/**
+ * Unit tests for {@link AltsClientOptions}.
+ */
 @RunWith(JUnit4.class)
 public final class AltsClientOptionsTest {
 
-  @Test
-  public void setAndGet() throws Exception {
-    String targetName = "foo";
-    String serviceAccount1 = "bar1";
-    String serviceAccount2 = "bar2";
-    RpcProtocolVersions rpcVersions =
-        RpcProtocolVersions.newBuilder()
-            .setMaxRpcVersion(
-                RpcProtocolVersions.Version.newBuilder().setMajor(2).setMinor(1).build())
-            .setMinRpcVersion(
-                RpcProtocolVersions.Version.newBuilder().setMajor(2).setMinor(1).build())
-            .build();
-    ImmutableList<String> serviceAccounts = ImmutableList.of(serviceAccount1, serviceAccount2);
+    @Test
+    public void setAndGet() throws Exception {
+        String targetName = "foo";
+        String serviceAccount1 = "bar1";
+        String serviceAccount2 = "bar2";
+        RpcProtocolVersions rpcVersions =
+                RpcProtocolVersions.newBuilder()
+                        .setMaxRpcVersion(
+                                RpcProtocolVersions.Version.newBuilder().setMajor(2).setMinor(1).build())
+                        .setMinRpcVersion(
+                                RpcProtocolVersions.Version.newBuilder().setMajor(2).setMinor(1).build())
+                        .build();
+        ImmutableList<String> serviceAccounts = ImmutableList.of(serviceAccount1, serviceAccount2);
 
-    AltsClientOptions options =
-        new AltsClientOptions.Builder()
-            .setTargetName(targetName)
-            .setTargetServiceAccounts(serviceAccounts)
-            .setRpcProtocolVersions(rpcVersions)
-            .build();
+        AltsClientOptions options =
+                new AltsClientOptions.Builder()
+                        .setTargetName(targetName)
+                        .setTargetServiceAccounts(serviceAccounts)
+                        .setRpcProtocolVersions(rpcVersions)
+                        .build();
 
-    assertThat(options.getTargetName()).isEqualTo(targetName);
-    assertThat(options.getTargetServiceAccounts())
-        .containsAtLeast(serviceAccount1, serviceAccount2);
-    assertThat(options.getRpcProtocolVersions()).isEqualTo(rpcVersions);
-  }
+        assertThat(options.getTargetName()).isEqualTo(targetName);
+        assertThat(options.getTargetServiceAccounts())
+                .containsAtLeast(serviceAccount1, serviceAccount2);
+        assertThat(options.getRpcProtocolVersions()).isEqualTo(rpcVersions);
+    }
 }

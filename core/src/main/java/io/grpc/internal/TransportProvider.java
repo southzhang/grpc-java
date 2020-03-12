@@ -24,11 +24,11 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 interface TransportProvider {
-  /**
-   * Returns a READY transport that will be used to create new streams.
-   *
-   * <p>Returns {@code null} if the state is not READY.  Will try to connect if state is IDLE.
-   */
-  @Nullable
-  ClientTransport obtainActiveTransport();
+    /**
+     * Returns a READY transport that will be used to create new streams.
+     *
+     * <p>Returns {@code null} if the state is not READY.  Will try to connect if state is IDLE.
+     */
+    @Nullable
+    ClientTransport obtainActiveTransport();
 }

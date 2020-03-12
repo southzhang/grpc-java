@@ -21,14 +21,14 @@ package io.grpc.internal;
  * be platform dependent.
  */
 final class LongCounterFactory {
-  /**
-   * Creates a LongCounter.
-   */
-  public static LongCounter create() {
-    if (ReflectionLongAdderCounter.isAvailable()) {
-      return new ReflectionLongAdderCounter();
-    } else {
-      return new AtomicLongCounter();
+    /**
+     * Creates a LongCounter.
+     */
+    public static LongCounter create() {
+        if (ReflectionLongAdderCounter.isAvailable()) {
+            return new ReflectionLongAdderCounter();
+        } else {
+            return new AtomicLongCounter();
+        }
     }
-  }
 }

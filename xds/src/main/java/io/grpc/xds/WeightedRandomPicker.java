@@ -16,124 +16,125 @@
 
 package io.grpc.xds;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import io.grpc.LoadBalancer.PickResult;
 import io.grpc.LoadBalancer.PickSubchannelArgs;
 import io.grpc.LoadBalancer.SubchannelPicker;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 final class WeightedRandomPicker extends SubchannelPicker {
 
-  @VisibleForTesting
-  final List<WeightedChildPicker> weightedChildPickers;
+    @VisibleForTesting
+    final List<WeightedChildPicker> weightedChildPickers;
 
-  private final ThreadSafeRandom random;
-  private final int totalWeight;
+    private final ThreadSafeRandom random;
+    private final int totalWeight;
 
-  static final class WeightedChildPicker {
-    private final int weight;
-    private final SubchannelPicker childPicker;
+    static final class WeightedChildPicker {
+        private final int weight;
+        private final SubchannelPicker childPicker;
 
-    WeightedChildPicker(int weight, SubchannelPicker childPicker) {
-      checkArgument(weight >= 0, "weight is negative");
-      checkNotNull(childPicker, "childPicker is null");
+        WeightedChildPicker(int weight, SubchannelPicker childPicker) {
+            checkArgument(weight >= 0, "weight is negative");
+            checkNotNull(childPicker, "childPicker is null");
 
-      this.weight = weight;
-      this.childPicker = childPicker;
+            this.weight = weight;
+            this.childPicker = childPicker;
+        }
+
+        int getWeight() {
+            return weight;
+        }
+
+        SubchannelPicker getPicker() {
+            return childPicker;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            WeightedChildPicker that = (WeightedChildPicker) o;
+            return weight == that.weight && Objects.equals(childPicker, that.childPicker);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(weight, childPicker);
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(this)
+                    .add("weight", weight)
+                    .add("childPicker", childPicker)
+                    .toString();
+        }
     }
 
-    int getWeight() {
-      return weight;
+    WeightedRandomPicker(List<WeightedChildPicker> weightedChildPickers) {
+        this(weightedChildPickers, ThreadSafeRandom.ThreadSafeRandomImpl.instance);
     }
 
-    SubchannelPicker getPicker() {
-      return childPicker;
+    @VisibleForTesting
+    WeightedRandomPicker(List<WeightedChildPicker> weightedChildPickers, ThreadSafeRandom random) {
+        checkNotNull(weightedChildPickers, "weightedChildPickers in null");
+        checkArgument(!weightedChildPickers.isEmpty(), "weightedChildPickers is empty");
+
+        this.weightedChildPickers = Collections.unmodifiableList(weightedChildPickers);
+
+        int totalWeight = 0;
+        for (WeightedChildPicker weightedChildPicker : weightedChildPickers) {
+            int weight = weightedChildPicker.getWeight();
+            totalWeight += weight;
+        }
+        this.totalWeight = totalWeight;
+
+        this.random = random;
     }
 
     @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      WeightedChildPicker that = (WeightedChildPicker) o;
-      return weight == that.weight && Objects.equals(childPicker, that.childPicker);
-    }
+    public final PickResult pickSubchannel(PickSubchannelArgs args) {
+        SubchannelPicker childPicker = null;
 
-    @Override
-    public int hashCode() {
-      return Objects.hash(weight, childPicker);
+        if (totalWeight == 0) {
+            childPicker =
+                    weightedChildPickers.get(random.nextInt(weightedChildPickers.size())).getPicker();
+        } else {
+            int rand = random.nextInt(totalWeight);
+
+            // Find the first idx such that rand < accumulatedWeights[idx]
+            // Not using Arrays.binarySearch for better readability.
+            int accumulatedWeight = 0;
+            for (int idx = 0; idx < weightedChildPickers.size(); idx++) {
+                accumulatedWeight += weightedChildPickers.get(idx).getWeight();
+                if (rand < accumulatedWeight) {
+                    childPicker = weightedChildPickers.get(idx).getPicker();
+                    break;
+                }
+            }
+            checkNotNull(childPicker, "childPicker not found");
+        }
+
+        return childPicker.pickSubchannel(args);
     }
 
     @Override
     public String toString() {
-      return MoreObjects.toStringHelper(this)
-          .add("weight", weight)
-          .add("childPicker", childPicker)
-          .toString();
+        return MoreObjects.toStringHelper(this)
+                .add("weightedChildPickers", weightedChildPickers)
+                .add("totalWeight", totalWeight)
+                .toString();
     }
-  }
-
-  WeightedRandomPicker(List<WeightedChildPicker> weightedChildPickers) {
-    this(weightedChildPickers, ThreadSafeRandom.ThreadSafeRandomImpl.instance);
-  }
-
-  @VisibleForTesting
-  WeightedRandomPicker(List<WeightedChildPicker> weightedChildPickers, ThreadSafeRandom random) {
-    checkNotNull(weightedChildPickers, "weightedChildPickers in null");
-    checkArgument(!weightedChildPickers.isEmpty(), "weightedChildPickers is empty");
-
-    this.weightedChildPickers = Collections.unmodifiableList(weightedChildPickers);
-
-    int totalWeight = 0;
-    for (WeightedChildPicker weightedChildPicker : weightedChildPickers) {
-      int weight = weightedChildPicker.getWeight();
-      totalWeight += weight;
-    }
-    this.totalWeight = totalWeight;
-
-    this.random = random;
-  }
-
-  @Override
-  public final PickResult pickSubchannel(PickSubchannelArgs args) {
-    SubchannelPicker childPicker = null;
-
-    if (totalWeight == 0) {
-      childPicker =
-          weightedChildPickers.get(random.nextInt(weightedChildPickers.size())).getPicker();
-    } else {
-      int rand = random.nextInt(totalWeight);
-
-      // Find the first idx such that rand < accumulatedWeights[idx]
-      // Not using Arrays.binarySearch for better readability.
-      int accumulatedWeight = 0;
-      for (int idx = 0; idx < weightedChildPickers.size(); idx++) {
-        accumulatedWeight += weightedChildPickers.get(idx).getWeight();
-        if (rand < accumulatedWeight) {
-          childPicker = weightedChildPickers.get(idx).getPicker();
-          break;
-        }
-      }
-      checkNotNull(childPicker, "childPicker not found");
-    }
-
-    return childPicker.pickSubchannel(args);
-  }
-
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("weightedChildPickers", weightedChildPickers)
-        .add("totalWeight", totalWeight)
-        .toString();
-  }
 }

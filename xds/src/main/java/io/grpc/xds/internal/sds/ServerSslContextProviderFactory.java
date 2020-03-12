@@ -16,47 +16,51 @@
 
 package io.grpc.xds.internal.sds;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.envoyproxy.envoy.api.v2.auth.DownstreamTlsContext;
 import io.grpc.xds.Bootstrapper;
 import io.grpc.xds.internal.sds.ReferenceCountingSslContextProviderMap.SslContextProviderFactory;
+
 import java.io.IOException;
 import java.util.concurrent.Executors;
 
-/** Factory to create server-side SslContextProvider from DownstreamTlsContext. */
-final class ServerSslContextProviderFactory
-    implements SslContextProviderFactory<DownstreamTlsContext> {
+import static com.google.common.base.Preconditions.checkNotNull;
 
-  /** Creates an SslContextProvider from the given DownstreamTlsContext. */
-  @Override
-  public SslContextProvider<DownstreamTlsContext> createSslContextProvider(
-      DownstreamTlsContext downstreamTlsContext) {
-    checkNotNull(downstreamTlsContext, "downstreamTlsContext");
-    checkArgument(
-        downstreamTlsContext.hasCommonTlsContext(),
-        "downstreamTlsContext should have CommonTlsContext");
-    if (CommonTlsContextUtil.hasAllSecretsUsingFilename(
-        downstreamTlsContext.getCommonTlsContext())) {
-      return SecretVolumeSslContextProvider.getProviderForServer(downstreamTlsContext);
-    } else if (CommonTlsContextUtil.hasAllSecretsUsingSds(
-        downstreamTlsContext.getCommonTlsContext())) {
-      try {
-        return SdsSslContextProvider.getProviderForServer(
-            downstreamTlsContext,
-            Bootstrapper.getInstance().readBootstrap().getNode(),
-            Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
-                .setNameFormat("server-sds-sslcontext-provider-%d")
-                .setDaemon(true)
-                .build()),
-            /* channelExecutor= */ null);
-      } catch (IOException ioe) {
-        throw new RuntimeException(ioe);
-      }
+/**
+ * Factory to create server-side SslContextProvider from DownstreamTlsContext.
+ */
+final class ServerSslContextProviderFactory
+        implements SslContextProviderFactory<DownstreamTlsContext> {
+
+    /**
+     * Creates an SslContextProvider from the given DownstreamTlsContext.
+     */
+    @Override
+    public SslContextProvider<DownstreamTlsContext> createSslContextProvider(
+            DownstreamTlsContext downstreamTlsContext) {
+        checkNotNull(downstreamTlsContext, "downstreamTlsContext");
+        checkArgument(
+                downstreamTlsContext.hasCommonTlsContext(),
+                "downstreamTlsContext should have CommonTlsContext");
+        if (CommonTlsContextUtil.hasAllSecretsUsingFilename(
+                downstreamTlsContext.getCommonTlsContext())) {
+            return SecretVolumeSslContextProvider.getProviderForServer(downstreamTlsContext);
+        } else if (CommonTlsContextUtil.hasAllSecretsUsingSds(
+                downstreamTlsContext.getCommonTlsContext())) {
+            try {
+                return SdsSslContextProvider.getProviderForServer(
+                        downstreamTlsContext,
+                        Bootstrapper.getInstance().readBootstrap().getNode(),
+                        Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
+                                .setNameFormat("server-sds-sslcontext-provider-%d")
+                                .setDaemon(true)
+                                .build()),
+                        /* channelExecutor= */ null);
+            } catch (IOException ioe) {
+                throw new RuntimeException(ioe);
+            }
+        }
+        throw new UnsupportedOperationException(
+                "DownstreamTlsContext to have all filenames or all SdsConfig");
     }
-    throw new UnsupportedOperationException(
-        "DownstreamTlsContext to have all filenames or all SdsConfig");
-  }
 }

@@ -21,10 +21,11 @@ package io.grpc;
  */
 @Internal
 public final class InternalDecompressorRegistry {
-  private InternalDecompressorRegistry() {}
+    private InternalDecompressorRegistry() {
+    }
 
-  @Internal
-  public static byte[] getRawAdvertisedMessageEncodings(DecompressorRegistry reg) {
-    return reg.getRawAdvertisedMessageEncodings();
-  }
+    @Internal
+    public static byte[] getRawAdvertisedMessageEncodings(DecompressorRegistry reg) {
+        return reg.getRawAdvertisedMessageEncodings();
+    }
 }

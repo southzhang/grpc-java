@@ -17,25 +17,26 @@
 package io.grpc.netty;
 
 import io.grpc.internal.ClientTransport.PingCallback;
+
 import java.util.concurrent.Executor;
 
 /**
  * Command sent from the transport to the Netty channel to send a PING frame.
  */
 class SendPingCommand extends WriteQueue.AbstractQueuedCommand {
-  private final PingCallback callback;
-  private final Executor executor;
+    private final PingCallback callback;
+    private final Executor executor;
 
-  SendPingCommand(PingCallback callback, Executor executor) {
-    this.callback = callback;
-    this.executor = executor;
-  }
+    SendPingCommand(PingCallback callback, Executor executor) {
+        this.callback = callback;
+        this.executor = executor;
+    }
 
-  PingCallback callback() {
-    return callback;
-  }
+    PingCallback callback() {
+        return callback;
+    }
 
-  Executor executor() {
-    return executor;
-  }
+    Executor executor() {
+        return executor;
+    }
 }

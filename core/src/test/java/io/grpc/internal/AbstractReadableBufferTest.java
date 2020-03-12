@@ -16,9 +16,6 @@
 
 package io.grpc.internal;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,35 +25,38 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.OngoingStubbing;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
 /**
  * Tests for {@link AbstractReadableBuffer}.
  */
 @RunWith(JUnit4.class)
 public class AbstractReadableBufferTest {
 
-  @Rule
-  public final MockitoRule mocks = MockitoJUnit.rule();
+    @Rule
+    public final MockitoRule mocks = MockitoJUnit.rule();
 
-  @Mock
-  private AbstractReadableBuffer buffer;
+    @Mock
+    private AbstractReadableBuffer buffer;
 
-  @Test
-  public void readPositiveIntShouldSucceed() {
-    mockBytes(0x7F, 0xEE, 0xDD, 0xCC);
-    assertEquals(0x7FEEDDCC, buffer.readInt());
-  }
-
-  @Test
-  public void readNegativeIntShouldSucceed() {
-    mockBytes(0xFF, 0xEE, 0xDD, 0xCC);
-    assertEquals(0xFFEEDDCC, buffer.readInt());
-  }
-
-  private void mockBytes(int... bytes) {
-    when(buffer.readableBytes()).thenReturn(bytes.length);
-    OngoingStubbing<Integer> stub = when(buffer.readUnsignedByte());
-    for (int b : bytes) {
-      stub = stub.thenReturn(b);
+    @Test
+    public void readPositiveIntShouldSucceed() {
+        mockBytes(0x7F, 0xEE, 0xDD, 0xCC);
+        assertEquals(0x7FEEDDCC, buffer.readInt());
     }
-  }
+
+    @Test
+    public void readNegativeIntShouldSucceed() {
+        mockBytes(0xFF, 0xEE, 0xDD, 0xCC);
+        assertEquals(0xFFEEDDCC, buffer.readInt());
+    }
+
+    private void mockBytes(int... bytes) {
+        when(buffer.readableBytes()).thenReturn(bytes.length);
+        OngoingStubbing<Integer> stub = when(buffer.readUnsignedByte());
+        for (int b : bytes) {
+            stub = stub.thenReturn(b);
+        }
+    }
 }

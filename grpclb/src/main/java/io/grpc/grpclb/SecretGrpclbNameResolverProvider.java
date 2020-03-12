@@ -22,6 +22,7 @@ import io.grpc.InternalServiceProviders;
 import io.grpc.NameResolver.Args;
 import io.grpc.NameResolverProvider;
 import io.grpc.internal.GrpcUtil;
+
 import java.net.URI;
 
 /**
@@ -43,47 +44,48 @@ import java.net.URI;
 // requires the provider to be public, but we can hide it under a package-private class.
 final class SecretGrpclbNameResolverProvider {
 
-  private SecretGrpclbNameResolverProvider() {}
-
-  public static final class Provider extends NameResolverProvider {
-
-    private static final String SCHEME = "dns";
-
-    @Override
-    public GrpclbNameResolver newNameResolver(URI targetUri, Args args) {
-      if (SCHEME.equals(targetUri.getScheme())) {
-        String targetPath = Preconditions.checkNotNull(targetUri.getPath(), "targetPath");
-        Preconditions.checkArgument(
-            targetPath.startsWith("/"),
-            "the path component (%s) of the target (%s) must start with '/'",
-            targetPath, targetUri);
-        String name = targetPath.substring(1);
-        return new GrpclbNameResolver(
-            targetUri.getAuthority(),
-            name,
-            args,
-            GrpcUtil.SHARED_CHANNEL_EXECUTOR,
-            Stopwatch.createUnstarted(),
-            InternalServiceProviders.isAndroid(getClass().getClassLoader()));
-      } else {
-        return null;
-      }
+    private SecretGrpclbNameResolverProvider() {
     }
 
-    @Override
-    public String getDefaultScheme() {
-      return SCHEME;
-    }
+    public static final class Provider extends NameResolverProvider {
 
-    @Override
-    protected boolean isAvailable() {
-      return true;
-    }
+        private static final String SCHEME = "dns";
 
-    @Override
-    public int priority() {
-      // Must be higher than DnsNameResolverProvider#priority.
-      return 6;
+        @Override
+        public GrpclbNameResolver newNameResolver(URI targetUri, Args args) {
+            if (SCHEME.equals(targetUri.getScheme())) {
+                String targetPath = Preconditions.checkNotNull(targetUri.getPath(), "targetPath");
+                Preconditions.checkArgument(
+                        targetPath.startsWith("/"),
+                        "the path component (%s) of the target (%s) must start with '/'",
+                        targetPath, targetUri);
+                String name = targetPath.substring(1);
+                return new GrpclbNameResolver(
+                        targetUri.getAuthority(),
+                        name,
+                        args,
+                        GrpcUtil.SHARED_CHANNEL_EXECUTOR,
+                        Stopwatch.createUnstarted(),
+                        InternalServiceProviders.isAndroid(getClass().getClassLoader()));
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        public String getDefaultScheme() {
+            return SCHEME;
+        }
+
+        @Override
+        protected boolean isAvailable() {
+            return true;
+        }
+
+        @Override
+        public int priority() {
+            // Must be higher than DnsNameResolverProvider#priority.
+            return 6;
+        }
     }
-  }
 }

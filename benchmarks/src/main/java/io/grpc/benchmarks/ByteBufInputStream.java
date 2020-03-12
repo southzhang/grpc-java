@@ -19,6 +19,7 @@ package io.grpc.benchmarks;
 import io.grpc.Drainable;
 import io.grpc.KnownLength;
 import io.netty.buffer.ByteBuf;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,32 +29,32 @@ import java.io.OutputStream;
  */
 @SuppressWarnings("InputStreamSlowMultibyteRead") // doesn't matter if slow. It'll throw
 public class ByteBufInputStream extends InputStream
-    implements Drainable, KnownLength {
+        implements Drainable, KnownLength {
 
-  private ByteBuf buf;
+    private ByteBuf buf;
 
-  ByteBufInputStream(ByteBuf buf) {
-    this.buf = buf;
-  }
-
-  @Override
-  public int drainTo(OutputStream target) throws IOException {
-    int readableBytes = buf.readableBytes();
-    buf.readBytes(target, readableBytes);
-    buf = null;
-    return readableBytes;
-  }
-
-  @Override
-  public int available() throws IOException {
-    if (buf != null) {
-      return buf.readableBytes();
+    ByteBufInputStream(ByteBuf buf) {
+        this.buf = buf;
     }
-    return 0;
-  }
 
-  @Override
-  public int read() throws IOException {
-    throw new UnsupportedOperationException();
-  }
+    @Override
+    public int drainTo(OutputStream target) throws IOException {
+        int readableBytes = buf.readableBytes();
+        buf.readBytes(target, readableBytes);
+        buf = null;
+        return readableBytes;
+    }
+
+    @Override
+    public int available() throws IOException {
+        if (buf != null) {
+            return buf.readableBytes();
+        }
+        return 0;
+    }
+
+    @Override
+    public int read() throws IOException {
+        throw new UnsupportedOperationException();
+    }
 }

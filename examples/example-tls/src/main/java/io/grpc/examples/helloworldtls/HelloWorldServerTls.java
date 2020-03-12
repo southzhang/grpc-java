@@ -25,11 +25,9 @@ import io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.SslProvider;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.logging.Logger;
 
 /**
@@ -106,8 +104,8 @@ public class HelloWorldServerTls {
         if (args.length < 3 || args.length > 4) {
             System.out.println(
                     "USAGE: HelloWorldServerTls port certChainFilePath privateKeyFilePath " +
-                    "[trustCertCollectionFilePath]\n  Note: You only need to supply trustCertCollectionFilePath if you want " +
-                    "to enable Mutual TLS.");
+                            "[trustCertCollectionFilePath]\n  Note: You only need to supply trustCertCollectionFilePath if you want " +
+                            "to enable Mutual TLS.");
             System.exit(0);
         }
 

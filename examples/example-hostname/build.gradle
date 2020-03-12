@@ -7,7 +7,8 @@ plugins {
 
 repositories {
     maven { // The google mirror is less flaky than mavenCentral()
-        url "https://maven-central.storage-download.googleapis.com/repos/central/data/" }
+        url "https://maven-central.storage-download.googleapis.com/repos/central/data/"
+    }
     mavenCentral()
     mavenLocal()
 }
@@ -35,19 +36,19 @@ dependencies {
 }
 
 protobuf {
-  protoc {
-    artifact = "com.google.protobuf:protoc:${protobufVersion}"
-  }
-  plugins {
-    grpc {
-      artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
     }
-  }
-  generateProtoTasks {
-    all()*.plugins {
-      grpc {}
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
     }
-  }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
 }
 
 applicationName = 'hostname-server'

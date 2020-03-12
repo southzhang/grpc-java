@@ -16,34 +16,37 @@
 
 package io.grpc.util;
 
-import static org.mockito.Mockito.mock;
-
 import io.grpc.ClientStreamTracer;
 import io.grpc.ForwardingTestUtil;
-import java.lang.reflect.Method;
-import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link ForwardingClientStreamTracer}. */
+import java.lang.reflect.Method;
+import java.util.Collections;
+
+import static org.mockito.Mockito.mock;
+
+/**
+ * Unit tests for {@link ForwardingClientStreamTracer}.
+ */
 @RunWith(JUnit4.class)
 public class ForwardingClientStreamTracerTest {
-  private final ClientStreamTracer mockDelegate = mock(ClientStreamTracer.class);
+    private final ClientStreamTracer mockDelegate = mock(ClientStreamTracer.class);
 
-  @Test
-  public void allMethodsForwarded() throws Exception {
-    ForwardingTestUtil.testMethodsForwarded(
-        ClientStreamTracer.class,
-        mockDelegate,
-        new ForwardingClientStreamTracerTest.TestClientStreamTracer(),
-        Collections.<Method>emptyList());
-  }
-
-  private final class TestClientStreamTracer extends ForwardingClientStreamTracer {
-    @Override
-    protected ClientStreamTracer delegate() {
-      return mockDelegate;
+    @Test
+    public void allMethodsForwarded() throws Exception {
+        ForwardingTestUtil.testMethodsForwarded(
+                ClientStreamTracer.class,
+                mockDelegate,
+                new ForwardingClientStreamTracerTest.TestClientStreamTracer(),
+                Collections.<Method>emptyList());
     }
-  }
+
+    private final class TestClientStreamTracer extends ForwardingClientStreamTracer {
+        @Override
+        protected ClientStreamTracer delegate() {
+            return mockDelegate;
+        }
+    }
 }

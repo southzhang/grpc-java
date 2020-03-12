@@ -24,8 +24,8 @@ import com.google.protobuf.Descriptors.FileDescriptor;
  * @since 1.1.0
  */
 public interface ProtoFileDescriptorSupplier {
-  /**
-   * Returns file descriptor to the underlying proto file.
-   */
-  FileDescriptor getFileDescriptor();
+    /**
+     * Returns file descriptor to the underlying proto file.
+     */
+    FileDescriptor getFileDescriptor();
 }

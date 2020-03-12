@@ -16,9 +16,6 @@
 
 package io.grpc.netty;
 
-import static com.google.common.base.Charsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-
 import io.grpc.internal.ReadableBuffer;
 import io.grpc.internal.ReadableBufferTestBase;
 import io.netty.buffer.Unpooled;
@@ -27,33 +24,36 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import static com.google.common.base.Charsets.UTF_8;
+import static org.junit.Assert.assertEquals;
+
 /**
  * Tests for {@link NettyReadableBuffer}.
  */
 @RunWith(JUnit4.class)
 public class NettyReadableBufferTest extends ReadableBufferTestBase {
-  private NettyReadableBuffer buffer;
+    private NettyReadableBuffer buffer;
 
-  @Before
-  public void setup() {
-    buffer = new NettyReadableBuffer(Unpooled.copiedBuffer(msg, UTF_8));
-  }
+    @Before
+    public void setup() {
+        buffer = new NettyReadableBuffer(Unpooled.copiedBuffer(msg, UTF_8));
+    }
 
-  @Test
-  public void closeShouldReleaseBuffer() {
-    buffer.close();
-    assertEquals(0, buffer.buffer().refCnt());
-  }
+    @Test
+    public void closeShouldReleaseBuffer() {
+        buffer.close();
+        assertEquals(0, buffer.buffer().refCnt());
+    }
 
-  @Test
-  public void closeMultipleTimesShouldReleaseBufferOnce() {
-    buffer.close();
-    buffer.close();
-    assertEquals(0, buffer.buffer().refCnt());
-  }
+    @Test
+    public void closeMultipleTimesShouldReleaseBufferOnce() {
+        buffer.close();
+        buffer.close();
+        assertEquals(0, buffer.buffer().refCnt());
+    }
 
-  @Override
-  protected ReadableBuffer buffer() {
-    return buffer;
-  }
+    @Override
+    protected ReadableBuffer buffer() {
+        return buffer;
+    }
 }

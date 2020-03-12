@@ -17,6 +17,7 @@
 package io.grpc.internal;
 
 import io.grpc.Status;
+
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -35,72 +36,72 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public interface ManagedClientTransport extends ClientTransport {
 
-  /**
-   * Starts transport. This method may only be called once.
-   *
-   * <p>Implementations must not call {@code listener} from within {@link #start}; implementations
-   * are expected to notify listener on a separate thread or when the returned {@link Runnable} is
-   * run. This method and the returned {@code Runnable} should not throw any exceptions.
-   *
-   * @param listener non-{@code null} listener of transport events
-   * @return a {@link Runnable} that is executed after-the-fact by the original caller, typically
-   *     after locks are released
-   */
-  @CheckReturnValue
-  @Nullable
-  Runnable start(Listener listener);
-
-  /**
-   * Initiates an orderly shutdown of the transport.  Existing streams continue, but the transport
-   * will not own any new streams.  New streams will either fail (once
-   * {@link Listener#transportShutdown} callback called), or be transferred off this transport (in
-   * which case they may succeed).  This method may only be called once.
-   */
-  void shutdown(Status reason);
-
-  /**
-   * Initiates a forceful shutdown in which preexisting and new calls are closed. Existing calls
-   * should be closed with the provided {@code reason}.
-   */
-  void shutdownNow(Status reason);
-
-  /**
-   * Receives notifications for the transport life-cycle events. Implementation does not need to be
-   * thread-safe, so notifications must be properly synchronized externally.
-   */
-  interface Listener {
     /**
-     * The transport is shutting down. This transport will stop owning new streams, but existing
-     * streams may continue, and the transport may still be able to process {@link #newStream} as
-     * long as it doesn't own the new streams. Shutdown could have been caused by an error or normal
-     * operation.  It is possible that this method is called without {@link #shutdown} being called.
+     * Starts transport. This method may only be called once.
      *
-     * <p>This is called exactly once, and must be called prior to {@link #transportTerminated}.
+     * <p>Implementations must not call {@code listener} from within {@link #start}; implementations
+     * are expected to notify listener on a separate thread or when the returned {@link Runnable} is
+     * run. This method and the returned {@code Runnable} should not throw any exceptions.
      *
-     * @param s the reason for the shutdown.
+     * @param listener non-{@code null} listener of transport events
+     * @return a {@link Runnable} that is executed after-the-fact by the original caller, typically
+     * after locks are released
      */
-    void transportShutdown(Status s);
+    @CheckReturnValue
+    @Nullable
+    Runnable start(Listener listener);
 
     /**
-     * The transport completed shutting down. All resources have been released. All streams have
-     * either been closed or transferred off this transport. This transport may still be able to
-     * process {@link #newStream} as long as it doesn't own the new streams.
-     *
-     * <p>This is called exactly once, and must be called after {@link #transportShutdown} has been
-     * called.
+     * Initiates an orderly shutdown of the transport.  Existing streams continue, but the transport
+     * will not own any new streams.  New streams will either fail (once
+     * {@link Listener#transportShutdown} callback called), or be transferred off this transport (in
+     * which case they may succeed).  This method may only be called once.
      */
-    void transportTerminated();
+    void shutdown(Status reason);
 
     /**
-     * The transport is ready to accept traffic, because the connection is established.  This is
-     * called at most once.
+     * Initiates a forceful shutdown in which preexisting and new calls are closed. Existing calls
+     * should be closed with the provided {@code reason}.
      */
-    void transportReady();
+    void shutdownNow(Status reason);
 
     /**
-     * Called whenever the transport's in-use state has changed. A transport is in-use when it has
-     * at least one stream.
+     * Receives notifications for the transport life-cycle events. Implementation does not need to be
+     * thread-safe, so notifications must be properly synchronized externally.
      */
-    void transportInUse(boolean inUse);
-  }
+    interface Listener {
+        /**
+         * The transport is shutting down. This transport will stop owning new streams, but existing
+         * streams may continue, and the transport may still be able to process {@link #newStream} as
+         * long as it doesn't own the new streams. Shutdown could have been caused by an error or normal
+         * operation.  It is possible that this method is called without {@link #shutdown} being called.
+         *
+         * <p>This is called exactly once, and must be called prior to {@link #transportTerminated}.
+         *
+         * @param s the reason for the shutdown.
+         */
+        void transportShutdown(Status s);
+
+        /**
+         * The transport completed shutting down. All resources have been released. All streams have
+         * either been closed or transferred off this transport. This transport may still be able to
+         * process {@link #newStream} as long as it doesn't own the new streams.
+         *
+         * <p>This is called exactly once, and must be called after {@link #transportShutdown} has been
+         * called.
+         */
+        void transportTerminated();
+
+        /**
+         * The transport is ready to accept traffic, because the connection is established.  This is
+         * called at most once.
+         */
+        void transportReady();
+
+        /**
+         * Called whenever the transport's in-use state has changed. A transport is in-use when it has
+         * at least one stream.
+         */
+        void transportInUse(boolean inUse);
+    }
 }

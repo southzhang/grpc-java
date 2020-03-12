@@ -19,6 +19,7 @@ package io.grpc.testing;
 import io.grpc.ExperimentalApi;
 import io.grpc.MethodDescriptor;
 import io.grpc.MethodDescriptor.MethodType;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
@@ -30,43 +31,44 @@ import java.io.InputStream;
  */
 @ExperimentalApi("https://github.com/grpc/grpc-java/issues/2600")
 public final class TestMethodDescriptors {
-  private TestMethodDescriptors() {}
-
-  /**
-   * Creates a new method descriptor that always creates zero length messages, and always parses to
-   * null objects.
-   *
-   * @since 1.1.0
-   */
-  @ExperimentalApi("https://github.com/grpc/grpc-java/issues/2600")
-  public static MethodDescriptor<Void, Void> voidMethod() {
-    return MethodDescriptor.<Void, Void>newBuilder()
-        .setType(MethodType.UNARY)
-        .setFullMethodName(MethodDescriptor.generateFullMethodName("service_foo", "method_bar"))
-        .setRequestMarshaller(TestMethodDescriptors.voidMarshaller())
-        .setResponseMarshaller(TestMethodDescriptors.voidMarshaller())
-        .build();
-  }
-
-  /**
-   * Creates a new marshaller that does nothing.
-   *
-   * @since 1.1.0
-   */
-  @ExperimentalApi("https://github.com/grpc/grpc-java/issues/2600")
-  public static MethodDescriptor.Marshaller<Void> voidMarshaller() {
-    return new NoopMarshaller();
-  }
-
-  private static final class NoopMarshaller implements MethodDescriptor.Marshaller<Void> {
-    @Override
-    public InputStream stream(Void value) {
-      return new ByteArrayInputStream(new byte[]{});
+    private TestMethodDescriptors() {
     }
 
-    @Override
-    public Void parse(InputStream stream) {
-      return null;
+    /**
+     * Creates a new method descriptor that always creates zero length messages, and always parses to
+     * null objects.
+     *
+     * @since 1.1.0
+     */
+    @ExperimentalApi("https://github.com/grpc/grpc-java/issues/2600")
+    public static MethodDescriptor<Void, Void> voidMethod() {
+        return MethodDescriptor.<Void, Void>newBuilder()
+                .setType(MethodType.UNARY)
+                .setFullMethodName(MethodDescriptor.generateFullMethodName("service_foo", "method_bar"))
+                .setRequestMarshaller(TestMethodDescriptors.voidMarshaller())
+                .setResponseMarshaller(TestMethodDescriptors.voidMarshaller())
+                .build();
     }
-  }
+
+    /**
+     * Creates a new marshaller that does nothing.
+     *
+     * @since 1.1.0
+     */
+    @ExperimentalApi("https://github.com/grpc/grpc-java/issues/2600")
+    public static MethodDescriptor.Marshaller<Void> voidMarshaller() {
+        return new NoopMarshaller();
+    }
+
+    private static final class NoopMarshaller implements MethodDescriptor.Marshaller<Void> {
+        @Override
+        public InputStream stream(Void value) {
+            return new ByteArrayInputStream(new byte[]{});
+        }
+
+        @Override
+        public Void parse(InputStream stream) {
+            return null;
+        }
+    }
 }

@@ -24,8 +24,8 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class InProcessClientTransportFactoryTest extends AbstractClientTransportFactoryTest {
 
-  @Override
-  protected ClientTransportFactory newClientTransportFactory() {
-    return InProcessChannelBuilder.forName("test-transport").buildTransportFactory();
-  }
+    @Override
+    protected ClientTransportFactory newClientTransportFactory() {
+        return InProcessChannelBuilder.forName("test-transport").buildTransportFactory();
+    }
 }

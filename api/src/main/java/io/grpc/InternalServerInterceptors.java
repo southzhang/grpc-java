@@ -21,23 +21,23 @@ package io.grpc;
  */
 @Internal
 public final class InternalServerInterceptors {
-  public static <ReqT, RespT> ServerCallHandler<ReqT, RespT> interceptCallHandler(
-      ServerInterceptor interceptor, ServerCallHandler<ReqT, RespT> callHandler) {
-    return ServerInterceptors.InterceptCallHandler.create(interceptor, callHandler);
-  }
+    public static <ReqT, RespT> ServerCallHandler<ReqT, RespT> interceptCallHandler(
+            ServerInterceptor interceptor, ServerCallHandler<ReqT, RespT> callHandler) {
+        return ServerInterceptors.InterceptCallHandler.create(interceptor, callHandler);
+    }
 
-  public static <OrigReqT, OrigRespT, WrapReqT, WrapRespT>
-      ServerMethodDefinition<WrapReqT, WrapRespT> wrapMethod(
-      final ServerMethodDefinition<OrigReqT, OrigRespT> definition,
-      final MethodDescriptor<WrapReqT, WrapRespT> wrappedMethod) {
-    return ServerInterceptors.wrapMethod(definition, wrappedMethod);
-  }
+    public static <OrigReqT, OrigRespT, WrapReqT, WrapRespT>
+    ServerMethodDefinition<WrapReqT, WrapRespT> wrapMethod(
+            final ServerMethodDefinition<OrigReqT, OrigRespT> definition,
+            final MethodDescriptor<WrapReqT, WrapRespT> wrappedMethod) {
+        return ServerInterceptors.wrapMethod(definition, wrappedMethod);
+    }
 
-  public static <ReqT, RespT> ServerCallHandler<ReqT, RespT> interceptCallHandlerCreate(
-      ServerInterceptor interceptor, ServerCallHandler<ReqT, RespT> callHandler) {
-    return ServerInterceptors.InterceptCallHandler.create(interceptor, callHandler);
-  }
+    public static <ReqT, RespT> ServerCallHandler<ReqT, RespT> interceptCallHandlerCreate(
+            ServerInterceptor interceptor, ServerCallHandler<ReqT, RespT> callHandler) {
+        return ServerInterceptors.InterceptCallHandler.create(interceptor, callHandler);
+    }
 
-  private InternalServerInterceptors() {
-  }
+    private InternalServerInterceptors() {
+    }
 }

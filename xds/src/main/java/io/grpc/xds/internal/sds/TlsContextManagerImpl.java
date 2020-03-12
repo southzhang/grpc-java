@@ -16,12 +16,12 @@
 
 package io.grpc.xds.internal.sds;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.annotations.VisibleForTesting;
 import io.envoyproxy.envoy.api.v2.auth.DownstreamTlsContext;
 import io.envoyproxy.envoy.api.v2.auth.UpstreamTlsContext;
 import io.grpc.xds.internal.sds.ReferenceCountingSslContextProviderMap.SslContextProviderFactory;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Class to manage {@link SslContextProvider} objects created from inputs we get from xDS. Used by
@@ -31,58 +31,60 @@ import io.grpc.xds.internal.sds.ReferenceCountingSslContextProviderMap.SslContex
  */
 public final class TlsContextManagerImpl implements TlsContextManager {
 
-  private static TlsContextManagerImpl instance;
+    private static TlsContextManagerImpl instance;
 
-  private final ReferenceCountingSslContextProviderMap<UpstreamTlsContext> mapForClients;
-  private final ReferenceCountingSslContextProviderMap<DownstreamTlsContext> mapForServers;
+    private final ReferenceCountingSslContextProviderMap<UpstreamTlsContext> mapForClients;
+    private final ReferenceCountingSslContextProviderMap<DownstreamTlsContext> mapForServers;
 
-  private TlsContextManagerImpl() {
-    this(new ClientSslContextProviderFactory(), new ServerSslContextProviderFactory());
-  }
-
-  @VisibleForTesting
-  TlsContextManagerImpl(
-      SslContextProviderFactory<UpstreamTlsContext> clientFactory,
-      SslContextProviderFactory<DownstreamTlsContext> serverFactory) {
-    checkNotNull(clientFactory, "clientFactory");
-    checkNotNull(serverFactory, "serverFactory");
-    mapForClients = new ReferenceCountingSslContextProviderMap<>(clientFactory);
-    mapForServers = new ReferenceCountingSslContextProviderMap<>(serverFactory);
-  }
-
-  /** Gets the TlsContextManagerImpl singleton. */
-  public static synchronized TlsContextManagerImpl getInstance() {
-    if (instance == null) {
-      instance = new TlsContextManagerImpl();
+    private TlsContextManagerImpl() {
+        this(new ClientSslContextProviderFactory(), new ServerSslContextProviderFactory());
     }
-    return instance;
-  }
 
-  @Override
-  public SslContextProvider<DownstreamTlsContext> findOrCreateServerSslContextProvider(
-      DownstreamTlsContext downstreamTlsContext) {
-    checkNotNull(downstreamTlsContext, "downstreamTlsContext");
-    return mapForServers.get(downstreamTlsContext);
-  }
+    @VisibleForTesting
+    TlsContextManagerImpl(
+            SslContextProviderFactory<UpstreamTlsContext> clientFactory,
+            SslContextProviderFactory<DownstreamTlsContext> serverFactory) {
+        checkNotNull(clientFactory, "clientFactory");
+        checkNotNull(serverFactory, "serverFactory");
+        mapForClients = new ReferenceCountingSslContextProviderMap<>(clientFactory);
+        mapForServers = new ReferenceCountingSslContextProviderMap<>(serverFactory);
+    }
 
-  @Override
-  public SslContextProvider<UpstreamTlsContext> findOrCreateClientSslContextProvider(
-      UpstreamTlsContext upstreamTlsContext) {
-    checkNotNull(upstreamTlsContext, "upstreamTlsContext");
-    return mapForClients.get(upstreamTlsContext);
-  }
+    /**
+     * Gets the TlsContextManagerImpl singleton.
+     */
+    public static synchronized TlsContextManagerImpl getInstance() {
+        if (instance == null) {
+            instance = new TlsContextManagerImpl();
+        }
+        return instance;
+    }
 
-  @Override
-  public SslContextProvider<UpstreamTlsContext> releaseClientSslContextProvider(
-      SslContextProvider<UpstreamTlsContext> sslContextProvider) {
-    checkNotNull(sslContextProvider, "sslContextProvider");
-    return mapForClients.release(sslContextProvider);
-  }
+    @Override
+    public SslContextProvider<DownstreamTlsContext> findOrCreateServerSslContextProvider(
+            DownstreamTlsContext downstreamTlsContext) {
+        checkNotNull(downstreamTlsContext, "downstreamTlsContext");
+        return mapForServers.get(downstreamTlsContext);
+    }
 
-  @Override
-  public SslContextProvider<DownstreamTlsContext> releaseServerSslContextProvider(
-      SslContextProvider<DownstreamTlsContext> sslContextProvider) {
-    checkNotNull(sslContextProvider, "sslContextProvider");
-    return mapForServers.release(sslContextProvider);
-  }
+    @Override
+    public SslContextProvider<UpstreamTlsContext> findOrCreateClientSslContextProvider(
+            UpstreamTlsContext upstreamTlsContext) {
+        checkNotNull(upstreamTlsContext, "upstreamTlsContext");
+        return mapForClients.get(upstreamTlsContext);
+    }
+
+    @Override
+    public SslContextProvider<UpstreamTlsContext> releaseClientSslContextProvider(
+            SslContextProvider<UpstreamTlsContext> sslContextProvider) {
+        checkNotNull(sslContextProvider, "sslContextProvider");
+        return mapForClients.release(sslContextProvider);
+    }
+
+    @Override
+    public SslContextProvider<DownstreamTlsContext> releaseServerSslContextProvider(
+            SslContextProvider<DownstreamTlsContext> sslContextProvider) {
+        checkNotNull(sslContextProvider, "sslContextProvider");
+        return mapForServers.release(sslContextProvider);
+    }
 }

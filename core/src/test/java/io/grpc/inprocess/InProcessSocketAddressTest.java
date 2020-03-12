@@ -16,35 +16,35 @@
 
 package io.grpc.inprocess;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.testing.EqualsTester;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import static com.google.common.truth.Truth.assertThat;
+
 @RunWith(JUnit4.class)
 public class InProcessSocketAddressTest {
 
-  @Test
-  public void equal() {
-    new EqualsTester()
-        .addEqualityGroup(
-            new InProcessSocketAddress("a"),
-            new InProcessSocketAddress(new String("a")))
-        .addEqualityGroup(
-            new InProcessSocketAddress("z"),
-            new InProcessSocketAddress("z"))
-        .addEqualityGroup(
-            new InProcessSocketAddress(""),
-            new InProcessSocketAddress("")
-        )
-        .testEquals();
-  }
+    @Test
+    public void equal() {
+        new EqualsTester()
+                .addEqualityGroup(
+                        new InProcessSocketAddress("a"),
+                        new InProcessSocketAddress(new String("a")))
+                .addEqualityGroup(
+                        new InProcessSocketAddress("z"),
+                        new InProcessSocketAddress("z"))
+                .addEqualityGroup(
+                        new InProcessSocketAddress(""),
+                        new InProcessSocketAddress("")
+                )
+                .testEquals();
+    }
 
-  @Test
-  public void hash() {
-    assertThat(new InProcessSocketAddress("a").hashCode())
-        .isEqualTo(new InProcessSocketAddress(new String("a")).hashCode());
-  }
+    @Test
+    public void hash() {
+        assertThat(new InProcessSocketAddress("a").hashCode())
+                .isEqualTo(new InProcessSocketAddress(new String("a")).hashCode());
+    }
 }

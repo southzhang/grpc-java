@@ -23,8 +23,8 @@ package io.grpc;
  */
 @Internal
 public enum InternalKnownTransport {
-  NETTY,
-  NETTY_SHADED,
-  ;
+    NETTY,
+    NETTY_SHADED,
+    ;
 }
 

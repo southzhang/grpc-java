@@ -23,40 +23,42 @@ import io.grpc.internal.AbstractServerImplBuilder;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link io.grpc.inprocess}. */
+/**
+ * Unit tests for {@link io.grpc.inprocess}.
+ */
 @RunWith(JUnit4.class)
 public class InProcessTest extends AbstractInteropTest {
 
-  private static final String SERVER_NAME = "test";
+    private static final String SERVER_NAME = "test";
 
-  @Override
-  protected AbstractServerImplBuilder<?> getServerBuilder() {
-    // Starts the in-process server.
-    return InProcessServerBuilder.forName(SERVER_NAME);
-  }
+    @Override
+    protected AbstractServerImplBuilder<?> getServerBuilder() {
+        // Starts the in-process server.
+        return InProcessServerBuilder.forName(SERVER_NAME);
+    }
 
-  @Override
-  protected ManagedChannel createChannel() {
-    InProcessChannelBuilder builder = InProcessChannelBuilder.forName(SERVER_NAME);
-    // Disable the default census stats interceptor, use testing interceptor instead.
-    io.grpc.internal.TestingAccessor.setStatsEnabled(builder, false);
-    return builder.intercept(createCensusStatsClientInterceptor()).build();
-  }
+    @Override
+    protected ManagedChannel createChannel() {
+        InProcessChannelBuilder builder = InProcessChannelBuilder.forName(SERVER_NAME);
+        // Disable the default census stats interceptor, use testing interceptor instead.
+        io.grpc.internal.TestingAccessor.setStatsEnabled(builder, false);
+        return builder.intercept(createCensusStatsClientInterceptor()).build();
+    }
 
-  @Override
-  protected boolean metricsExpected() {
-    // TODO(zhangkun83): InProcessTransport by-passes framer and deframer, thus message sizes are
-    // not counted. (https://github.com/grpc/grpc-java/issues/2284)
-    return false;
-  }
+    @Override
+    protected boolean metricsExpected() {
+        // TODO(zhangkun83): InProcessTransport by-passes framer and deframer, thus message sizes are
+        // not counted. (https://github.com/grpc/grpc-java/issues/2284)
+        return false;
+    }
 
-  @Override
-  public void maxInboundSize_tooBig() {
-    // noop, not enforced.
-  }
+    @Override
+    public void maxInboundSize_tooBig() {
+        // noop, not enforced.
+    }
 
-  @Override
-  public void maxOutboundSize_tooBig() {
-    // noop, not enforced.
-  }
+    @Override
+    public void maxOutboundSize_tooBig() {
+        // noop, not enforced.
+    }
 }

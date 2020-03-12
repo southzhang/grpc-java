@@ -24,14 +24,14 @@ import "validate/validate.proto";
 // streaming service, client needs to terminate current RPC and initiate
 // a new call to change backend reporting frequency.
 service OpenRcaService {
-  rpc StreamCoreMetrics(OrcaLoadReportRequest) returns (stream udpa.data.orca.v1.OrcaLoadReport);
+    rpc StreamCoreMetrics (OrcaLoadReportRequest) returns (stream udpa.data.orca.v1.OrcaLoadReport);
 }
 
 message OrcaLoadReportRequest {
-  // Interval for generating Open RCA core metric responses.
-  google.protobuf.Duration report_interval = 1;
-  // Request costs to collect. If this is empty, all known requests costs tracked by
-  // the load reporting agent will be returned. This provides an opportunity for
-  // the client to selectively obtain a subset of tracked costs.
-  repeated string request_cost_names = 2;
+    // Interval for generating Open RCA core metric responses.
+    google.protobuf.Duration report_interval = 1;
+    // Request costs to collect. If this is empty, all known requests costs tracked by
+    // the load reporting agent will be returned. This provides an opportunity for
+    // the client to selectively obtain a subset of tracked costs.
+    repeated string request_cost_names = 2;
 }

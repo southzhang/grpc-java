@@ -17,103 +17,100 @@
 package io.grpc.internal;
 
 import com.google.common.base.MoreObjects;
-import io.grpc.Attributes;
-import io.grpc.Compressor;
-import io.grpc.Deadline;
-import io.grpc.DecompressorRegistry;
-import io.grpc.Status;
+import io.grpc.*;
+
 import java.io.InputStream;
 
 abstract class ForwardingClientStream implements ClientStream {
-  protected abstract ClientStream delegate();
+    protected abstract ClientStream delegate();
 
-  @Override
-  public void request(int numMessages) {
-    delegate().request(numMessages);
-  }
+    @Override
+    public void request(int numMessages) {
+        delegate().request(numMessages);
+    }
 
-  @Override
-  public void writeMessage(InputStream message) {
-    delegate().writeMessage(message);
-  }
+    @Override
+    public void writeMessage(InputStream message) {
+        delegate().writeMessage(message);
+    }
 
-  @Override
-  public void flush() {
-    delegate().flush();
-  }
+    @Override
+    public void flush() {
+        delegate().flush();
+    }
 
-  @Override
-  public boolean isReady() {
-    return delegate().isReady();
-  }
+    @Override
+    public boolean isReady() {
+        return delegate().isReady();
+    }
 
-  @Override
-  public void setCompressor(Compressor compressor) {
-    delegate().setCompressor(compressor);
-  }
+    @Override
+    public void setCompressor(Compressor compressor) {
+        delegate().setCompressor(compressor);
+    }
 
-  @Override
-  public void setMessageCompression(boolean enable) {
-    delegate().setMessageCompression(enable);
-  }
+    @Override
+    public void setMessageCompression(boolean enable) {
+        delegate().setMessageCompression(enable);
+    }
 
-  @Override
-  public void cancel(Status reason) {
-    delegate().cancel(reason);
-  }
+    @Override
+    public void cancel(Status reason) {
+        delegate().cancel(reason);
+    }
 
-  @Override
-  public void halfClose() {
-    delegate().halfClose();
-  }
+    @Override
+    public void halfClose() {
+        delegate().halfClose();
+    }
 
-  @Override
-  public void setAuthority(String authority) {
-    delegate().setAuthority(authority);
-  }
+    @Override
+    public void setAuthority(String authority) {
+        delegate().setAuthority(authority);
+    }
 
-  @Override
-  public void setFullStreamDecompression(boolean fullStreamDecompression) {
-    delegate().setFullStreamDecompression(fullStreamDecompression);
-  }
+    @Override
+    public void setFullStreamDecompression(boolean fullStreamDecompression) {
+        delegate().setFullStreamDecompression(fullStreamDecompression);
+    }
 
-  @Override
-  public void setDecompressorRegistry(DecompressorRegistry decompressorRegistry) {
-    delegate().setDecompressorRegistry(decompressorRegistry);
-  }
+    @Override
+    public void setDecompressorRegistry(DecompressorRegistry decompressorRegistry) {
+        delegate().setDecompressorRegistry(decompressorRegistry);
+    }
 
-  @Override
-  public void start(ClientStreamListener listener) {
-    delegate().start(listener);
-  }
+    @Override
+    public void start(ClientStreamListener listener) {
+        delegate().start(listener);
+    }
 
-  @Override
-  public void setMaxInboundMessageSize(int maxSize) {
-    delegate().setMaxInboundMessageSize(maxSize);
-  }
+    @Override
+    public void setMaxInboundMessageSize(int maxSize) {
+        delegate().setMaxInboundMessageSize(maxSize);
+    }
 
-  @Override
-  public void setMaxOutboundMessageSize(int maxSize) {
-    delegate().setMaxOutboundMessageSize(maxSize);
-  }
+    @Override
+    public void setMaxOutboundMessageSize(int maxSize) {
+        delegate().setMaxOutboundMessageSize(maxSize);
+    }
 
-  @Override
-  public void setDeadline(Deadline deadline) {
-    delegate().setDeadline(deadline);
-  }
+    @Override
+    public void setDeadline(Deadline deadline) {
+        delegate().setDeadline(deadline);
+    }
 
-  @Override
-  public Attributes getAttributes() {
-    return delegate().getAttributes();
-  }
+    @Override
+    public Attributes getAttributes() {
+        return delegate().getAttributes();
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this).add("delegate", delegate()).toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("delegate", delegate()).toString();
+    }
 
-  @Override
-  public void appendTimeoutInsight(InsightBuilder insight) {
-    delegate().appendTimeoutInsight(insight);
-  }
+    @Override
+    public void appendTimeoutInsight(InsightBuilder insight) {
+        delegate().appendTimeoutInsight(insight);
+    }
 }

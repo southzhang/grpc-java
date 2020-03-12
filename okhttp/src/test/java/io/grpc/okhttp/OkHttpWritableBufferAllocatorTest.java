@@ -16,8 +16,6 @@
 
 package io.grpc.okhttp;
 
-import static org.junit.Assert.assertEquals;
-
 import io.grpc.internal.WritableBuffer;
 import io.grpc.internal.WritableBufferAllocator;
 import io.grpc.internal.WritableBufferAllocatorTestBase;
@@ -25,37 +23,39 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Tests for {@link OkHttpWritableBufferAllocator}.
  */
 @RunWith(JUnit4.class)
 public class OkHttpWritableBufferAllocatorTest extends WritableBufferAllocatorTestBase {
 
-  private final OkHttpWritableBufferAllocator allocator = new OkHttpWritableBufferAllocator();
+    private final OkHttpWritableBufferAllocator allocator = new OkHttpWritableBufferAllocator();
 
-  @Override
-  protected WritableBufferAllocator allocator() {
-    return allocator;
-  }
+    @Override
+    protected WritableBufferAllocator allocator() {
+        return allocator;
+    }
 
-  @Test
-  public void testCapacity() {
-    WritableBuffer buffer = allocator().allocate(4096);
-    assertEquals(0, buffer.readableBytes());
-    assertEquals(4096, buffer.writableBytes());
-  }
+    @Test
+    public void testCapacity() {
+        WritableBuffer buffer = allocator().allocate(4096);
+        assertEquals(0, buffer.readableBytes());
+        assertEquals(4096, buffer.writableBytes());
+    }
 
-  @Test
-  public void testInitialCapacityHasMaximum() {
-    WritableBuffer buffer = allocator().allocate(1024 * 1025);
-    assertEquals(0, buffer.readableBytes());
-    assertEquals(1024 * 1024, buffer.writableBytes());
-  }
+    @Test
+    public void testInitialCapacityHasMaximum() {
+        WritableBuffer buffer = allocator().allocate(1024 * 1025);
+        assertEquals(0, buffer.readableBytes());
+        assertEquals(1024 * 1024, buffer.writableBytes());
+    }
 
-  @Test
-  public void testIsExactBelowMaxCapacity() {
-    WritableBuffer buffer = allocator().allocate(4097);
-    assertEquals(0, buffer.readableBytes());
-    assertEquals(4097, buffer.writableBytes());
-  }
+    @Test
+    public void testIsExactBelowMaxCapacity() {
+        WritableBuffer buffer = allocator().allocate(4097);
+        assertEquals(0, buffer.readableBytes());
+        assertEquals(4097, buffer.writableBytes());
+    }
 }

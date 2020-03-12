@@ -22,35 +22,35 @@ import io.grpc.Status;
 
 abstract class ForwardingClientStreamListener implements ClientStreamListener {
 
-  protected abstract ClientStreamListener delegate();
+    protected abstract ClientStreamListener delegate();
 
-  @Override
-  public void headersRead(Metadata headers) {
-    delegate().headersRead(headers);
-  }
+    @Override
+    public void headersRead(Metadata headers) {
+        delegate().headersRead(headers);
+    }
 
-  @Override
-  public void closed(Status status, Metadata trailers) {
-    delegate().closed(status, trailers);
-  }
+    @Override
+    public void closed(Status status, Metadata trailers) {
+        delegate().closed(status, trailers);
+    }
 
-  @Override
-  public void closed(Status status, RpcProgress rpcProgress, Metadata trailers) {
-    delegate().closed(status, rpcProgress, trailers);
-  }
+    @Override
+    public void closed(Status status, RpcProgress rpcProgress, Metadata trailers) {
+        delegate().closed(status, rpcProgress, trailers);
+    }
 
-  @Override
-  public void messagesAvailable(MessageProducer producer) {
-    delegate().messagesAvailable(producer);
-  }
+    @Override
+    public void messagesAvailable(MessageProducer producer) {
+        delegate().messagesAvailable(producer);
+    }
 
-  @Override
-  public void onReady() {
-    delegate().onReady();
-  }
+    @Override
+    public void onReady() {
+        delegate().onReady();
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this).add("delegate", delegate()).toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("delegate", delegate()).toString();
+    }
 }

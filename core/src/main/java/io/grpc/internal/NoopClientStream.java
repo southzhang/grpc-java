@@ -16,76 +16,86 @@
 
 package io.grpc.internal;
 
-import io.grpc.Attributes;
-import io.grpc.Compressor;
-import io.grpc.Deadline;
-import io.grpc.DecompressorRegistry;
-import io.grpc.Status;
-import java.io.InputStream;
+import io.grpc.*;
+
 import javax.annotation.Nonnull;
+import java.io.InputStream;
 
 /**
  * An implementation of {@link ClientStream} that silently does nothing for the operations.
  */
 public class NoopClientStream implements ClientStream {
-  public static final NoopClientStream INSTANCE = new NoopClientStream();
+    public static final NoopClientStream INSTANCE = new NoopClientStream();
 
-  @Override
-  public void setAuthority(String authority) {}
+    @Override
+    public void setAuthority(String authority) {
+    }
 
-  @Override
-  public void start(ClientStreamListener listener) {}
+    @Override
+    public void start(ClientStreamListener listener) {
+    }
 
-  @Override
-  public Attributes getAttributes() {
-    return Attributes.EMPTY;
-  }
+    @Override
+    public Attributes getAttributes() {
+        return Attributes.EMPTY;
+    }
 
-  @Override
-  public void request(int numMessages) {}
+    @Override
+    public void request(int numMessages) {
+    }
 
-  @Override
-  public void writeMessage(InputStream message) {}
+    @Override
+    public void writeMessage(InputStream message) {
+    }
 
-  @Override
-  public void flush() {}
+    @Override
+    public void flush() {
+    }
 
-  @Override
-  public boolean isReady() {
-    return false;
-  }
+    @Override
+    public boolean isReady() {
+        return false;
+    }
 
-  @Override
-  public void cancel(Status status) {}
+    @Override
+    public void cancel(Status status) {
+    }
 
-  @Override
-  public void halfClose() {}
+    @Override
+    public void halfClose() {
+    }
 
-  @Override
-  public void setMessageCompression(boolean enable) {
-    // noop
-  }
+    @Override
+    public void setMessageCompression(boolean enable) {
+        // noop
+    }
 
-  @Override
-  public void setCompressor(Compressor compressor) {}
+    @Override
+    public void setCompressor(Compressor compressor) {
+    }
 
-  @Override
-  public void setFullStreamDecompression(boolean fullStreamDecompression) {}
+    @Override
+    public void setFullStreamDecompression(boolean fullStreamDecompression) {
+    }
 
-  @Override
-  public void setDecompressorRegistry(DecompressorRegistry decompressorRegistry) {}
+    @Override
+    public void setDecompressorRegistry(DecompressorRegistry decompressorRegistry) {
+    }
 
-  @Override
-  public void setMaxInboundMessageSize(int maxSize) {}
+    @Override
+    public void setMaxInboundMessageSize(int maxSize) {
+    }
 
-  @Override
-  public void setMaxOutboundMessageSize(int maxSize) {}
+    @Override
+    public void setMaxOutboundMessageSize(int maxSize) {
+    }
 
-  @Override
-  public void setDeadline(@Nonnull Deadline deadline) {}
+    @Override
+    public void setDeadline(@Nonnull Deadline deadline) {
+    }
 
-  @Override
-  public void appendTimeoutInsight(InsightBuilder insight) {
-    insight.append("noop");
-  }
+    @Override
+    public void appendTimeoutInsight(InsightBuilder insight) {
+        insight.append("noop");
+    }
 }

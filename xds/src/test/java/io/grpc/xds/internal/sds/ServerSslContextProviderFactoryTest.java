@@ -16,8 +16,6 @@
 
 package io.grpc.xds.internal.sds;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import io.envoyproxy.envoy.api.v2.auth.CommonTlsContext;
 import io.envoyproxy.envoy.api.v2.auth.DownstreamTlsContext;
 import org.junit.Assert;
@@ -25,63 +23,67 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link ServerSslContextProviderFactory}. */
+import static com.google.common.truth.Truth.assertThat;
+
+/**
+ * Unit tests for {@link ServerSslContextProviderFactory}.
+ */
 @RunWith(JUnit4.class)
 public class ServerSslContextProviderFactoryTest {
 
-  private static final String SERVER_PEM_FILE = "server1.pem";
-  private static final String SERVER_KEY_FILE = "server1.key";
-  private static final String CA_PEM_FILE = "ca.pem";
+    private static final String SERVER_PEM_FILE = "server1.pem";
+    private static final String SERVER_KEY_FILE = "server1.key";
+    private static final String CA_PEM_FILE = "ca.pem";
 
-  ServerSslContextProviderFactory serverSslContextProviderFactory =
-      new ServerSslContextProviderFactory();
+    ServerSslContextProviderFactory serverSslContextProviderFactory =
+            new ServerSslContextProviderFactory();
 
-  @Test
-  public void createSslContextProvider_allFilenames() {
-    DownstreamTlsContext downstreamTlsContext =
-        SecretVolumeSslContextProviderTest.buildDownstreamTlsContextFromFilenames(
-            SERVER_KEY_FILE, SERVER_PEM_FILE, CA_PEM_FILE);
+    @Test
+    public void createSslContextProvider_allFilenames() {
+        DownstreamTlsContext downstreamTlsContext =
+                SecretVolumeSslContextProviderTest.buildDownstreamTlsContextFromFilenames(
+                        SERVER_KEY_FILE, SERVER_PEM_FILE, CA_PEM_FILE);
 
-    SslContextProvider<DownstreamTlsContext> sslContextProvider =
-        serverSslContextProviderFactory.createSslContextProvider(downstreamTlsContext);
-    assertThat(sslContextProvider).isNotNull();
-  }
-
-  @Test
-  public void createSslContextProvider_sdsConfigForTlsCert_expectException() {
-    CommonTlsContext commonTlsContext =
-        CommonTlsContextTestsUtil.buildCommonTlsContextFromSdsConfigForTlsCertificate(
-            "name", "unix:/tmp/sds/path", CA_PEM_FILE);
-    DownstreamTlsContext downstreamTlsContext =
-        CommonTlsContextTestsUtil.buildDownstreamTlsContext(commonTlsContext);
-
-    try {
-      SslContextProvider<DownstreamTlsContext> unused =
-          serverSslContextProviderFactory.createSslContextProvider(downstreamTlsContext);
-      Assert.fail("no exception thrown");
-    } catch (UnsupportedOperationException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo("DownstreamTlsContext to have all filenames or all SdsConfig");
+        SslContextProvider<DownstreamTlsContext> sslContextProvider =
+                serverSslContextProviderFactory.createSslContextProvider(downstreamTlsContext);
+        assertThat(sslContextProvider).isNotNull();
     }
-  }
 
-  @Test
-  public void createSslContextProvider_sdsConfigForCertValidationContext_expectException() {
-    CommonTlsContext commonTlsContext =
-        CommonTlsContextTestsUtil.buildCommonTlsContextFromSdsConfigForValidationContext(
-            "name", "unix:/tmp/sds/path", SERVER_KEY_FILE, SERVER_PEM_FILE);
-    DownstreamTlsContext downstreamTlsContext =
-        CommonTlsContextTestsUtil.buildDownstreamTlsContext(commonTlsContext);
+    @Test
+    public void createSslContextProvider_sdsConfigForTlsCert_expectException() {
+        CommonTlsContext commonTlsContext =
+                CommonTlsContextTestsUtil.buildCommonTlsContextFromSdsConfigForTlsCertificate(
+                        "name", "unix:/tmp/sds/path", CA_PEM_FILE);
+        DownstreamTlsContext downstreamTlsContext =
+                CommonTlsContextTestsUtil.buildDownstreamTlsContext(commonTlsContext);
 
-    try {
-      SslContextProvider<DownstreamTlsContext> unused =
-          serverSslContextProviderFactory.createSslContextProvider(downstreamTlsContext);
-      Assert.fail("no exception thrown");
-    } catch (UnsupportedOperationException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo("DownstreamTlsContext to have all filenames or all SdsConfig");
+        try {
+            SslContextProvider<DownstreamTlsContext> unused =
+                    serverSslContextProviderFactory.createSslContextProvider(downstreamTlsContext);
+            Assert.fail("no exception thrown");
+        } catch (UnsupportedOperationException expected) {
+            assertThat(expected)
+                    .hasMessageThat()
+                    .isEqualTo("DownstreamTlsContext to have all filenames or all SdsConfig");
+        }
     }
-  }
+
+    @Test
+    public void createSslContextProvider_sdsConfigForCertValidationContext_expectException() {
+        CommonTlsContext commonTlsContext =
+                CommonTlsContextTestsUtil.buildCommonTlsContextFromSdsConfigForValidationContext(
+                        "name", "unix:/tmp/sds/path", SERVER_KEY_FILE, SERVER_PEM_FILE);
+        DownstreamTlsContext downstreamTlsContext =
+                CommonTlsContextTestsUtil.buildDownstreamTlsContext(commonTlsContext);
+
+        try {
+            SslContextProvider<DownstreamTlsContext> unused =
+                    serverSslContextProviderFactory.createSslContextProvider(downstreamTlsContext);
+            Assert.fail("no exception thrown");
+        } catch (UnsupportedOperationException expected) {
+            assertThat(expected)
+                    .hasMessageThat()
+                    .isEqualTo("DownstreamTlsContext to have all filenames or all SdsConfig");
+        }
+    }
 }

@@ -16,8 +16,6 @@
 
 package io.grpc.alts;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import io.grpc.Channel;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -33,68 +31,70 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import static com.google.common.truth.Truth.assertThat;
+
 @RunWith(JUnit4.class)
 public final class HandshakerServiceChannelTest {
-  @Rule
-  public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
-  private final Server server = grpcCleanup.register(
-      ServerBuilder.forPort(0)
-        .addService(new SimpleServiceGrpc.SimpleServiceImplBase() {
-          @Override
-          public void unaryRpc(SimpleRequest request, StreamObserver<SimpleResponse> so) {
-            so.onNext(SimpleResponse.getDefaultInstance());
-            so.onCompleted();
-          }
-        })
-        .build());
-  private Resource<Channel> resource;
+    @Rule
+    public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
+    private final Server server = grpcCleanup.register(
+            ServerBuilder.forPort(0)
+                    .addService(new SimpleServiceGrpc.SimpleServiceImplBase() {
+                        @Override
+                        public void unaryRpc(SimpleRequest request, StreamObserver<SimpleResponse> so) {
+                            so.onNext(SimpleResponse.getDefaultInstance());
+                            so.onCompleted();
+                        }
+                    })
+                    .build());
+    private Resource<Channel> resource;
 
-  @Before
-  public void setUp() throws Exception {
-    server.start();
-    resource =
-        HandshakerServiceChannel.getHandshakerChannelForTesting("localhost:" + server.getPort());
-  }
-
-  @Test
-  public void sharedChannel_authority() {
-    resource = HandshakerServiceChannel.SHARED_HANDSHAKER_CHANNEL;
-    Channel channel = resource.create();
-    try {
-      assertThat(channel.authority()).isEqualTo("metadata.google.internal.:8080");
-    } finally {
-      resource.close(channel);
+    @Before
+    public void setUp() throws Exception {
+        server.start();
+        resource =
+                HandshakerServiceChannel.getHandshakerChannelForTesting("localhost:" + server.getPort());
     }
-  }
 
-  @Test
-  public void resource_works() {
-    Channel channel = resource.create();
-    try {
-      // Do an RPC to verify that the channel actually works
-      doRpc(channel);
-    } finally {
-      resource.close(channel);
+    @Test
+    public void sharedChannel_authority() {
+        resource = HandshakerServiceChannel.SHARED_HANDSHAKER_CHANNEL;
+        Channel channel = resource.create();
+        try {
+            assertThat(channel.authority()).isEqualTo("metadata.google.internal.:8080");
+        } finally {
+            resource.close(channel);
+        }
     }
-  }
 
-  @Test
-  public void resource_lifecycleTwice() {
-    Channel channel = resource.create();
-    try {
-      doRpc(channel);
-    } finally {
-      resource.close(channel);
+    @Test
+    public void resource_works() {
+        Channel channel = resource.create();
+        try {
+            // Do an RPC to verify that the channel actually works
+            doRpc(channel);
+        } finally {
+            resource.close(channel);
+        }
     }
-    channel = resource.create();
-    try {
-      doRpc(channel);
-    } finally {
-      resource.close(channel);
-    }
-  }
 
-  private void doRpc(Channel channel) {
-    SimpleServiceGrpc.newBlockingStub(channel).unaryRpc(SimpleRequest.getDefaultInstance());
-  }
+    @Test
+    public void resource_lifecycleTwice() {
+        Channel channel = resource.create();
+        try {
+            doRpc(channel);
+        } finally {
+            resource.close(channel);
+        }
+        channel = resource.create();
+        try {
+            doRpc(channel);
+        } finally {
+            resource.close(channel);
+        }
+    }
+
+    private void doRpc(Channel channel) {
+        SimpleServiceGrpc.newBlockingStub(channel).unaryRpc(SimpleRequest.getDefaultInstance());
+    }
 }

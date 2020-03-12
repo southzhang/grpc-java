@@ -21,17 +21,18 @@ option java_outer_classname = "ReflectionTestDepthThreeProto";
 
 package grpc.reflection.testing;
 
-message EmptyMessage {}
+message EmptyMessage {
+}
 
 message ThirdLevelType {
-  optional string message = 1;
-  extensions 100 to 199;
+    optional string message = 1;
+    extensions 100 to 199;
 }
 
 message NestedTypeOuter {
-  message Middle {
-    message Inner {
-      optional int32 ival = 1;
+    message Middle {
+        message Inner {
+            optional int32 ival = 1;
+        }
     }
-  }
 }

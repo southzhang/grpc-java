@@ -16,68 +16,69 @@
 
 package io.grpc.grpclb;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import io.grpc.grpclb.GrpclbState.Mode;
+
 import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 final class GrpclbConfig {
 
-  private final Mode mode;
-  @Nullable
-  private final String serviceName;
+    private final Mode mode;
+    @Nullable
+    private final String serviceName;
 
-  private GrpclbConfig(Mode mode, @Nullable String serviceName) {
-    this.mode = checkNotNull(mode, "mode");
-    this.serviceName = serviceName;
-  }
-
-  static GrpclbConfig create(Mode mode) {
-    return create(mode, null);
-  }
-
-  static GrpclbConfig create(Mode mode, @Nullable String serviceName) {
-    return new GrpclbConfig(mode, serviceName);
-  }
-
-  Mode getMode() {
-    return mode;
-  }
-
-  /**
-   * If specified, it overrides the name of the sevice name to be sent to the balancer. if not, the
-   * target to be sent to the balancer will continue to be obtained from the target URI passed
-   * to the gRPC client channel.
-   */
-  @Nullable
-  String getServiceName() {
-    return serviceName;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
+    private GrpclbConfig(Mode mode, @Nullable String serviceName) {
+        this.mode = checkNotNull(mode, "mode");
+        this.serviceName = serviceName;
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    static GrpclbConfig create(Mode mode) {
+        return create(mode, null);
     }
-    GrpclbConfig that = (GrpclbConfig) o;
-    return mode == that.mode && Objects.equal(serviceName, that.serviceName);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(mode, serviceName);
-  }
+    static GrpclbConfig create(Mode mode, @Nullable String serviceName) {
+        return new GrpclbConfig(mode, serviceName);
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("mode", mode)
-        .add("serviceName", serviceName)
-        .toString();
-  }
+    Mode getMode() {
+        return mode;
+    }
+
+    /**
+     * If specified, it overrides the name of the sevice name to be sent to the balancer. if not, the
+     * target to be sent to the balancer will continue to be obtained from the target URI passed
+     * to the gRPC client channel.
+     */
+    @Nullable
+    String getServiceName() {
+        return serviceName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        GrpclbConfig that = (GrpclbConfig) o;
+        return mode == that.mode && Objects.equal(serviceName, that.serviceName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(mode, serviceName);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("mode", mode)
+                .add("serviceName", serviceName)
+                .toString();
+    }
 }

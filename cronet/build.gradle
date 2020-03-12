@@ -8,7 +8,7 @@ plugins {
 description = "gRPC: Cronet Android"
 
 repositories {
-    google()
+    // google()
     jcenter()
 }
 

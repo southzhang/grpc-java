@@ -28,18 +28,18 @@ option (udpa.annotations.file_migrate).move_to_package = "envoy.service.route.v3
 // :ref:`RouteConfiguration<envoy_api_msg_RouteConfiguration>` message) to each
 // HTTP request.
 service ScopedRoutesDiscoveryService {
-  option (envoy.annotations.resource).type = "envoy.api.v2.ScopedRouteConfiguration";
+    option (envoy.annotations.resource).type = "envoy.api.v2.ScopedRouteConfiguration";
 
-  rpc StreamScopedRoutes(stream DiscoveryRequest) returns (stream DiscoveryResponse) {
-  }
+    rpc StreamScopedRoutes (stream DiscoveryRequest) returns (stream DiscoveryResponse) {
+    }
 
-  rpc DeltaScopedRoutes(stream DeltaDiscoveryRequest) returns (stream DeltaDiscoveryResponse) {
-  }
+    rpc DeltaScopedRoutes (stream DeltaDiscoveryRequest) returns (stream DeltaDiscoveryResponse) {
+    }
 
-  rpc FetchScopedRoutes(DiscoveryRequest) returns (DiscoveryResponse) {
-    option (google.api.http).post = "/v2/discovery:scoped-routes";
-    option (google.api.http).body = "*";
-  }
+    rpc FetchScopedRoutes (DiscoveryRequest) returns (DiscoveryResponse) {
+        option (google.api.http).post = "/v2/discovery:scoped-routes";
+        option (google.api.http).body = "*";
+    }
 }
 
 // [#not-implemented-hide:] Not configuration. Workaround c++ protobuf issue with importing

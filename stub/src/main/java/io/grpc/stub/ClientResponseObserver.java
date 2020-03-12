@@ -24,22 +24,22 @@ import io.grpc.ExperimentalApi;
  */
 @ExperimentalApi("https://github.com/grpc/grpc-java/issues/4693")
 public interface ClientResponseObserver<ReqT, RespT> extends StreamObserver<RespT> {
-  /**
-   * Called by the runtime priot to the start of a call to provide a reference to the
-   * {@link ClientCallStreamObserver} for the outbound stream. This can be used to listen to
-   * onReady events, disable auto inbound flow and perform other advanced functions.
-   *
-   * <p>Only the methods {@link ClientCallStreamObserver#setOnReadyHandler(Runnable)} and
-   * {@link ClientCallStreamObserver#disableAutoInboundFlowControl()} may be called within this
-   * callback
-   *
-   * <pre>
-   *   // Copy an iterator to the request stream under flow-control
-   *   someStub.fullDuplexCall(new ClientResponseObserver&lt;ReqT, RespT&gt;() {
-   *     public void beforeStart(final ClientCallStreamObserver&lt;Req&gt; requestStream) {
-   *       StreamObservers.copyWithFlowControl(someIterator, requestStream);
-   *   });
-   * </pre>
-   */
-  void beforeStart(final ClientCallStreamObserver<ReqT> requestStream);
+    /**
+     * Called by the runtime priot to the start of a call to provide a reference to the
+     * {@link ClientCallStreamObserver} for the outbound stream. This can be used to listen to
+     * onReady events, disable auto inbound flow and perform other advanced functions.
+     *
+     * <p>Only the methods {@link ClientCallStreamObserver#setOnReadyHandler(Runnable)} and
+     * {@link ClientCallStreamObserver#disableAutoInboundFlowControl()} may be called within this
+     * callback
+     *
+     * <pre>
+     *   // Copy an iterator to the request stream under flow-control
+     *   someStub.fullDuplexCall(new ClientResponseObserver&lt;ReqT, RespT&gt;() {
+     *     public void beforeStart(final ClientCallStreamObserver&lt;Req&gt; requestStream) {
+     *       StreamObservers.copyWithFlowControl(someIterator, requestStream);
+     *   });
+     * </pre>
+     */
+    void beforeStart(final ClientCallStreamObserver<ReqT> requestStream);
 }

@@ -18,6 +18,7 @@ package io.grpc;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.regex.Pattern;
@@ -27,50 +28,50 @@ import java.util.regex.Pattern;
  * instance is required per test.
  */
 public final class StaticTestingClassLoader extends ClassLoader {
-  private final Pattern classesToDefine;
+    private final Pattern classesToDefine;
 
-  public StaticTestingClassLoader(ClassLoader parent, Pattern classesToDefine) {
-    super(parent);
-    this.classesToDefine = Preconditions.checkNotNull(classesToDefine, "classesToDefine");
-  }
+    public StaticTestingClassLoader(ClassLoader parent, Pattern classesToDefine) {
+        super(parent);
+        this.classesToDefine = Preconditions.checkNotNull(classesToDefine, "classesToDefine");
+    }
 
-  @Override
-  protected Class<?> findClass(String name) throws ClassNotFoundException {
-    if (!classesToDefine.matcher(name).matches()) {
-      throw new ClassNotFoundException(name);
-    }
-    InputStream is = getResourceAsStream(name.replace('.', '/') + ".class");
-    if (is == null) {
-      throw new ClassNotFoundException(name);
-    }
-    byte[] b;
-    try {
-      b = ByteStreams.toByteArray(is);
-    } catch (IOException ex) {
-      throw new ClassNotFoundException(name, ex);
-    }
-    return defineClass(name, b, 0, b.length);
-  }
-
-  @Override
-  protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-    // Reverse normal loading order; check this class loader before its parent
-    synchronized (getClassLoadingLock(name)) {
-      Class<?> klass = findLoadedClass(name);
-      if (klass == null) {
-        try {
-          klass = findClass(name);
-        } catch (ClassNotFoundException e) {
-          // This ClassLoader doesn't know a class with that name; that's part of normal operation
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        if (!classesToDefine.matcher(name).matches()) {
+            throw new ClassNotFoundException(name);
         }
-      }
-      if (klass == null) {
-        klass = super.loadClass(name, false);
-      }
-      if (resolve) {
-        resolveClass(klass);
-      }
-      return klass;
+        InputStream is = getResourceAsStream(name.replace('.', '/') + ".class");
+        if (is == null) {
+            throw new ClassNotFoundException(name);
+        }
+        byte[] b;
+        try {
+            b = ByteStreams.toByteArray(is);
+        } catch (IOException ex) {
+            throw new ClassNotFoundException(name, ex);
+        }
+        return defineClass(name, b, 0, b.length);
     }
-  }
+
+    @Override
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        // Reverse normal loading order; check this class loader before its parent
+        synchronized (getClassLoadingLock(name)) {
+            Class<?> klass = findLoadedClass(name);
+            if (klass == null) {
+                try {
+                    klass = findClass(name);
+                } catch (ClassNotFoundException e) {
+                    // This ClassLoader doesn't know a class with that name; that's part of normal operation
+                }
+            }
+            if (klass == null) {
+                klass = super.loadClass(name, false);
+            }
+            if (resolve) {
+                resolveClass(klass);
+            }
+            return klass;
+        }
+    }
 }

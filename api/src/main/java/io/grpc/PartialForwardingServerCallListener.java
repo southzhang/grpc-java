@@ -24,34 +24,34 @@ import com.google.common.base.MoreObjects;
  * onMessage() message type.
  */
 abstract class PartialForwardingServerCallListener<ReqT>
-    extends ServerCall.Listener<ReqT> {
-  /**
-   * Returns the delegated {@code ServerCall.Listener}.
-   */
-  protected abstract ServerCall.Listener<?> delegate();
+        extends ServerCall.Listener<ReqT> {
+    /**
+     * Returns the delegated {@code ServerCall.Listener}.
+     */
+    protected abstract ServerCall.Listener<?> delegate();
 
-  @Override
-  public void onHalfClose() {
-    delegate().onHalfClose();
-  }
+    @Override
+    public void onHalfClose() {
+        delegate().onHalfClose();
+    }
 
-  @Override
-  public void onCancel() {
-    delegate().onCancel();
-  }
+    @Override
+    public void onCancel() {
+        delegate().onCancel();
+    }
 
-  @Override
-  public void onComplete() {
-    delegate().onComplete();
-  }
+    @Override
+    public void onComplete() {
+        delegate().onComplete();
+    }
 
-  @Override
-  public void onReady() {
-    delegate().onReady();
-  }
+    @Override
+    public void onReady() {
+        delegate().onReady();
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this).add("delegate", delegate()).toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("delegate", delegate()).toString();
+    }
 }

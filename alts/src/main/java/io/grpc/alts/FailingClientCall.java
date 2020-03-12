@@ -20,29 +20,35 @@ import io.grpc.ClientCall;
 import io.grpc.Metadata;
 import io.grpc.Status;
 
-/** An implementation of {@link ClientCall} that fails when started. */
+/**
+ * An implementation of {@link ClientCall} that fails when started.
+ */
 final class FailingClientCall<ReqT, RespT> extends ClientCall<ReqT, RespT> {
 
-  private final Status error;
+    private final Status error;
 
-  public FailingClientCall(Status error) {
-    this.error = error;
-  }
+    public FailingClientCall(Status error) {
+        this.error = error;
+    }
 
-  @Override
-  public void start(ClientCall.Listener<RespT> listener, Metadata headers) {
-    listener.onClose(error, new Metadata());
-  }
+    @Override
+    public void start(ClientCall.Listener<RespT> listener, Metadata headers) {
+        listener.onClose(error, new Metadata());
+    }
 
-  @Override
-  public void request(int numMessages) {}
+    @Override
+    public void request(int numMessages) {
+    }
 
-  @Override
-  public void cancel(String message, Throwable cause) {}
+    @Override
+    public void cancel(String message, Throwable cause) {
+    }
 
-  @Override
-  public void halfClose() {}
+    @Override
+    public void halfClose() {
+    }
 
-  @Override
-  public void sendMessage(ReqT message) {}
+    @Override
+    public void sendMessage(ReqT message) {
+    }
 }

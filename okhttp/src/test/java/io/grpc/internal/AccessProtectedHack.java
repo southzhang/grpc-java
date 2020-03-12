@@ -17,17 +17,21 @@
 package io.grpc.internal;
 
 import io.grpc.ServerStreamTracer;
+
 import java.util.List;
 
-/** A hack to access protected methods from io.grpc.internal. */
+/**
+ * A hack to access protected methods from io.grpc.internal.
+ */
 public final class AccessProtectedHack {
-  public static List<? extends InternalServer> serverBuilderBuildTransportServer(
-      AbstractServerImplBuilder<?> builder,
-      List<ServerStreamTracer.Factory> streamTracerFactories,
-      TransportTracer.Factory transportTracerFactory) {
-    builder.transportTracerFactory = transportTracerFactory;
-    return builder.buildTransportServers(streamTracerFactories);
-  }
+    public static List<? extends InternalServer> serverBuilderBuildTransportServer(
+            AbstractServerImplBuilder<?> builder,
+            List<ServerStreamTracer.Factory> streamTracerFactories,
+            TransportTracer.Factory transportTracerFactory) {
+        builder.transportTracerFactory = transportTracerFactory;
+        return builder.buildTransportServers(streamTracerFactories);
+    }
 
-  private AccessProtectedHack() {}
+    private AccessProtectedHack() {
+    }
 }

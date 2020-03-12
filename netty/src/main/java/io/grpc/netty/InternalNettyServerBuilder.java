@@ -27,39 +27,40 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 @Internal
 public final class InternalNettyServerBuilder {
 
-  public static void setStatsEnabled(NettyServerBuilder builder, boolean value) {
-    builder.setStatsEnabled(value);
-  }
+    public static void setStatsEnabled(NettyServerBuilder builder, boolean value) {
+        builder.setStatsEnabled(value);
+    }
 
-  public static void setStatsRecordStartedRpcs(NettyServerBuilder builder, boolean value) {
-    builder.setStatsRecordStartedRpcs(value);
-  }
+    public static void setStatsRecordStartedRpcs(NettyServerBuilder builder, boolean value) {
+        builder.setStatsRecordStartedRpcs(value);
+    }
 
-  public static void setStatsRecordRealTimeMetrics(NettyServerBuilder builder, boolean value) {
-    builder.setStatsRecordRealTimeMetrics(value);
-  }
+    public static void setStatsRecordRealTimeMetrics(NettyServerBuilder builder, boolean value) {
+        builder.setStatsRecordRealTimeMetrics(value);
+    }
 
-  public static void setTracingEnabled(NettyServerBuilder builder, boolean value) {
-    builder.setTracingEnabled(value);
-  }
+    public static void setTracingEnabled(NettyServerBuilder builder, boolean value) {
+        builder.setTracingEnabled(value);
+    }
 
-  public static void setForceHeapBuffer(NettyServerBuilder builder, boolean value) {
-    builder.setForceHeapBuffer(value);
-  }
+    public static void setForceHeapBuffer(NettyServerBuilder builder, boolean value) {
+        builder.setForceHeapBuffer(value);
+    }
 
-  /**
-   * Sets {@link io.grpc.Channel} and {@link io.netty.channel.EventLoopGroup}s to Nio. A major
-   * benefit over using existing setters is gRPC will manage the life cycle of {@link
-   * io.netty.channel.EventLoopGroup}s.
-   */
-  public static void useNioTransport(NettyServerBuilder builder) {
-    builder.channelType(NioServerSocketChannel.class);
-    builder
-        .bossEventLoopGroupPool(SharedResourcePool.forResource(Utils.NIO_BOSS_EVENT_LOOP_GROUP));
-    builder
-        .workerEventLoopGroupPool(
-            SharedResourcePool.forResource(Utils.NIO_WORKER_EVENT_LOOP_GROUP));
-  }
+    /**
+     * Sets {@link io.grpc.Channel} and {@link io.netty.channel.EventLoopGroup}s to Nio. A major
+     * benefit over using existing setters is gRPC will manage the life cycle of {@link
+     * io.netty.channel.EventLoopGroup}s.
+     */
+    public static void useNioTransport(NettyServerBuilder builder) {
+        builder.channelType(NioServerSocketChannel.class);
+        builder
+                .bossEventLoopGroupPool(SharedResourcePool.forResource(Utils.NIO_BOSS_EVENT_LOOP_GROUP));
+        builder
+                .workerEventLoopGroupPool(
+                        SharedResourcePool.forResource(Utils.NIO_WORKER_EVENT_LOOP_GROUP));
+    }
 
-  private InternalNettyServerBuilder() {}
+    private InternalNettyServerBuilder() {
+    }
 }

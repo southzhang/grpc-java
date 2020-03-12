@@ -27,9 +27,9 @@ import java.io.IOException;
  * instead of an estimation.
  */
 public interface KnownLength {
-  /**
-   * Returns the total number of bytes that can be read (or skipped over) from this object until all
-   * bytes have been read out.
-   */
-  int available() throws IOException;
+    /**
+     * Returns the total number of bytes that can be read (or skipped over) from this object until all
+     * bytes have been read out.
+     */
+    int available() throws IOException;
 }

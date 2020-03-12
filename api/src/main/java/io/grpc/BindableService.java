@@ -32,10 +32,10 @@ package io.grpc;
  * </code></pre></p>
  */
 public interface BindableService {
-  /**
-   * Creates {@link ServerServiceDefinition} object for current instance of service implementation.
-   *
-   * @return ServerServiceDefinition object.
-   */
-  ServerServiceDefinition bindService();
+    /**
+     * Creates {@link ServerServiceDefinition} object for current instance of service implementation.
+     *
+     * @return ServerServiceDefinition object.
+     */
+    ServerServiceDefinition bindService();
 }

@@ -17,7 +17,7 @@ dependencies {
             libraries.gson,
             libraries.android_annotations,
             libraries.errorprone // prefer our version to perfmark's 2.3.3
-    compile (libraries.perfmark) {
+    compile(libraries.perfmark) {
         exclude group: 'com.google.errorprone', module: 'error_prone_annotations'
     }
 
@@ -26,7 +26,7 @@ dependencies {
             project(':grpc-testing'),
             project(':grpc-grpclb'),
             libraries.guava_testlib
-    
+
     testRuntimeOnly project(':grpc-census')
 
     jmh project(':grpc-testing')
@@ -44,8 +44,8 @@ javadoc {
 animalsniffer {
     // Don't check sourceSets.jmh
     sourceSets = [
-        sourceSets.main,
-        sourceSets.test
+            sourceSets.main,
+            sourceSets.test
     ]
 }
 

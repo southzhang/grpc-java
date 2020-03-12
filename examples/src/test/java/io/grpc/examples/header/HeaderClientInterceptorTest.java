@@ -16,21 +16,8 @@
 
 package io.grpc.examples.header;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.AdditionalAnswers.delegatesTo;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
-import io.grpc.ClientInterceptors;
-import io.grpc.ManagedChannel;
-import io.grpc.Metadata;
-import io.grpc.ServerCall;
+import io.grpc.*;
 import io.grpc.ServerCall.Listener;
-import io.grpc.ServerCallHandler;
-import io.grpc.ServerInterceptor;
-import io.grpc.ServerInterceptors;
-import io.grpc.StatusRuntimeException;
 import io.grpc.examples.helloworld.GreeterGrpc;
 import io.grpc.examples.helloworld.GreeterGrpc.GreeterBlockingStub;
 import io.grpc.examples.helloworld.GreeterGrpc.GreeterImplBase;
@@ -46,6 +33,12 @@ import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.AdditionalAnswers.delegatesTo;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 /**
  * Unit tests for {@link HeaderClientInterceptor}.
  * For demonstrating how to write gRPC unit test only.
@@ -56,50 +49,51 @@ import org.mockito.ArgumentMatchers;
  */
 @RunWith(JUnit4.class)
 public class HeaderClientInterceptorTest {
-  /**
-   * This rule manages automatic graceful shutdown for the registered servers and channels at the
-   * end of test.
-   */
-  @Rule
-  public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
+    /**
+     * This rule manages automatic graceful shutdown for the registered servers and channels at the
+     * end of test.
+     */
+    @Rule
+    public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
 
-  private final ServerInterceptor mockServerInterceptor = mock(ServerInterceptor.class, delegatesTo(
-      new ServerInterceptor() {
-        @Override
-        public <ReqT, RespT> Listener<ReqT> interceptCall(
-            ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
-          return next.startCall(call, headers);
+    private final ServerInterceptor mockServerInterceptor = mock(ServerInterceptor.class, delegatesTo(
+            new ServerInterceptor() {
+                @Override
+                public <ReqT, RespT> Listener<ReqT> interceptCall(
+                        ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
+                    return next.startCall(call, headers);
+                }
+            }));
+
+    @Test
+    public void clientHeaderDeliveredToServer() throws Exception {
+        // Generate a unique in-process server name.
+        String serverName = InProcessServerBuilder.generateName();
+        // Create a server, add service, start, and register for automatic graceful shutdown.
+        grpcCleanup.register(InProcessServerBuilder.forName(serverName).directExecutor()
+                .addService(ServerInterceptors.intercept(new GreeterImplBase() {
+                }, mockServerInterceptor))
+                .build().start());
+        // Create a client channel and register for automatic graceful shutdown.
+        ManagedChannel channel = grpcCleanup.register(
+                InProcessChannelBuilder.forName(serverName).directExecutor().build());
+        GreeterBlockingStub blockingStub = GreeterGrpc.newBlockingStub(
+                ClientInterceptors.intercept(channel, new HeaderClientInterceptor()));
+        ArgumentCaptor<Metadata> metadataCaptor = ArgumentCaptor.forClass(Metadata.class);
+
+        try {
+            blockingStub.sayHello(HelloRequest.getDefaultInstance());
+            fail();
+        } catch (StatusRuntimeException expected) {
+            // expected because the method is not implemented at server side
         }
-      }));
 
-  @Test
-  public void clientHeaderDeliveredToServer() throws Exception {
-    // Generate a unique in-process server name.
-    String serverName = InProcessServerBuilder.generateName();
-    // Create a server, add service, start, and register for automatic graceful shutdown.
-    grpcCleanup.register(InProcessServerBuilder.forName(serverName).directExecutor()
-        .addService(ServerInterceptors.intercept(new GreeterImplBase() {}, mockServerInterceptor))
-        .build().start());
-    // Create a client channel and register for automatic graceful shutdown.
-    ManagedChannel channel = grpcCleanup.register(
-        InProcessChannelBuilder.forName(serverName).directExecutor().build());
-    GreeterBlockingStub blockingStub = GreeterGrpc.newBlockingStub(
-        ClientInterceptors.intercept(channel, new HeaderClientInterceptor()));
-    ArgumentCaptor<Metadata> metadataCaptor = ArgumentCaptor.forClass(Metadata.class);
-
-    try {
-      blockingStub.sayHello(HelloRequest.getDefaultInstance());
-      fail();
-    } catch (StatusRuntimeException expected) {
-      // expected because the method is not implemented at server side
+        verify(mockServerInterceptor).interceptCall(
+                ArgumentMatchers.<ServerCall<HelloRequest, HelloReply>>any(),
+                metadataCaptor.capture(),
+                ArgumentMatchers.<ServerCallHandler<HelloRequest, HelloReply>>any());
+        assertEquals(
+                "customRequestValue",
+                metadataCaptor.getValue().get(HeaderClientInterceptor.CUSTOM_HEADER_KEY));
     }
-
-    verify(mockServerInterceptor).interceptCall(
-        ArgumentMatchers.<ServerCall<HelloRequest, HelloReply>>any(),
-        metadataCaptor.capture(),
-        ArgumentMatchers.<ServerCallHandler<HelloRequest, HelloReply>>any());
-    assertEquals(
-        "customRequestValue",
-        metadataCaptor.getValue().get(HeaderClientInterceptor.CUSTOM_HEADER_KEY));
-  }
 }

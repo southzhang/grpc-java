@@ -21,105 +21,108 @@ import com.google.protobuf.MessageLite;
 import com.google.protobuf.Parser;
 import io.grpc.Drainable;
 import io.grpc.KnownLength;
+
+import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import javax.annotation.Nullable;
 
 /**
  * An {@link InputStream} backed by a protobuf.
  */
 final class ProtoInputStream extends InputStream implements Drainable, KnownLength {
 
-  // ProtoInputStream is first initialized with a *message*. *partial* is initially null.
-  // Once there has been a read operation on this stream, *message* is serialized to *partial* and
-  // set to null.
-  @Nullable private MessageLite message;
-  private final Parser<?> parser;
-  @Nullable private ByteArrayInputStream partial;
+    // ProtoInputStream is first initialized with a *message*. *partial* is initially null.
+    // Once there has been a read operation on this stream, *message* is serialized to *partial* and
+    // set to null.
+    @Nullable
+    private MessageLite message;
+    private final Parser<?> parser;
+    @Nullable
+    private ByteArrayInputStream partial;
 
-  ProtoInputStream(MessageLite message, Parser<?> parser) {
-    this.message = message;
-    this.parser = parser;
-  }
-
-  @Override
-  public int drainTo(OutputStream target) throws IOException {
-    int written;
-    if (message != null) {
-      written = message.getSerializedSize();
-      message.writeTo(target);
-      message = null;
-    } else if (partial != null) {
-      written = (int) ProtoLiteUtils.copy(partial, target);
-      partial = null;
-    } else {
-      written = 0;
+    ProtoInputStream(MessageLite message, Parser<?> parser) {
+        this.message = message;
+        this.parser = parser;
     }
-    return written;
-  }
 
-  @Override
-  public int read() {
-    if (message != null) {
-      partial = new ByteArrayInputStream(message.toByteArray());
-      message = null;
+    @Override
+    public int drainTo(OutputStream target) throws IOException {
+        int written;
+        if (message != null) {
+            written = message.getSerializedSize();
+            message.writeTo(target);
+            message = null;
+        } else if (partial != null) {
+            written = (int) ProtoLiteUtils.copy(partial, target);
+            partial = null;
+        } else {
+            written = 0;
+        }
+        return written;
     }
-    if (partial != null) {
-      return partial.read();
-    }
-    return -1;
-  }
 
-  @Override
-  public int read(byte[] b, int off, int len) throws IOException {
-    if (message != null) {
-      int size = message.getSerializedSize();
-      if (size == 0) {
-        message = null;
-        partial = null;
+    @Override
+    public int read() {
+        if (message != null) {
+            partial = new ByteArrayInputStream(message.toByteArray());
+            message = null;
+        }
+        if (partial != null) {
+            return partial.read();
+        }
         return -1;
-      }
-      if (len >= size) {
-        // This is the only case that is zero-copy.
-        CodedOutputStream stream = CodedOutputStream.newInstance(b, off, size);
-        message.writeTo(stream);
-        stream.flush();
-        stream.checkNoSpaceLeft();
-
-        message = null;
-        partial = null;
-        return size;
-      }
-
-      partial = new ByteArrayInputStream(message.toByteArray());
-      message = null;
     }
-    if (partial != null) {
-      return partial.read(b, off, len);
-    }
-    return -1;
-  }
 
-  @Override
-  public int available() {
-    if (message != null) {
-      return message.getSerializedSize();
-    } else if (partial != null) {
-      return partial.available();
-    }
-    return 0;
-  }
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        if (message != null) {
+            int size = message.getSerializedSize();
+            if (size == 0) {
+                message = null;
+                partial = null;
+                return -1;
+            }
+            if (len >= size) {
+                // This is the only case that is zero-copy.
+                CodedOutputStream stream = CodedOutputStream.newInstance(b, off, size);
+                message.writeTo(stream);
+                stream.flush();
+                stream.checkNoSpaceLeft();
 
-  MessageLite message() {
-    if (message == null) {
-      throw new IllegalStateException("message not available");
-    }
-    return message;
-  }
+                message = null;
+                partial = null;
+                return size;
+            }
 
-  Parser<?> parser() {
-    return parser;
-  }
+            partial = new ByteArrayInputStream(message.toByteArray());
+            message = null;
+        }
+        if (partial != null) {
+            return partial.read(b, off, len);
+        }
+        return -1;
+    }
+
+    @Override
+    public int available() {
+        if (message != null) {
+            return message.getSerializedSize();
+        } else if (partial != null) {
+            return partial.available();
+        }
+        return 0;
+    }
+
+    MessageLite message() {
+        if (message == null) {
+            throw new IllegalStateException("message not available");
+        }
+        return message;
+    }
+
+    Parser<?> parser() {
+        return parser;
+    }
 }

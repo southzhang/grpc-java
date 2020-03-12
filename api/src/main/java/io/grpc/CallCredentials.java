@@ -36,75 +36,75 @@ import java.util.concurrent.Executor;
  */
 public abstract class CallCredentials {
 
-  /**
-   * Pass the credential data to the given {@link CallCredentials.MetadataApplier}, which will
-   * propagate it to the request metadata.
-   *
-   * <p>It is called for each individual RPC, within the {@link Context} of the call, before the
-   * stream is about to be created on a transport. Implementations should not block in this
-   * method. If metadata is not immediately available, e.g., needs to be fetched from network, the
-   * implementation may give the {@code applier} to an asynchronous task which will eventually call
-   * the {@code applier}. The RPC proceeds only after the {@code applier} is called.
-   *
-   * @param requestInfo request-related information
-   * @param appExecutor The application thread-pool. It is provided to the implementation in case it
-   *        needs to perform blocking operations.
-   * @param applier The outlet of the produced headers. It can be called either before or after this
-   *        method returns.
-   */
-  public abstract void applyRequestMetadata(
-      RequestInfo requestInfo, Executor appExecutor, CallCredentials.MetadataApplier applier);
-
-  /**
-   * Should be a noop but never called; tries to make it clearer to implementors that they may break
-   * in the future.
-   */
-  @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1914")
-  public abstract void thisUsesUnstableApi();
-
-  /**
-   * The outlet of the produced headers. Not thread-safe.
-   *
-   * <p>Exactly one of its methods must be called to make the RPC proceed.
-   */
-  @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1914")
-  public abstract static class MetadataApplier {
     /**
-     * Called when headers are successfully generated. They will be merged into the original
-     * headers.
+     * Pass the credential data to the given {@link CallCredentials.MetadataApplier}, which will
+     * propagate it to the request metadata.
+     *
+     * <p>It is called for each individual RPC, within the {@link Context} of the call, before the
+     * stream is about to be created on a transport. Implementations should not block in this
+     * method. If metadata is not immediately available, e.g., needs to be fetched from network, the
+     * implementation may give the {@code applier} to an asynchronous task which will eventually call
+     * the {@code applier}. The RPC proceeds only after the {@code applier} is called.
+     *
+     * @param requestInfo request-related information
+     * @param appExecutor The application thread-pool. It is provided to the implementation in case it
+     *                    needs to perform blocking operations.
+     * @param applier     The outlet of the produced headers. It can be called either before or after this
+     *                    method returns.
      */
-    public abstract void apply(Metadata headers);
+    public abstract void applyRequestMetadata(
+            RequestInfo requestInfo, Executor appExecutor, CallCredentials.MetadataApplier applier);
 
     /**
-     * Called when there has been an error when preparing the headers. This will fail the RPC.
+     * Should be a noop but never called; tries to make it clearer to implementors that they may break
+     * in the future.
      */
-    public abstract void fail(Status status);
-  }
-
-  /**
-   * The request-related information passed to {@code CallCredentials.applyRequestMetadata()}.
-   */
-  @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1914")
-  public abstract static class RequestInfo {
-    /**
-     * The method descriptor of this RPC.
-     */
-    public abstract MethodDescriptor<?, ?> getMethodDescriptor();
+    @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1914")
+    public abstract void thisUsesUnstableApi();
 
     /**
-     * The security level on the transport.
+     * The outlet of the produced headers. Not thread-safe.
+     *
+     * <p>Exactly one of its methods must be called to make the RPC proceed.
      */
-    public abstract SecurityLevel getSecurityLevel();
+    @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1914")
+    public abstract static class MetadataApplier {
+        /**
+         * Called when headers are successfully generated. They will be merged into the original
+         * headers.
+         */
+        public abstract void apply(Metadata headers);
+
+        /**
+         * Called when there has been an error when preparing the headers. This will fail the RPC.
+         */
+        public abstract void fail(Status status);
+    }
 
     /**
-     * Returns the authority string used to authenticate the server for this call.
+     * The request-related information passed to {@code CallCredentials.applyRequestMetadata()}.
      */
-    public abstract String getAuthority();
+    @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1914")
+    public abstract static class RequestInfo {
+        /**
+         * The method descriptor of this RPC.
+         */
+        public abstract MethodDescriptor<?, ?> getMethodDescriptor();
 
-    /**
-     * Returns the transport attributes.
-     */
-    @Grpc.TransportAttr
-    public abstract Attributes getTransportAttrs();
-  }
+        /**
+         * The security level on the transport.
+         */
+        public abstract SecurityLevel getSecurityLevel();
+
+        /**
+         * Returns the authority string used to authenticate the server for this call.
+         */
+        public abstract String getAuthority();
+
+        /**
+         * Returns the transport attributes.
+         */
+        @Grpc.TransportAttr
+        public abstract Attributes getTransportAttrs();
+    }
 }

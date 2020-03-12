@@ -16,9 +16,6 @@
 
 package io.grpc.xds;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.mock;
-
 import com.google.common.collect.ImmutableMap;
 import io.grpc.LoadBalancer;
 import io.grpc.LoadBalancer.Helper;
@@ -29,111 +26,117 @@ import io.grpc.internal.JsonParser;
 import io.grpc.internal.ServiceConfigUtil.PolicySelection;
 import io.grpc.xds.WeightedTargetLoadBalancerProvider.WeightedPolicySelection;
 import io.grpc.xds.WeightedTargetLoadBalancerProvider.WeightedTargetConfig;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link WeightedTargetLoadBalancerProvider}. */
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.mock;
+
+/**
+ * Tests for {@link WeightedTargetLoadBalancerProvider}.
+ */
 @RunWith(JUnit4.class)
 public class WeightedTargetLoadBalancerProviderTest {
 
-  @Test
-  public void parseWeightedTargetConfig() throws Exception {
-    LoadBalancerRegistry lbRegistry = new LoadBalancerRegistry();
-    WeightedTargetLoadBalancerProvider weightedTargetLoadBalancerProvider =
-        new WeightedTargetLoadBalancerProvider(lbRegistry);
-    final Object fooConfig = new Object();
-    LoadBalancerProvider lbProviderFoo = new LoadBalancerProvider() {
-      @Override
-      public boolean isAvailable() {
-        return true;
-      }
+    @Test
+    public void parseWeightedTargetConfig() throws Exception {
+        LoadBalancerRegistry lbRegistry = new LoadBalancerRegistry();
+        WeightedTargetLoadBalancerProvider weightedTargetLoadBalancerProvider =
+                new WeightedTargetLoadBalancerProvider(lbRegistry);
+        final Object fooConfig = new Object();
+        LoadBalancerProvider lbProviderFoo = new LoadBalancerProvider() {
+            @Override
+            public boolean isAvailable() {
+                return true;
+            }
 
-      @Override
-      public int getPriority() {
-        return 5;
-      }
+            @Override
+            public int getPriority() {
+                return 5;
+            }
 
-      @Override
-      public String getPolicyName() {
-        return "foo_policy";
-      }
+            @Override
+            public String getPolicyName() {
+                return "foo_policy";
+            }
 
-      @Override
-      public LoadBalancer newLoadBalancer(Helper helper) {
-        return mock(LoadBalancer.class);
-      }
+            @Override
+            public LoadBalancer newLoadBalancer(Helper helper) {
+                return mock(LoadBalancer.class);
+            }
 
-      @Override
-      public ConfigOrError parseLoadBalancingPolicyConfig(Map<String, ?> rawConfig) {
-        return ConfigOrError.fromConfig(fooConfig);
-      }
-    };
-    final Object barConfig = new Object();
-    LoadBalancerProvider lbProviderBar = new LoadBalancerProvider() {
-      @Override
-      public boolean isAvailable() {
-        return true;
-      }
+            @Override
+            public ConfigOrError parseLoadBalancingPolicyConfig(Map<String, ?> rawConfig) {
+                return ConfigOrError.fromConfig(fooConfig);
+            }
+        };
+        final Object barConfig = new Object();
+        LoadBalancerProvider lbProviderBar = new LoadBalancerProvider() {
+            @Override
+            public boolean isAvailable() {
+                return true;
+            }
 
-      @Override
-      public int getPriority() {
-        return 5;
-      }
+            @Override
+            public int getPriority() {
+                return 5;
+            }
 
-      @Override
-      public String getPolicyName() {
-        return "bar_policy";
-      }
+            @Override
+            public String getPolicyName() {
+                return "bar_policy";
+            }
 
-      @Override
-      public LoadBalancer newLoadBalancer(Helper helper) {
-        return mock(LoadBalancer.class);
-      }
+            @Override
+            public LoadBalancer newLoadBalancer(Helper helper) {
+                return mock(LoadBalancer.class);
+            }
 
-      @Override
-      public ConfigOrError parseLoadBalancingPolicyConfig(Map<String, ?> rawConfig) {
-        return ConfigOrError.fromConfig(barConfig);
-      }
-    };
-    lbRegistry.register(lbProviderFoo);
-    lbRegistry.register(lbProviderBar);
+            @Override
+            public ConfigOrError parseLoadBalancingPolicyConfig(Map<String, ?> rawConfig) {
+                return ConfigOrError.fromConfig(barConfig);
+            }
+        };
+        lbRegistry.register(lbProviderFoo);
+        lbRegistry.register(lbProviderBar);
 
-    String weightedTargetConfigJson = ("{"
-        + "  'targets' : {"
-        + "    'target_1' : {"
-        + "      'weight' : 10,"
-        + "      'childPolicy' : ["
-        + "        {'unsupported_policy' : {}},"
-        + "        {'foo_policy' : {}}"
-        + "      ]"
-        + "    },"
-        + "    'target_2' : {"
-        + "      'weight' : 20,"
-        + "      'childPolicy' : ["
-        + "        {'unsupported_policy' : {}},"
-        + "        {'bar_policy' : {}}"
-        + "      ]"
-        + "    }"
-        + "  }"
-        + "}").replace("'", "\"");
+        String weightedTargetConfigJson = ("{"
+                + "  'targets' : {"
+                + "    'target_1' : {"
+                + "      'weight' : 10,"
+                + "      'childPolicy' : ["
+                + "        {'unsupported_policy' : {}},"
+                + "        {'foo_policy' : {}}"
+                + "      ]"
+                + "    },"
+                + "    'target_2' : {"
+                + "      'weight' : 20,"
+                + "      'childPolicy' : ["
+                + "        {'unsupported_policy' : {}},"
+                + "        {'bar_policy' : {}}"
+                + "      ]"
+                + "    }"
+                + "  }"
+                + "}").replace("'", "\"");
 
-    @SuppressWarnings("unchecked")
-    Map<String, ?> rawLbConfigMap = (Map<String, ?>) JsonParser.parse(weightedTargetConfigJson);
-    ConfigOrError parsedConfig =
-        weightedTargetLoadBalancerProvider.parseLoadBalancingPolicyConfig(rawLbConfigMap);
-    ConfigOrError expectedConfig = ConfigOrError.fromConfig(
-        new WeightedTargetConfig(ImmutableMap.of(
-            "target_1",
-            new WeightedPolicySelection(
-                10,
-                new PolicySelection(lbProviderFoo, new HashMap<String, Object>(), fooConfig)),
-            "target_2",
-            new WeightedPolicySelection(
-                20,
-                new PolicySelection(lbProviderBar, new HashMap<String, Object>(), barConfig)))));
-    assertThat(parsedConfig).isEqualTo(expectedConfig);
-  }
+        @SuppressWarnings("unchecked")
+        Map<String, ?> rawLbConfigMap = (Map<String, ?>) JsonParser.parse(weightedTargetConfigJson);
+        ConfigOrError parsedConfig =
+                weightedTargetLoadBalancerProvider.parseLoadBalancingPolicyConfig(rawLbConfigMap);
+        ConfigOrError expectedConfig = ConfigOrError.fromConfig(
+                new WeightedTargetConfig(ImmutableMap.of(
+                        "target_1",
+                        new WeightedPolicySelection(
+                                10,
+                                new PolicySelection(lbProviderFoo, new HashMap<String, Object>(), fooConfig)),
+                        "target_2",
+                        new WeightedPolicySelection(
+                                20,
+                                new PolicySelection(lbProviderBar, new HashMap<String, Object>(), barConfig)))));
+        assertThat(parsedConfig).isEqualTo(expectedConfig);
+    }
 }

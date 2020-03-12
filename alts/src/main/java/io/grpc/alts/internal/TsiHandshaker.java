@@ -17,6 +17,7 @@
 package io.grpc.alts.internal;
 
 import io.netty.buffer.ByteBufAllocator;
+
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 
@@ -51,64 +52,64 @@ import java.security.GeneralSecurityException;
  * <p>Implementations of this object must be thread compatible.
  */
 public interface TsiHandshaker {
-  /**
-   * Gets bytes that need to be sent to the peer.
-   *
-   * @param bytes The buffer to put handshake bytes.
-   */
-  void getBytesToSendToPeer(ByteBuffer bytes) throws GeneralSecurityException;
+    /**
+     * Gets bytes that need to be sent to the peer.
+     *
+     * @param bytes The buffer to put handshake bytes.
+     */
+    void getBytesToSendToPeer(ByteBuffer bytes) throws GeneralSecurityException;
 
-  /**
-   * Process the bytes received from the peer.
-   *
-   * @param bytes The buffer containing the handshake bytes from the peer.
-   * @return true, if the handshake has all the data it needs to process and false, if the method
-   *     must be called again to complete processing.
-   */
-  boolean processBytesFromPeer(ByteBuffer bytes) throws GeneralSecurityException;
+    /**
+     * Process the bytes received from the peer.
+     *
+     * @param bytes The buffer containing the handshake bytes from the peer.
+     * @return true, if the handshake has all the data it needs to process and false, if the method
+     * must be called again to complete processing.
+     */
+    boolean processBytesFromPeer(ByteBuffer bytes) throws GeneralSecurityException;
 
-  /**
-   * Returns true if and only if the handshake is still in progress
-   *
-   * @return true, if the handshake is still in progress, false otherwise.
-   */
-  boolean isInProgress();
+    /**
+     * Returns true if and only if the handshake is still in progress
+     *
+     * @return true, if the handshake is still in progress, false otherwise.
+     */
+    boolean isInProgress();
 
-  /**
-   * Returns the peer extracted from a completed handshake.
-   *
-   * @return the extracted peer.
-   */
-  TsiPeer extractPeer() throws GeneralSecurityException;
+    /**
+     * Returns the peer extracted from a completed handshake.
+     *
+     * @return the extracted peer.
+     */
+    TsiPeer extractPeer() throws GeneralSecurityException;
 
-  /**
-   * Returns the peer extracted from a completed handshake.
-   *
-   * @return the extracted peer.
-   */
-  public Object extractPeerObject() throws GeneralSecurityException;
+    /**
+     * Returns the peer extracted from a completed handshake.
+     *
+     * @return the extracted peer.
+     */
+    public Object extractPeerObject() throws GeneralSecurityException;
 
-  /**
-   * Creates a frame protector from a completed handshake. No other methods may be called after the
-   * frame protector is created.
-   *
-   * @param maxFrameSize the requested max frame size, the callee is free to ignore.
-   * @param alloc used for allocating ByteBufs.
-   * @return a new TsiFrameProtector.
-   */
-  TsiFrameProtector createFrameProtector(int maxFrameSize, ByteBufAllocator alloc);
+    /**
+     * Creates a frame protector from a completed handshake. No other methods may be called after the
+     * frame protector is created.
+     *
+     * @param maxFrameSize the requested max frame size, the callee is free to ignore.
+     * @param alloc        used for allocating ByteBufs.
+     * @return a new TsiFrameProtector.
+     */
+    TsiFrameProtector createFrameProtector(int maxFrameSize, ByteBufAllocator alloc);
 
-  /**
-   * Creates a frame protector from a completed handshake. No other methods may be called after the
-   * frame protector is created.
-   *
-   * @param alloc used for allocating ByteBufs.
-   * @return a new TsiFrameProtector.
-   */
-  TsiFrameProtector createFrameProtector(ByteBufAllocator alloc);
+    /**
+     * Creates a frame protector from a completed handshake. No other methods may be called after the
+     * frame protector is created.
+     *
+     * @param alloc used for allocating ByteBufs.
+     * @return a new TsiFrameProtector.
+     */
+    TsiFrameProtector createFrameProtector(ByteBufAllocator alloc);
 
-  /**
-   * Closes resources.
-   */
-  void close();
+    /**
+     * Closes resources.
+     */
+    void close();
 }

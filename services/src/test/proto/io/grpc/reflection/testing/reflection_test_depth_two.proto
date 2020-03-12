@@ -24,13 +24,13 @@ option java_outer_classname = "ReflectionTestDepthTwoProto";
 package grpc.reflection.testing;
 
 message Request {
-  optional string message = 1;
+    optional string message = 1;
 }
 
 message Reply {
-  optional string message = 1;
+    optional string message = 1;
 }
 
 extend ThirdLevelType {
-  optional EmptyMessage nested_extension = 101;
+    optional EmptyMessage nested_extension = 101;
 }

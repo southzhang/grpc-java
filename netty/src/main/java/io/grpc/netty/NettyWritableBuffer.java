@@ -24,38 +24,38 @@ import io.netty.buffer.ByteBuf;
  */
 class NettyWritableBuffer implements WritableBuffer {
 
-  private final ByteBuf bytebuf;
+    private final ByteBuf bytebuf;
 
-  NettyWritableBuffer(ByteBuf bytebuf) {
-    this.bytebuf = bytebuf;
-  }
+    NettyWritableBuffer(ByteBuf bytebuf) {
+        this.bytebuf = bytebuf;
+    }
 
-  @Override
-  public void write(byte[] src, int srcIndex, int length) {
-    bytebuf.writeBytes(src, srcIndex, length);
-  }
+    @Override
+    public void write(byte[] src, int srcIndex, int length) {
+        bytebuf.writeBytes(src, srcIndex, length);
+    }
 
-  @Override
-  public void write(byte b) {
-    bytebuf.writeByte(b);
-  }
+    @Override
+    public void write(byte b) {
+        bytebuf.writeByte(b);
+    }
 
-  @Override
-  public int writableBytes() {
-    return bytebuf.writableBytes();
-  }
+    @Override
+    public int writableBytes() {
+        return bytebuf.writableBytes();
+    }
 
-  @Override
-  public int readableBytes() {
-    return bytebuf.readableBytes();
-  }
+    @Override
+    public int readableBytes() {
+        return bytebuf.readableBytes();
+    }
 
-  @Override
-  public void release() {
-    bytebuf.release();
-  }
+    @Override
+    public void release() {
+        bytebuf.release();
+    }
 
-  ByteBuf bytebuf() {
-    return bytebuf;
-  }
+    ByteBuf bytebuf() {
+        return bytebuf;
+    }
 }

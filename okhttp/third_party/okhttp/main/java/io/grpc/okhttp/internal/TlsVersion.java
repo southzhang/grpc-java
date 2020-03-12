@@ -26,32 +26,32 @@ import javax.net.ssl.SSLSocket;
  * {@link SSLSocket#setEnabledProtocols}.
  */
 public enum TlsVersion {
-  TLS_1_2("TLSv1.2"), // 2008.
-  TLS_1_1("TLSv1.1"), // 2006.
-  TLS_1_0("TLSv1"),   // 1999.
-  SSL_3_0("SSLv3"),   // 1996.
-  ;
+    TLS_1_2("TLSv1.2"), // 2008.
+    TLS_1_1("TLSv1.1"), // 2006.
+    TLS_1_0("TLSv1"),   // 1999.
+    SSL_3_0("SSLv3"),   // 1996.
+    ;
 
-  final String javaName;
+    final String javaName;
 
-  private TlsVersion(String javaName) {
-    this.javaName = javaName;
-  }
-
-  public static TlsVersion forJavaName(String javaName) {
-    if ("TLSv1.2".equals(javaName)) {
-      return TLS_1_2;
-    } else if ("TLSv1.1".equals(javaName)) {
-      return TLS_1_1;
-    } else if ("TLSv1".equals(javaName)) {
-      return TLS_1_0;
-    } else  if ("SSLv3".equals(javaName)) {
-      return SSL_3_0;
+    private TlsVersion(String javaName) {
+        this.javaName = javaName;
     }
-    throw new IllegalArgumentException("Unexpected TLS version: " + javaName);
-  }
 
-  public String javaName() {
-    return javaName;
-  }
+    public static TlsVersion forJavaName(String javaName) {
+        if ("TLSv1.2".equals(javaName)) {
+            return TLS_1_2;
+        } else if ("TLSv1.1".equals(javaName)) {
+            return TLS_1_1;
+        } else if ("TLSv1".equals(javaName)) {
+            return TLS_1_0;
+        } else if ("SSLv3".equals(javaName)) {
+            return SSL_3_0;
+        }
+        throw new IllegalArgumentException("Unexpected TLS version: " + javaName);
+    }
+
+    public String javaName() {
+        return javaName;
+    }
 }

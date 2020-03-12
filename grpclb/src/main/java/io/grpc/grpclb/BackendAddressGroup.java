@@ -16,38 +16,39 @@
 
 package io.grpc.grpclb;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.grpc.EquivalentAddressGroup;
+
 import javax.annotation.Nullable;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 final class BackendAddressGroup {
-  private final EquivalentAddressGroup addresses;
-  @Nullable
-  private final String token;
+    private final EquivalentAddressGroup addresses;
+    @Nullable
+    private final String token;
 
-  BackendAddressGroup(EquivalentAddressGroup addresses, @Nullable String token) {
-    this.addresses = checkNotNull(addresses, "addresses");
-    this.token = token;
-  }
-
-  EquivalentAddressGroup getAddresses() {
-    return addresses;
-  }
-
-  @Nullable
-  String getToken() {
-    return token;
-  }
-
-  @Override
-  public String toString() {
-    // This is printed in logs.  Be concise.
-    StringBuilder buffer = new StringBuilder();
-    buffer.append(addresses);
-    if (token != null) {
-      buffer.append("(").append(token).append(")");
+    BackendAddressGroup(EquivalentAddressGroup addresses, @Nullable String token) {
+        this.addresses = checkNotNull(addresses, "addresses");
+        this.token = token;
     }
-    return buffer.toString();
-  }
+
+    EquivalentAddressGroup getAddresses() {
+        return addresses;
+    }
+
+    @Nullable
+    String getToken() {
+        return token;
+    }
+
+    @Override
+    public String toString() {
+        // This is printed in logs.  Be concise.
+        StringBuilder buffer = new StringBuilder();
+        buffer.append(addresses);
+        if (token != null) {
+            buffer.append("(").append(token).append(")");
+        }
+        return buffer.toString();
+    }
 }

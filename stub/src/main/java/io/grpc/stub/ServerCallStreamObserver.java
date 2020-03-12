@@ -31,37 +31,37 @@ import io.grpc.ExperimentalApi;
 @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1788")
 public abstract class ServerCallStreamObserver<V> extends CallStreamObserver<V> {
 
-  /**
-   * If {@code true} indicates that the call has been cancelled by the remote peer.
-   *
-   * <p>This method may safely be called concurrently from multiple threads.
-   */
-  public abstract boolean isCancelled();
+    /**
+     * If {@code true} indicates that the call has been cancelled by the remote peer.
+     *
+     * <p>This method may safely be called concurrently from multiple threads.
+     */
+    public abstract boolean isCancelled();
 
-  /**
-   * Set a {@link Runnable} that will be called if the calls {@link #isCancelled()} state
-   * changes from {@code false} to {@code true}. It is guaranteed that execution of the
-   * {@link Runnable} are serialized with calls to the 'inbound' {@link StreamObserver}.
-   *
-   * <p>Note that the handler may be called some time after {@link #isCancelled()} has transitioned
-   * to {@code true} as other callbacks may still be executing in the 'inbound' observer.
-   *
-   * <p>Setting the onCancelHandler will suppress the on-cancel exception thrown by
-   * {@link #onNext}.
-   *
-   * @param onCancelHandler to call when client has cancelled the call.
-   */
-  public abstract void setOnCancelHandler(Runnable onCancelHandler);
+    /**
+     * Set a {@link Runnable} that will be called if the calls {@link #isCancelled()} state
+     * changes from {@code false} to {@code true}. It is guaranteed that execution of the
+     * {@link Runnable} are serialized with calls to the 'inbound' {@link StreamObserver}.
+     *
+     * <p>Note that the handler may be called some time after {@link #isCancelled()} has transitioned
+     * to {@code true} as other callbacks may still be executing in the 'inbound' observer.
+     *
+     * <p>Setting the onCancelHandler will suppress the on-cancel exception thrown by
+     * {@link #onNext}.
+     *
+     * @param onCancelHandler to call when client has cancelled the call.
+     */
+    public abstract void setOnCancelHandler(Runnable onCancelHandler);
 
-  /**
-   * Sets the compression algorithm to use for the call. May only be called before sending any
-   * messages. Default gRPC servers support the "gzip" compressor.
-   *
-   * <p>It is safe to call this even if the client does not support the compression format chosen.
-   * The implementation will handle negotiation with the client and may fall back to no compression.
-   *
-   * @param compression the compression algorithm to use.
-   * @throws IllegalArgumentException if the compressor name can not be found.
-   */
-  public abstract void setCompression(String compression);
+    /**
+     * Sets the compression algorithm to use for the call. May only be called before sending any
+     * messages. Default gRPC servers support the "gzip" compressor.
+     *
+     * <p>It is safe to call this even if the client does not support the compression format chosen.
+     * The implementation will handle negotiation with the client and may fall back to no compression.
+     *
+     * @param compression the compression algorithm to use.
+     * @throws IllegalArgumentException if the compressor name can not be found.
+     */
+    public abstract void setCompression(String compression);
 }

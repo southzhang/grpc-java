@@ -16,14 +16,15 @@
 
 package io.grpc.internal;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for {@link Rescheduler}.
@@ -31,103 +32,103 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class ReschedulerTest {
 
-  private final Runner runner = new Runner();
-  private final Exec exec = new Exec();
-  private final FakeClock scheduler = new FakeClock();
-  private final Rescheduler rescheduler = new Rescheduler(
-      runner,
-      exec,
-      scheduler.getScheduledExecutorService(),
-      scheduler.getStopwatchSupplier().get());
+    private final Runner runner = new Runner();
+    private final Exec exec = new Exec();
+    private final FakeClock scheduler = new FakeClock();
+    private final Rescheduler rescheduler = new Rescheduler(
+            runner,
+            exec,
+            scheduler.getScheduledExecutorService(),
+            scheduler.getStopwatchSupplier().get());
 
-  @Test
-  public void runs() {
-    assertFalse(runner.ran);
-    rescheduler.reschedule(1, TimeUnit.NANOSECONDS);
-    assertFalse(runner.ran);
+    @Test
+    public void runs() {
+        assertFalse(runner.ran);
+        rescheduler.reschedule(1, TimeUnit.NANOSECONDS);
+        assertFalse(runner.ran);
 
-    scheduler.forwardNanos(1);
+        scheduler.forwardNanos(1);
 
-    assertTrue(runner.ran);
-  }
-
-  @Test
-  public void cancels() {
-    assertFalse(runner.ran);
-    rescheduler.reschedule(1, TimeUnit.NANOSECONDS);
-    assertFalse(runner.ran);
-    rescheduler.cancel(/* permanent= */ false);
-
-    scheduler.forwardNanos(1);
-
-    assertFalse(runner.ran);
-    assertTrue(exec.executed);
-  }
-
-  @Test
-  public void cancelPermanently() {
-    assertFalse(runner.ran);
-    rescheduler.reschedule(1, TimeUnit.NANOSECONDS);
-    assertFalse(runner.ran);
-    rescheduler.cancel(/* permanent= */ true);
-
-    scheduler.forwardNanos(1);
-
-    assertFalse(runner.ran);
-    assertFalse(exec.executed);
-  }
-
-  @Test
-  public void reschedules() {
-    assertFalse(runner.ran);
-    rescheduler.reschedule(1, TimeUnit.NANOSECONDS);
-    assertFalse(runner.ran);
-    assertFalse(exec.executed);
-    rescheduler.reschedule(50, TimeUnit.NANOSECONDS);
-    assertFalse(runner.ran);
-    assertFalse(exec.executed);
-
-    scheduler.forwardNanos(1);
-    assertFalse(runner.ran);
-    assertTrue(exec.executed);
-
-    scheduler.forwardNanos(50);
-
-    assertTrue(runner.ran);
-  }
-
-  @Test
-  public void reschedulesShortDelay() {
-    assertFalse(runner.ran);
-    rescheduler.reschedule(50, TimeUnit.NANOSECONDS);
-    assertFalse(runner.ran);
-    assertFalse(exec.executed);
-    rescheduler.reschedule(1, TimeUnit.NANOSECONDS);
-    assertFalse(runner.ran);
-    assertFalse(exec.executed);
-
-    scheduler.forwardNanos(1);
-    assertTrue(runner.ran);
-    assertTrue(exec.executed);
-  }
-
-  private static final class Exec implements Executor {
-    boolean executed;
-
-    @Override
-    public void execute(Runnable command) {
-      executed = true;
-
-      command.run();
+        assertTrue(runner.ran);
     }
-  }
 
-  private static final class Runner implements Runnable {
-    boolean ran;
+    @Test
+    public void cancels() {
+        assertFalse(runner.ran);
+        rescheduler.reschedule(1, TimeUnit.NANOSECONDS);
+        assertFalse(runner.ran);
+        rescheduler.cancel(/* permanent= */ false);
 
-    @Override
-    public void run() {
-      ran = true;
+        scheduler.forwardNanos(1);
+
+        assertFalse(runner.ran);
+        assertTrue(exec.executed);
     }
-  }
+
+    @Test
+    public void cancelPermanently() {
+        assertFalse(runner.ran);
+        rescheduler.reschedule(1, TimeUnit.NANOSECONDS);
+        assertFalse(runner.ran);
+        rescheduler.cancel(/* permanent= */ true);
+
+        scheduler.forwardNanos(1);
+
+        assertFalse(runner.ran);
+        assertFalse(exec.executed);
+    }
+
+    @Test
+    public void reschedules() {
+        assertFalse(runner.ran);
+        rescheduler.reschedule(1, TimeUnit.NANOSECONDS);
+        assertFalse(runner.ran);
+        assertFalse(exec.executed);
+        rescheduler.reschedule(50, TimeUnit.NANOSECONDS);
+        assertFalse(runner.ran);
+        assertFalse(exec.executed);
+
+        scheduler.forwardNanos(1);
+        assertFalse(runner.ran);
+        assertTrue(exec.executed);
+
+        scheduler.forwardNanos(50);
+
+        assertTrue(runner.ran);
+    }
+
+    @Test
+    public void reschedulesShortDelay() {
+        assertFalse(runner.ran);
+        rescheduler.reschedule(50, TimeUnit.NANOSECONDS);
+        assertFalse(runner.ran);
+        assertFalse(exec.executed);
+        rescheduler.reschedule(1, TimeUnit.NANOSECONDS);
+        assertFalse(runner.ran);
+        assertFalse(exec.executed);
+
+        scheduler.forwardNanos(1);
+        assertTrue(runner.ran);
+        assertTrue(exec.executed);
+    }
+
+    private static final class Exec implements Executor {
+        boolean executed;
+
+        @Override
+        public void execute(Runnable command) {
+            executed = true;
+
+            command.run();
+        }
+    }
+
+    private static final class Runner implements Runnable {
+        boolean ran;
+
+        @Override
+        public void run() {
+            ran = true;
+        }
+    }
 }

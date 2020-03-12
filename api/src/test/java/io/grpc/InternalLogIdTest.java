@@ -17,37 +17,39 @@
 package io.grpc;
 
 import com.google.common.truth.Truth;
-import java.io.Serializable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.io.Serializable;
+
 @RunWith(JUnit4.class)
 public class InternalLogIdTest {
-  
-  private static final String NO_DETAILS = null;
 
-  @Test
-  public void shortName() {
-    InternalLogId name = InternalLogId.allocate("foo", NO_DETAILS);
-    Truth.assertThat(name.shortName()).matches("foo<\\d+>");
-  }
+    private static final String NO_DETAILS = null;
 
-  @Test
-  public void toString_includesDetails() {
-    InternalLogId name = InternalLogId.allocate("foo", "deets");
-    Truth.assertThat(name.toString()).matches("foo<\\d+>: \\(deets\\)");
-  }
+    @Test
+    public void shortName() {
+        InternalLogId name = InternalLogId.allocate("foo", NO_DETAILS);
+        Truth.assertThat(name.shortName()).matches("foo<\\d+>");
+    }
 
-  @Test
-  public void shortClassName() {
-    InternalLogId name = InternalLogId.allocate(getClass(), "deets");
-    Truth.assertThat(name.toString()).matches("InternalLogIdTest<\\d+>: \\(deets\\)");
-  }
+    @Test
+    public void toString_includesDetails() {
+        InternalLogId name = InternalLogId.allocate("foo", "deets");
+        Truth.assertThat(name.toString()).matches("foo<\\d+>: \\(deets\\)");
+    }
 
-  @Test
-  public void shortAnonymousClassName() {
-    InternalLogId name = InternalLogId.allocate(new Serializable() {}.getClass(), "deets");
-    Truth.assertThat(name.toString()).matches("InternalLogIdTest\\$\\d+<\\d+>: \\(deets\\)");
-  }
+    @Test
+    public void shortClassName() {
+        InternalLogId name = InternalLogId.allocate(getClass(), "deets");
+        Truth.assertThat(name.toString()).matches("InternalLogIdTest<\\d+>: \\(deets\\)");
+    }
+
+    @Test
+    public void shortAnonymousClassName() {
+        InternalLogId name = InternalLogId.allocate(new Serializable() {
+        }.getClass(), "deets");
+        Truth.assertThat(name.toString()).matches("InternalLogIdTest\\$\\d+<\\d+>: \\(deets\\)");
+    }
 }

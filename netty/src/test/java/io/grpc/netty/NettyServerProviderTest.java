@@ -16,33 +16,33 @@
 
 package io.grpc.netty;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
 import io.grpc.ServerProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link NettyServerProvider}. */
+import static org.junit.Assert.*;
+
+/**
+ * Unit tests for {@link NettyServerProvider}.
+ */
 @RunWith(JUnit4.class)
 public class NettyServerProviderTest {
-  private NettyServerProvider provider = new NettyServerProvider();
+    private NettyServerProvider provider = new NettyServerProvider();
 
-  @Test
-  public void provided() {
-    assertSame(NettyServerProvider.class, ServerProvider.provider().getClass());
-  }
+    @Test
+    public void provided() {
+        assertSame(NettyServerProvider.class, ServerProvider.provider().getClass());
+    }
 
-  @Test
-  public void basicMethods() {
-    assertTrue(provider.isAvailable());
-    assertEquals(5, provider.priority());
-  }
+    @Test
+    public void basicMethods() {
+        assertTrue(provider.isAvailable());
+        assertEquals(5, provider.priority());
+    }
 
-  @Test
-  public void builderIsANettyBuilder() {
-    assertSame(NettyServerBuilder.class, provider.builderForPort(443).getClass());
-  }
+    @Test
+    public void builderIsANettyBuilder() {
+        assertSame(NettyServerBuilder.class, provider.builderForPort(443).getClass());
+    }
 }

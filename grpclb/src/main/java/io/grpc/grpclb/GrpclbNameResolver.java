@@ -23,6 +23,8 @@ import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
 import io.grpc.internal.DnsNameResolver;
 import io.grpc.internal.SharedResourceHolder.Resource;
+
+import javax.annotation.Nullable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -32,7 +34,6 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
 
 /**
  * A DNS-based {@link NameResolver} with gRPC LB specific add-ons for resolving balancer
@@ -42,101 +43,101 @@ import javax.annotation.Nullable;
  */
 final class GrpclbNameResolver extends DnsNameResolver {
 
-  private static final Logger logger = Logger.getLogger(GrpclbNameResolver.class.getName());
+    private static final Logger logger = Logger.getLogger(GrpclbNameResolver.class.getName());
 
-  // From https://github.com/grpc/proposal/blob/master/A5-grpclb-in-dns.md
-  private static final String GRPCLB_NAME_PREFIX = "_grpclb._tcp.";
+    // From https://github.com/grpc/proposal/blob/master/A5-grpclb-in-dns.md
+    private static final String GRPCLB_NAME_PREFIX = "_grpclb._tcp.";
 
-  GrpclbNameResolver(
-      @Nullable String nsAuthority,
-      String name,
-      Args args,
-      Resource<Executor> executorResource,
-      Stopwatch stopwatch,
-      boolean isAndroid) {
-    super(nsAuthority, name, args, executorResource, stopwatch, isAndroid);
-  }
-
-  @Override
-  protected InternalResolutionResult doResolve(boolean forceTxt) {
-    List<EquivalentAddressGroup> balancerAddrs = resolveBalancerAddresses();
-    InternalResolutionResult result = super.doResolve(!balancerAddrs.isEmpty());
-    if (!balancerAddrs.isEmpty()) {
-      result.attributes =
-          Attributes.newBuilder()
-              .set(GrpclbConstants.ATTR_LB_ADDRS, balancerAddrs)
-              .build();
+    GrpclbNameResolver(
+            @Nullable String nsAuthority,
+            String name,
+            Args args,
+            Resource<Executor> executorResource,
+            Stopwatch stopwatch,
+            boolean isAndroid) {
+        super(nsAuthority, name, args, executorResource, stopwatch, isAndroid);
     }
-    return result;
-  }
 
-  private List<EquivalentAddressGroup> resolveBalancerAddresses() {
-    List<SrvRecord> srvRecords = Collections.emptyList();
-    Exception srvRecordsException = null;
-    ResourceResolver resourceResolver = getResourceResolver();
-    if (resourceResolver != null) {
-      try {
-        srvRecords = resourceResolver.resolveSrv(GRPCLB_NAME_PREFIX + getHost());
-      } catch (Exception e) {
-        srvRecordsException = e;
-      }
-    }
-    List<EquivalentAddressGroup> balancerAddresses = new ArrayList<>(srvRecords.size());
-    Exception balancerAddressesException = null;
-    Level level = Level.WARNING;
-    for (SrvRecord record : srvRecords) {
-      try {
-        // Strip trailing dot for appearance's sake. It _should_ be fine either way, but most
-        // people expect to see it without the dot.
-        String authority = record.host.substring(0, record.host.length() - 1);
-        // But we want to use the trailing dot for the IP lookup. The dot makes the name absolute
-        // instead of relative and so will avoid the search list like that in resolv.conf.
-        List<? extends InetAddress> addrs = addressResolver.resolveAddress(record.host);
-        List<SocketAddress> sockAddrs = new ArrayList<>(addrs.size());
-        for (InetAddress addr : addrs) {
-          sockAddrs.add(new InetSocketAddress(addr, record.port));
+    @Override
+    protected InternalResolutionResult doResolve(boolean forceTxt) {
+        List<EquivalentAddressGroup> balancerAddrs = resolveBalancerAddresses();
+        InternalResolutionResult result = super.doResolve(!balancerAddrs.isEmpty());
+        if (!balancerAddrs.isEmpty()) {
+            result.attributes =
+                    Attributes.newBuilder()
+                            .set(GrpclbConstants.ATTR_LB_ADDRS, balancerAddrs)
+                            .build();
         }
-        Attributes attrs =
-            Attributes.newBuilder()
-                .set(GrpclbConstants.ATTR_LB_ADDR_AUTHORITY, authority)
-                .build();
-        balancerAddresses.add(
-            new EquivalentAddressGroup(Collections.unmodifiableList(sockAddrs), attrs));
-      } catch (Exception e) {
-        logger.log(level, "Can't find address for SRV record " + record, e);
-        if (balancerAddressesException == null) {
-          balancerAddressesException = e;
-          level = Level.FINE;
+        return result;
+    }
+
+    private List<EquivalentAddressGroup> resolveBalancerAddresses() {
+        List<SrvRecord> srvRecords = Collections.emptyList();
+        Exception srvRecordsException = null;
+        ResourceResolver resourceResolver = getResourceResolver();
+        if (resourceResolver != null) {
+            try {
+                srvRecords = resourceResolver.resolveSrv(GRPCLB_NAME_PREFIX + getHost());
+            } catch (Exception e) {
+                srvRecordsException = e;
+            }
         }
-      }
+        List<EquivalentAddressGroup> balancerAddresses = new ArrayList<>(srvRecords.size());
+        Exception balancerAddressesException = null;
+        Level level = Level.WARNING;
+        for (SrvRecord record : srvRecords) {
+            try {
+                // Strip trailing dot for appearance's sake. It _should_ be fine either way, but most
+                // people expect to see it without the dot.
+                String authority = record.host.substring(0, record.host.length() - 1);
+                // But we want to use the trailing dot for the IP lookup. The dot makes the name absolute
+                // instead of relative and so will avoid the search list like that in resolv.conf.
+                List<? extends InetAddress> addrs = addressResolver.resolveAddress(record.host);
+                List<SocketAddress> sockAddrs = new ArrayList<>(addrs.size());
+                for (InetAddress addr : addrs) {
+                    sockAddrs.add(new InetSocketAddress(addr, record.port));
+                }
+                Attributes attrs =
+                        Attributes.newBuilder()
+                                .set(GrpclbConstants.ATTR_LB_ADDR_AUTHORITY, authority)
+                                .build();
+                balancerAddresses.add(
+                        new EquivalentAddressGroup(Collections.unmodifiableList(sockAddrs), attrs));
+            } catch (Exception e) {
+                logger.log(level, "Can't find address for SRV record " + record, e);
+                if (balancerAddressesException == null) {
+                    balancerAddressesException = e;
+                    level = Level.FINE;
+                }
+            }
+        }
+        if (srvRecordsException != null
+                || (balancerAddressesException != null && balancerAddresses.isEmpty())) {
+            logger.log(Level.FINE, "Balancer resolution failure", srvRecordsException);
+        }
+        return Collections.unmodifiableList(balancerAddresses);
     }
-    if (srvRecordsException != null
-        || (balancerAddressesException != null && balancerAddresses.isEmpty())) {
-      logger.log(Level.FINE, "Balancer resolution failure", srvRecordsException);
+
+    @VisibleForTesting
+    @Override
+    protected void setAddressResolver(AddressResolver addressResolver) {
+        super.setAddressResolver(addressResolver);
     }
-    return Collections.unmodifiableList(balancerAddresses);
-  }
 
-  @VisibleForTesting
-  @Override
-  protected void setAddressResolver(AddressResolver addressResolver) {
-    super.setAddressResolver(addressResolver);
-  }
+    @VisibleForTesting
+    @Override
+    protected void setResourceResolver(ResourceResolver resourceResolver) {
+        super.setResourceResolver(resourceResolver);
+    }
 
-  @VisibleForTesting
-  @Override
-  protected void setResourceResolver(ResourceResolver resourceResolver) {
-    super.setResourceResolver(resourceResolver);
-  }
+    @VisibleForTesting
+    @Override
+    protected String getHost() {
+        return super.getHost();
+    }
 
-  @VisibleForTesting
-  @Override
-  protected String getHost() {
-    return super.getHost();
-  }
-
-  @VisibleForTesting
-  static void setEnableTxt(boolean enableTxt) {
-    DnsNameResolver.enableTxt = enableTxt;
-  }
+    @VisibleForTesting
+    static void setEnableTxt(boolean enableTxt) {
+        DnsNameResolver.enableTxt = enableTxt;
+    }
 }

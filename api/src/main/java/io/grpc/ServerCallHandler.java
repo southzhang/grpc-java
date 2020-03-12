@@ -24,21 +24,21 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public interface ServerCallHandler<RequestT, ResponseT> {
-  /**
-   * Produce a non-{@code null} listener for the incoming call. Implementations are free to call
-   * methods on {@code call} before this method has returned.
-   *
-   * <p>Since {@link Metadata} is not thread-safe, the caller must not access (read or write) {@code
-   * headers} after this point.
-   *
-   * <p>If the implementation throws an exception, {@code call} will be closed with an error.
-   * Implementations must not throw an exception if they started processing that may use {@code
-   * call} on another thread.
-   *
-   * @param call object for responding to the remote client.
-   * @return listener for processing incoming request messages for {@code call}
-   */
-  ServerCall.Listener<RequestT> startCall(
-      ServerCall<RequestT, ResponseT> call,
-      Metadata headers);
+    /**
+     * Produce a non-{@code null} listener for the incoming call. Implementations are free to call
+     * methods on {@code call} before this method has returned.
+     *
+     * <p>Since {@link Metadata} is not thread-safe, the caller must not access (read or write) {@code
+     * headers} after this point.
+     *
+     * <p>If the implementation throws an exception, {@code call} will be closed with an error.
+     * Implementations must not throw an exception if they started processing that may use {@code
+     * call} on another thread.
+     *
+     * @param call object for responding to the remote client.
+     * @return listener for processing incoming request messages for {@code call}
+     */
+    ServerCall.Listener<RequestT> startCall(
+            ServerCall<RequestT, ResponseT> call,
+            Metadata headers);
 }

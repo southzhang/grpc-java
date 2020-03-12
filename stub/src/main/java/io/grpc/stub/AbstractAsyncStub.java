@@ -19,6 +19,7 @@ package io.grpc.stub;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.stub.ClientCalls.StubType;
+
 import javax.annotation.CheckReturnValue;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -34,36 +35,36 @@ import javax.annotation.concurrent.ThreadSafe;
 @CheckReturnValue
 public abstract class AbstractAsyncStub<S extends AbstractAsyncStub<S>> extends AbstractStub<S> {
 
-  protected AbstractAsyncStub(Channel channel, CallOptions callOptions) {
-      super(channel, callOptions);
-  }
+    protected AbstractAsyncStub(Channel channel, CallOptions callOptions) {
+        super(channel, callOptions);
+    }
 
-  /**
-   * Returns a new async stub with the given channel for the provided method configurations.
-   *
-   * @since 1.26.0
-   * @param factory the factory to create an async stub
-   * @param channel the channel that this stub will use to do communications
-   */
-  public static <T extends AbstractStub<T>> T newStub(
-      StubFactory<T> factory, Channel channel) {
-    return newStub(factory, channel, CallOptions.DEFAULT);
-  }
+    /**
+     * Returns a new async stub with the given channel for the provided method configurations.
+     *
+     * @param factory the factory to create an async stub
+     * @param channel the channel that this stub will use to do communications
+     * @since 1.26.0
+     */
+    public static <T extends AbstractStub<T>> T newStub(
+            StubFactory<T> factory, Channel channel) {
+        return newStub(factory, channel, CallOptions.DEFAULT);
+    }
 
-  /**
-   * Returns a new async stub with the given channel for the provided method configurations.
-   *
-   * @since 1.26.0
-   * @param factory the factory to create an async stub
-   * @param channel the channel that this stub will use to do communications
-   * @param callOptions the runtime call options to be applied to every call on this stub
-   */
-  public static <T extends AbstractStub<T>> T newStub(
-      StubFactory<T> factory, Channel channel, CallOptions callOptions) {
-    T stub = factory.newStub(
-        channel, callOptions.withOption(ClientCalls.STUB_TYPE_OPTION, StubType.ASYNC));
-    assert stub instanceof AbstractAsyncStub
-        : String.format("Expected AbstractAsyncStub, but got %s.", stub.getClass());
-    return stub;
-  }
+    /**
+     * Returns a new async stub with the given channel for the provided method configurations.
+     *
+     * @param factory     the factory to create an async stub
+     * @param channel     the channel that this stub will use to do communications
+     * @param callOptions the runtime call options to be applied to every call on this stub
+     * @since 1.26.0
+     */
+    public static <T extends AbstractStub<T>> T newStub(
+            StubFactory<T> factory, Channel channel, CallOptions callOptions) {
+        T stub = factory.newStub(
+                channel, callOptions.withOption(ClientCalls.STUB_TYPE_OPTION, StubType.ASYNC));
+        assert stub instanceof AbstractAsyncStub
+                : String.format("Expected AbstractAsyncStub, but got %s.", stub.getClass());
+        return stub;
+    }
 }

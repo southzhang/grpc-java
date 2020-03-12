@@ -16,11 +16,7 @@
 
 package io.grpc;
 
-import static org.mockito.Mockito.verify;
-
 import io.grpc.ForwardingServerCallListener.SimpleForwardingServerCallListener;
-import java.lang.reflect.Method;
-import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,33 +26,40 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import java.lang.reflect.Method;
+import java.util.Collections;
+
+import static org.mockito.Mockito.verify;
+
 /**
  * Unit tests for {@link ForwardingServerCallListener}.
  */
 @RunWith(JUnit4.class)
 public class ForwardingServerCallListenerTest {
-  @Rule
-  public final MockitoRule mocks = MockitoJUnit.rule();
+    @Rule
+    public final MockitoRule mocks = MockitoJUnit.rule();
 
-  @Mock private ServerCall.Listener<Integer> serverCallListener;
-  private ForwardingServerCallListener<Integer> forwarder;
+    @Mock
+    private ServerCall.Listener<Integer> serverCallListener;
+    private ForwardingServerCallListener<Integer> forwarder;
 
-  @Before
-  public void setUp() {
-    forwarder = new SimpleForwardingServerCallListener<Integer>(serverCallListener) {};
-  }
+    @Before
+    public void setUp() {
+        forwarder = new SimpleForwardingServerCallListener<Integer>(serverCallListener) {
+        };
+    }
 
-  @Test
-  public void allMethodsForwarded() throws Exception {
-    ForwardingTestUtil.testMethodsForwarded(
-        ServerCall.Listener.class, serverCallListener, forwarder, Collections.<Method>emptyList());
-  }
+    @Test
+    public void allMethodsForwarded() throws Exception {
+        ForwardingTestUtil.testMethodsForwarded(
+                ServerCall.Listener.class, serverCallListener, forwarder, Collections.<Method>emptyList());
+    }
 
-  @Test
-  public void onMessage() {
-    forwarder.onMessage(12345);
+    @Test
+    public void onMessage() {
+        forwarder.onMessage(12345);
 
-    verify(serverCallListener).onMessage(12345);
-  }
+        verify(serverCallListener).onMessage(12345);
+    }
 }
 

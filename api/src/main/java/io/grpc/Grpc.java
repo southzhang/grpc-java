@@ -16,50 +16,51 @@
 
 package io.grpc;
 
+import javax.net.ssl.SSLSession;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.net.SocketAddress;
-import javax.net.ssl.SSLSession;
 
 /**
  * Stuff that are part of the public API but are not bound to particular classes, e.g., static
  * methods, constants, attribute and context keys.
  */
 public final class Grpc {
-  private Grpc() {
-  }
+    private Grpc() {
+    }
 
-  /**
-   * Attribute key for the remote address of a transport.
-   */
-  @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1710")
-  @TransportAttr
-  public static final Attributes.Key<SocketAddress> TRANSPORT_ATTR_REMOTE_ADDR =
-      Attributes.Key.create("remote-addr");
+    /**
+     * Attribute key for the remote address of a transport.
+     */
+    @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1710")
+    @TransportAttr
+    public static final Attributes.Key<SocketAddress> TRANSPORT_ATTR_REMOTE_ADDR =
+            Attributes.Key.create("remote-addr");
 
-  /**
-   * Attribute key for the local address of a transport.
-   */
-  @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1710")
-  @TransportAttr
-  public static final Attributes.Key<SocketAddress> TRANSPORT_ATTR_LOCAL_ADDR =
-      Attributes.Key.create("local-addr");
+    /**
+     * Attribute key for the local address of a transport.
+     */
+    @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1710")
+    @TransportAttr
+    public static final Attributes.Key<SocketAddress> TRANSPORT_ATTR_LOCAL_ADDR =
+            Attributes.Key.create("local-addr");
 
-  /**
-   * Attribute key for SSL session of a transport.
-   */
-  @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1710")
-  @TransportAttr
-  public static final Attributes.Key<SSLSession> TRANSPORT_ATTR_SSL_SESSION =
-      Attributes.Key.create("ssl-session");
+    /**
+     * Attribute key for SSL session of a transport.
+     */
+    @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1710")
+    @TransportAttr
+    public static final Attributes.Key<SSLSession> TRANSPORT_ATTR_SSL_SESSION =
+            Attributes.Key.create("ssl-session");
 
-  /**
-   * Annotation for transport attributes. It follows the annotation semantics defined
-   * by {@link Attributes}.
-   */
-  @ExperimentalApi("https://github.com/grpc/grpc-java/issues/4972")
-  @Retention(RetentionPolicy.SOURCE)
-  @Documented
-  public @interface TransportAttr {}
+    /**
+     * Annotation for transport attributes. It follows the annotation semantics defined
+     * by {@link Attributes}.
+     */
+    @ExperimentalApi("https://github.com/grpc/grpc-java/issues/4972")
+    @Retention(RetentionPolicy.SOURCE)
+    @Documented
+    public @interface TransportAttr {
+    }
 }

@@ -20,14 +20,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link TestServiceClient}. */
+/**
+ * Unit tests for {@link TestServiceClient}.
+ */
 @RunWith(JUnit4.class)
 public class TestServiceClientTest {
 
-  @Test
-  public void emptyArgumentListShouldNotThrowException() {
-    TestServiceClient client = new TestServiceClient();
-    client.parseArgs(new String[0]);
-    client.setUp();
-  }
+    @Test
+    public void emptyArgumentListShouldNotThrowException() {
+        TestServiceClient client = new TestServiceClient();
+        client.parseArgs(new String[0]);
+        client.setUp();
+    }
 }

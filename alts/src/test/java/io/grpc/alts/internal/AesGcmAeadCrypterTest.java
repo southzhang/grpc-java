@@ -16,19 +16,19 @@
 
 package io.grpc.alts.internal;
 
-import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.TruthJUnit.assume;
-
 import org.conscrypt.Conscrypt;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.TruthJUnit.assume;
+
 @RunWith(JUnit4.class)
 public final class AesGcmAeadCrypterTest {
-  @Test
-  public void getConscrypt_worksWhenConscryptIsAvailable() {
-    assume().that(Conscrypt.isAvailable()).isTrue();
-    assertThat(AesGcmAeadCrypter.getConscrypt()).isNotNull();
-  }
+    @Test
+    public void getConscrypt_worksWhenConscryptIsAvailable() {
+        assume().that(Conscrypt.isAvailable()).isTrue();
+        assertThat(AesGcmAeadCrypter.getConscrypt()).isNotNull();
+    }
 }

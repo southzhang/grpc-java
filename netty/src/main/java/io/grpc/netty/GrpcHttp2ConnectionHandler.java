@@ -24,6 +24,7 @@ import io.netty.handler.codec.http2.Http2ConnectionDecoder;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2ConnectionHandler;
 import io.netty.handler.codec.http2.Http2Settings;
+
 import javax.annotation.Nullable;
 
 /**
@@ -32,65 +33,67 @@ import javax.annotation.Nullable;
 @Internal
 public abstract class GrpcHttp2ConnectionHandler extends Http2ConnectionHandler {
 
-  @Nullable
-  protected final ChannelPromise channelUnused;
+    @Nullable
+    protected final ChannelPromise channelUnused;
 
-  public GrpcHttp2ConnectionHandler(
-      ChannelPromise channelUnused,
-      Http2ConnectionDecoder decoder,
-      Http2ConnectionEncoder encoder,
-      Http2Settings initialSettings) {
-    super(decoder, encoder, initialSettings);
-    this.channelUnused = channelUnused;
-  }
+    public GrpcHttp2ConnectionHandler(
+            ChannelPromise channelUnused,
+            Http2ConnectionDecoder decoder,
+            Http2ConnectionEncoder encoder,
+            Http2Settings initialSettings) {
+        super(decoder, encoder, initialSettings);
+        this.channelUnused = channelUnused;
+    }
 
-  /**
-   * Same as {@link #handleProtocolNegotiationCompleted(
-   *   Attributes, io.grpc.InternalChannelz.Security)}
-   * but with no {@link io.grpc.InternalChannelz.Security}.
-   *
-   * @deprecated Use the two argument method instead.
-   */
-  @Deprecated
-  public void handleProtocolNegotiationCompleted(Attributes attrs) {
-    handleProtocolNegotiationCompleted(attrs, /*securityInfo=*/ null);
-  }
+    /**
+     * Same as {@link #handleProtocolNegotiationCompleted(
+     *Attributes, io.grpc.InternalChannelz.Security)}
+     * but with no {@link io.grpc.InternalChannelz.Security}.
+     *
+     * @deprecated Use the two argument method instead.
+     */
+    @Deprecated
+    public void handleProtocolNegotiationCompleted(Attributes attrs) {
+        handleProtocolNegotiationCompleted(attrs, /*securityInfo=*/ null);
+    }
 
-  /**
-   * Triggered on protocol negotiation completion.
-   *
-   * <p>It must me called after negotiation is completed but before given handler is added to the
-   * channel.
-   *
-   * @param attrs arbitrary attributes passed after protocol negotiation (eg. SSLSession).
-   * @param securityInfo informs channelz about the security protocol.
-   */
-  public void handleProtocolNegotiationCompleted(
-      Attributes attrs, InternalChannelz.Security securityInfo) {
-  }
+    /**
+     * Triggered on protocol negotiation completion.
+     *
+     * <p>It must me called after negotiation is completed but before given handler is added to the
+     * channel.
+     *
+     * @param attrs        arbitrary attributes passed after protocol negotiation (eg. SSLSession).
+     * @param securityInfo informs channelz about the security protocol.
+     */
+    public void handleProtocolNegotiationCompleted(
+            Attributes attrs, InternalChannelz.Security securityInfo) {
+    }
 
-  /**
-   * Calling this method indicates that the channel will no longer be used.  This method is roughly
-   * the same as calling {@link #close} on the channel, but leaving the channel alive.  This is
-   * useful if the channel will soon be deregistered from the executor and used in a non-Netty
-   * context.
-   */
-  @SuppressWarnings("FutureReturnValueIgnored")
-  public void notifyUnused() {
-    channelUnused.setSuccess(null);
-  }
+    /**
+     * Calling this method indicates that the channel will no longer be used.  This method is roughly
+     * the same as calling {@link #close} on the channel, but leaving the channel alive.  This is
+     * useful if the channel will soon be deregistered from the executor and used in a non-Netty
+     * context.
+     */
+    @SuppressWarnings("FutureReturnValueIgnored")
+    public void notifyUnused() {
+        channelUnused.setSuccess(null);
+    }
 
-  /** Get the attributes of the EquivalentAddressGroup used to create this transport. */
-  public Attributes getEagAttributes() {
-    return Attributes.EMPTY;
-  }
+    /**
+     * Get the attributes of the EquivalentAddressGroup used to create this transport.
+     */
+    public Attributes getEagAttributes() {
+        return Attributes.EMPTY;
+    }
 
-  /**
-   * Returns the authority of the server. Only available on the client-side.
-   *
-   * @throws UnsupportedOperationException if on server-side
-   */
-  public String getAuthority() {
-    throw new UnsupportedOperationException();
-  }
+    /**
+     * Returns the authority of the server. Only available on the client-side.
+     *
+     * @throws UnsupportedOperationException if on server-side
+     */
+    public String getAuthority() {
+        throw new UnsupportedOperationException();
+    }
 }

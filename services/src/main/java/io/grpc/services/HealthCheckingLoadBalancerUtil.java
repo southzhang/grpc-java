@@ -30,41 +30,41 @@ import io.grpc.internal.GrpcUtil;
  */
 @ExperimentalApi("https://github.com/grpc/grpc-java/issues/5025")
 public final class HealthCheckingLoadBalancerUtil {
-  private HealthCheckingLoadBalancerUtil() {
-  }
+    private HealthCheckingLoadBalancerUtil() {
+    }
 
-  /**
-   * Creates a health-checking-capable LoadBalancer.  This method is used to implement
-   * health-checking-capable {@link Factory}s, which will typically written this way:
-   *
-   * <pre>
-   * public class HealthCheckingFooLbFactory extends LoadBalancer.Factory {
-   *   // This is the original balancer implementation that doesn't have health checking
-   *   private final LoadBalancer.Factory fooLbFactory;
-   *
-   *   ...
-   *
-   *   // Returns the health-checking-capable version of FooLb   
-   *   public LoadBalancer newLoadBalancer(Helper helper) {
-   *     return HealthCheckingLoadBalancerUtil.newHealthCheckingLoadBalancer(fooLbFactory, helper);
-   *   }
-   * }
-   * </pre>
-   *
-   * <p>As a requirement for the original LoadBalancer, it must call
-   * {@code Helper.createSubchannel()} from the {@link
-   * io.grpc.LoadBalancer.Helper#getSynchronizationContext() Synchronization Context}, or
-   * {@code createSubchannel()} will throw.
-   *
-   * @param factory the original factory that implements load-balancing logic without health
-   *        checking
-   * @param helper the helper passed to the resulting health-checking LoadBalancer.
-   */
-  public static LoadBalancer newHealthCheckingLoadBalancer(Factory factory, Helper helper) {
-    HealthCheckingLoadBalancerFactory hcFactory =
-        new HealthCheckingLoadBalancerFactory(
-            factory, new ExponentialBackoffPolicy.Provider(),
-            GrpcUtil.STOPWATCH_SUPPLIER);
-    return hcFactory.newLoadBalancer(helper);
-  }
+    /**
+     * Creates a health-checking-capable LoadBalancer.  This method is used to implement
+     * health-checking-capable {@link Factory}s, which will typically written this way:
+     *
+     * <pre>
+     * public class HealthCheckingFooLbFactory extends LoadBalancer.Factory {
+     *   // This is the original balancer implementation that doesn't have health checking
+     *   private final LoadBalancer.Factory fooLbFactory;
+     *
+     *   ...
+     *
+     *   // Returns the health-checking-capable version of FooLb
+     *   public LoadBalancer newLoadBalancer(Helper helper) {
+     *     return HealthCheckingLoadBalancerUtil.newHealthCheckingLoadBalancer(fooLbFactory, helper);
+     *   }
+     * }
+     * </pre>
+     *
+     * <p>As a requirement for the original LoadBalancer, it must call
+     * {@code Helper.createSubchannel()} from the {@link
+     * io.grpc.LoadBalancer.Helper#getSynchronizationContext() Synchronization Context}, or
+     * {@code createSubchannel()} will throw.
+     *
+     * @param factory the original factory that implements load-balancing logic without health
+     *                checking
+     * @param helper  the helper passed to the resulting health-checking LoadBalancer.
+     */
+    public static LoadBalancer newHealthCheckingLoadBalancer(Factory factory, Helper helper) {
+        HealthCheckingLoadBalancerFactory hcFactory =
+                new HealthCheckingLoadBalancerFactory(
+                        factory, new ExponentialBackoffPolicy.Provider(),
+                        GrpcUtil.STOPWATCH_SUPPLIER);
+        return hcFactory.newLoadBalancer(helper);
+    }
 }

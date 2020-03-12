@@ -18,6 +18,7 @@ package io.grpc.cronet;
 
 import io.grpc.CallOptions;
 import io.grpc.Internal;
+
 import java.util.Collection;
 import java.util.Collections;
 
@@ -29,23 +30,24 @@ import java.util.Collections;
 @Internal
 public final class InternalCronetCallOptions {
 
-  // Prevent instantiation
-  private InternalCronetCallOptions() {}
-
-  public static CallOptions withAnnotation(CallOptions callOptions, Object annotation) {
-    return CronetClientStream.withAnnotation(callOptions, annotation);
-  }
-
-  /**
-   * Returns Cronet annotations for gRPC included in the given {@code callOptions}. Annotations
-   * are attached via {@link #withAnnotation(CallOptions, Object)}.
-   */
-  public static Collection<Object> getAnnotations(CallOptions callOptions) {
-    Collection<Object> annotations =
-        callOptions.getOption(CronetClientStream.CRONET_ANNOTATIONS_KEY);
-    if (annotations == null) {
-      annotations = Collections.emptyList();
+    // Prevent instantiation
+    private InternalCronetCallOptions() {
     }
-    return annotations;
-  }
+
+    public static CallOptions withAnnotation(CallOptions callOptions, Object annotation) {
+        return CronetClientStream.withAnnotation(callOptions, annotation);
+    }
+
+    /**
+     * Returns Cronet annotations for gRPC included in the given {@code callOptions}. Annotations
+     * are attached via {@link #withAnnotation(CallOptions, Object)}.
+     */
+    public static Collection<Object> getAnnotations(CallOptions callOptions) {
+        Collection<Object> annotations =
+                callOptions.getOption(CronetClientStream.CRONET_ANNOTATIONS_KEY);
+        if (annotations == null) {
+            annotations = Collections.emptyList();
+        }
+        return annotations;
+    }
 }

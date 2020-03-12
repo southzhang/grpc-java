@@ -16,10 +16,10 @@
 
 package io.grpc.services;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.grpc.BindableService;
 import io.grpc.health.v1.HealthCheckResponse.ServingStatus;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A {@code HealthStatusManager} object manages a health check service. A health check service is
@@ -32,58 +32,60 @@ import io.grpc.health.v1.HealthCheckResponse.ServingStatus;
  */
 @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/4696")
 public final class HealthStatusManager {
-  /**
-   * The special "service name" that represent all services on a GRPC server.  It is an empty
-   * string.
-   */
-  public static final String SERVICE_NAME_ALL_SERVICES = "";
+    /**
+     * The special "service name" that represent all services on a GRPC server.  It is an empty
+     * string.
+     */
+    public static final String SERVICE_NAME_ALL_SERVICES = "";
 
-  private final HealthServiceImpl healthService;
+    private final HealthServiceImpl healthService;
 
-  /**
-   * Creates a new health service instance.
-   */
-  public HealthStatusManager() {
-    healthService = new HealthServiceImpl();
-  }
+    /**
+     * Creates a new health service instance.
+     */
+    public HealthStatusManager() {
+        healthService = new HealthServiceImpl();
+    }
 
-  /**
-   * Gets the health check service created in the constructor.
-   */
-  public BindableService getHealthService() {
-    return healthService;
-  }
+    /**
+     * Gets the health check service created in the constructor.
+     */
+    public BindableService getHealthService() {
+        return healthService;
+    }
 
-  /**
-   * Updates the status of the server.
-   * @param service the name of some aspect of the server that is associated with a health status.
-   *     This name can have no relation with the gRPC services that the server is running with.
-   *     It can also be an empty String {@code ""} per the gRPC specification.
-   * @param status is one of the values {@link ServingStatus#SERVING},
-   *     {@link ServingStatus#NOT_SERVING} and {@link ServingStatus#UNKNOWN}.
-   */
-  public void setStatus(String service, ServingStatus status) {
-    checkNotNull(status, "status");
-    healthService.setStatus(service, status);
-  }
+    /**
+     * Updates the status of the server.
+     *
+     * @param service the name of some aspect of the server that is associated with a health status.
+     *                This name can have no relation with the gRPC services that the server is running with.
+     *                It can also be an empty String {@code ""} per the gRPC specification.
+     * @param status  is one of the values {@link ServingStatus#SERVING},
+     *                {@link ServingStatus#NOT_SERVING} and {@link ServingStatus#UNKNOWN}.
+     */
+    public void setStatus(String service, ServingStatus status) {
+        checkNotNull(status, "status");
+        healthService.setStatus(service, status);
+    }
 
-  /**
-   * Clears the health status record of a service. The health service will respond with NOT_FOUND
-   * error on checking the status of a cleared service.
-   * @param service the name of some aspect of the server that is associated with a health status.
-   *     This name can have no relation with the gRPC services that the server is running with.
-   *     It can also be an empty String {@code ""} per the gRPC specification.
-   */
-  public void clearStatus(String service) {
-    healthService.clearStatus(service);
-  }
+    /**
+     * Clears the health status record of a service. The health service will respond with NOT_FOUND
+     * error on checking the status of a cleared service.
+     *
+     * @param service the name of some aspect of the server that is associated with a health status.
+     *                This name can have no relation with the gRPC services that the server is running with.
+     *                It can also be an empty String {@code ""} per the gRPC specification.
+     */
+    public void clearStatus(String service) {
+        healthService.clearStatus(service);
+    }
 
-  /**
-   * enterTerminalState causes the health status manager to mark all services as not serving, and
-   * prevents future updates to services.  This method is meant to be called prior to server
-   * shutdown as a way to indicate that clients should redirect their traffic elsewhere.
-   */
-  public void enterTerminalState() {
-    healthService.enterTerminalState();
-  }
+    /**
+     * enterTerminalState causes the health status manager to mark all services as not serving, and
+     * prevents future updates to services.  This method is meant to be called prior to server
+     * shutdown as a way to indicate that clients should redirect their traffic elsewhere.
+     */
+    public void enterTerminalState() {
+        healthService.enterTerminalState();
+    }
 }

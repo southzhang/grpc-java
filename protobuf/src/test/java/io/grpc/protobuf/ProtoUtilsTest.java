@@ -16,33 +16,36 @@
 
 package io.grpc.protobuf;
 
-import static org.junit.Assert.assertEquals;
-
 import com.google.common.io.ByteStreams;
 import com.google.protobuf.Type;
 import io.grpc.MethodDescriptor.Marshaller;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link ProtoUtils}. */
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
+
+/**
+ * Unit tests for {@link ProtoUtils}.
+ */
 @RunWith(JUnit4.class)
 public class ProtoUtilsTest {
-  private Type proto = Type.newBuilder().setName("value").build();
+    private Type proto = Type.newBuilder().setName("value").build();
 
-  @Test
-  public void testRoundtrip() throws Exception {
-    Marshaller<Type> marshaller = ProtoUtils.marshaller(Type.getDefaultInstance());
-    InputStream is = marshaller.stream(proto);
-    is = new ByteArrayInputStream(ByteStreams.toByteArray(is));
-    assertEquals(proto, marshaller.parse(is));
-  }
+    @Test
+    public void testRoundtrip() throws Exception {
+        Marshaller<Type> marshaller = ProtoUtils.marshaller(Type.getDefaultInstance());
+        InputStream is = marshaller.stream(proto);
+        is = new ByteArrayInputStream(ByteStreams.toByteArray(is));
+        assertEquals(proto, marshaller.parse(is));
+    }
 
-  @Test
-  public void keyForProto() {
-    assertEquals("google.protobuf.Type-bin",
-        ProtoUtils.keyForProto(Type.getDefaultInstance()).originalName());
-  }
+    @Test
+    public void keyForProto() {
+        assertEquals("google.protobuf.Type-bin",
+                ProtoUtils.keyForProto(Type.getDefaultInstance()).originalName());
+    }
 }

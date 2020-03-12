@@ -16,26 +16,29 @@
 
 package io.grpc.testing;
 
-import static org.junit.Assert.assertNotNull;
-
-import java.io.InputStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link TlsTesting}. */
+import java.io.InputStream;
+
+import static org.junit.Assert.assertNotNull;
+
+/**
+ * Unit tests for {@link TlsTesting}.
+ */
 @RunWith(JUnit4.class)
 public class TlsTestingTest {
-  @Test
-  public void loadCert() throws Exception {
-    InputStream is = null;
-    try {
-      is = TlsTesting.loadCert("ca.key");
-      assertNotNull(is);
-    } finally {
-      if (is != null) {
-        is.close();
-      }
+    @Test
+    public void loadCert() throws Exception {
+        InputStream is = null;
+        try {
+            is = TlsTesting.loadCert("ca.key");
+            assertNotNull(is);
+        } finally {
+            if (is != null) {
+                is.close();
+            }
+        }
     }
-  }
 }

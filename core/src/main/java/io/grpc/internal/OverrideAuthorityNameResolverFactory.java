@@ -17,47 +17,48 @@
 package io.grpc.internal;
 
 import io.grpc.NameResolver;
-import java.net.URI;
+
 import javax.annotation.Nullable;
+import java.net.URI;
 
 /**
  * A wrapper class that overrides the authority of a NameResolver, while preserving all other
  * functionality.
  */
 final class OverrideAuthorityNameResolverFactory extends NameResolver.Factory {
-  private final NameResolver.Factory delegate;
-  private final String authorityOverride;
+    private final NameResolver.Factory delegate;
+    private final String authorityOverride;
 
-  /**
-   * Constructor for the {@link NameResolver.Factory}
-   *
-   * @param delegate The actual underlying factory that will produce the a {@link NameResolver}
-   * @param authorityOverride The authority that will be returned by {@link
-   *   NameResolver#getServiceAuthority()}
-   */
-  OverrideAuthorityNameResolverFactory(NameResolver.Factory delegate, String authorityOverride) {
-    this.delegate = delegate;
-    this.authorityOverride = authorityOverride;
-  }
-
-  @Nullable
-  @Override
-  public NameResolver newNameResolver(URI targetUri, NameResolver.Args args) {
-    final NameResolver resolver = delegate.newNameResolver(targetUri, args);
-    // Do not wrap null values. We do not want to impede error signaling.
-    if (resolver == null) {
-      return null;
+    /**
+     * Constructor for the {@link NameResolver.Factory}
+     *
+     * @param delegate          The actual underlying factory that will produce the a {@link NameResolver}
+     * @param authorityOverride The authority that will be returned by {@link
+     *                          NameResolver#getServiceAuthority()}
+     */
+    OverrideAuthorityNameResolverFactory(NameResolver.Factory delegate, String authorityOverride) {
+        this.delegate = delegate;
+        this.authorityOverride = authorityOverride;
     }
-    return new ForwardingNameResolver(resolver) {
-      @Override
-      public String getServiceAuthority() {
-        return authorityOverride;
-      }
-    };
-  }
 
-  @Override
-  public String getDefaultScheme() {
-    return delegate.getDefaultScheme();
-  }
+    @Nullable
+    @Override
+    public NameResolver newNameResolver(URI targetUri, NameResolver.Args args) {
+        final NameResolver resolver = delegate.newNameResolver(targetUri, args);
+        // Do not wrap null values. We do not want to impede error signaling.
+        if (resolver == null) {
+            return null;
+        }
+        return new ForwardingNameResolver(resolver) {
+            @Override
+            public String getServiceAuthority() {
+                return authorityOverride;
+            }
+        };
+    }
+
+    @Override
+    public String getDefaultScheme() {
+        return delegate.getDefaultScheme();
+    }
 }

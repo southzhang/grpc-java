@@ -29,25 +29,25 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class AutoWindowSizingOnTest extends AbstractInteropTest {
 
-  @BeforeClass
-  public static void turnOnAutoWindow() {
-    InternalHandlerSettings.enable(true);
-    InternalHandlerSettings.autoWindowOn(true);
-  }
+    @BeforeClass
+    public static void turnOnAutoWindow() {
+        InternalHandlerSettings.enable(true);
+        InternalHandlerSettings.autoWindowOn(true);
+    }
 
-  @Override
-  protected AbstractServerImplBuilder<?> getServerBuilder() {
-    return NettyServerBuilder.forPort(0)
-        .maxInboundMessageSize(AbstractInteropTest.MAX_MESSAGE_SIZE);
-  }
+    @Override
+    protected AbstractServerImplBuilder<?> getServerBuilder() {
+        return NettyServerBuilder.forPort(0)
+                .maxInboundMessageSize(AbstractInteropTest.MAX_MESSAGE_SIZE);
+    }
 
-  @Override
-  protected ManagedChannel createChannel() {
-    NettyChannelBuilder builder = NettyChannelBuilder.forAddress(getListenAddress())
-        .negotiationType(NegotiationType.PLAINTEXT)
-        .maxInboundMessageSize(AbstractInteropTest.MAX_MESSAGE_SIZE);
-    // Disable the default census stats interceptor, use testing interceptor instead.
-    io.grpc.internal.TestingAccessor.setStatsEnabled(builder, false);
-    return builder.intercept(createCensusStatsClientInterceptor()).build();
-  }
+    @Override
+    protected ManagedChannel createChannel() {
+        NettyChannelBuilder builder = NettyChannelBuilder.forAddress(getListenAddress())
+                .negotiationType(NegotiationType.PLAINTEXT)
+                .maxInboundMessageSize(AbstractInteropTest.MAX_MESSAGE_SIZE);
+        // Disable the default census stats interceptor, use testing interceptor instead.
+        io.grpc.internal.TestingAccessor.setStatsEnabled(builder, false);
+        return builder.intercept(createCensusStatsClientInterceptor()).build();
+    }
 }

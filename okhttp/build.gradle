@@ -14,7 +14,7 @@ dependencies {
     compile project(':grpc-core'),
             libraries.okio
 
-    compile (libraries.okhttp) {
+    compile(libraries.okhttp) {
         // prefer our own versions instead of okhttp's dependency
         exclude group: 'com.squareup.okio', module: 'okio'
     }

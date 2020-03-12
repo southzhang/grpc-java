@@ -16,115 +16,118 @@
 
 package io.grpc;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
-
 import io.grpc.grpclb.GrpclbLoadBalancerProvider;
 import io.grpc.internal.PickFirstLoadBalancerProvider;
-import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link LoadBalancerRegistry}. */
+import java.util.List;
+
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
+
+/**
+ * Unit tests for {@link LoadBalancerRegistry}.
+ */
 @RunWith(JUnit4.class)
 public class LoadBalancerRegistryTest {
-  @Test
-  public void getClassesViaHardcoded_classesPresent() throws Exception {
-    List<Class<?>> classes = LoadBalancerRegistry.getHardCodedClasses();
-    assertThat(classes).hasSize(2);
-    assertThat(classes.get(0)).isEqualTo(PickFirstLoadBalancerProvider.class);
-    assertThat(classes.get(1).getName()).isEqualTo(
-        "io.grpc.util.SecretRoundRobinLoadBalancerProvider$Provider");
-  }
-
-  @Test
-  public void stockProviders() {
-    LoadBalancerRegistry defaultRegistry = LoadBalancerRegistry.getDefaultRegistry();
-    assertThat(defaultRegistry.providers()).hasSize(3);
-
-    LoadBalancerProvider pickFirst = defaultRegistry.getProvider("pick_first");
-    assertThat(pickFirst).isInstanceOf(PickFirstLoadBalancerProvider.class);
-    assertThat(pickFirst.getPriority()).isEqualTo(5);
-
-    LoadBalancerProvider roundRobin = defaultRegistry.getProvider("round_robin");
-    assertThat(roundRobin.getClass().getName()).isEqualTo(
-        "io.grpc.util.SecretRoundRobinLoadBalancerProvider$Provider");
-    assertThat(roundRobin.getPriority()).isEqualTo(5);
-
-    LoadBalancerProvider grpclb = defaultRegistry.getProvider("grpclb");
-    assertThat(grpclb).isInstanceOf(GrpclbLoadBalancerProvider.class);
-    assertThat(grpclb.getPriority()).isEqualTo(5);
-  }
-
-  @Test
-  public void unavilableProviderThrows() {
-    LoadBalancerRegistry reg = new LoadBalancerRegistry();
-    try {
-      reg.register(new FakeProvider("great", 5, false));
-      fail("Should throw");
-    } catch (IllegalArgumentException e) {
-      assertThat(e.getMessage()).contains("isAvailable() returned false");
-    }
-    assertThat(reg.getProvider("great")).isNull();
-  }
-
-  @Test
-  public void registerAndDeregister() {
-    LoadBalancerProvider[] providers = new LoadBalancerProvider[] {
-      new FakeProvider("cool", 5, true),
-      new FakeProvider("cool", 6, true),
-      new FakeProvider("great", 5, true),
-      new FakeProvider("great", 4, true),
-      new FakeProvider("excellent", 5, true),
-      new FakeProvider("excellent", 5, true)};
-    LoadBalancerRegistry reg = new LoadBalancerRegistry();
-    for (LoadBalancerProvider provider : providers) {
-      reg.register(provider);
+    @Test
+    public void getClassesViaHardcoded_classesPresent() throws Exception {
+        List<Class<?>> classes = LoadBalancerRegistry.getHardCodedClasses();
+        assertThat(classes).hasSize(2);
+        assertThat(classes.get(0)).isEqualTo(PickFirstLoadBalancerProvider.class);
+        assertThat(classes.get(1).getName()).isEqualTo(
+                "io.grpc.util.SecretRoundRobinLoadBalancerProvider$Provider");
     }
 
-    assertThat(reg.providers()).hasSize(3);
-    assertThat(reg.getProvider("cool")).isSameInstanceAs(providers[1]);
-    assertThat(reg.getProvider("great")).isSameInstanceAs(providers[2]);
-    assertThat(reg.getProvider("excellent")).isSameInstanceAs(providers[4]);
+    @Test
+    public void stockProviders() {
+        LoadBalancerRegistry defaultRegistry = LoadBalancerRegistry.getDefaultRegistry();
+        assertThat(defaultRegistry.providers()).hasSize(3);
 
-    reg.deregister(providers[1]);
-    assertThat(reg.getProvider("cool")).isSameInstanceAs(providers[0]);
-    reg.deregister(providers[2]);
-    assertThat(reg.getProvider("great")).isSameInstanceAs(providers[3]);
-    reg.deregister(providers[4]);
-    assertThat(reg.getProvider("excellent")).isSameInstanceAs(providers[5]);
-  }
+        LoadBalancerProvider pickFirst = defaultRegistry.getProvider("pick_first");
+        assertThat(pickFirst).isInstanceOf(PickFirstLoadBalancerProvider.class);
+        assertThat(pickFirst.getPriority()).isEqualTo(5);
 
-  private static class FakeProvider extends LoadBalancerProvider {
-    final String policy;
-    final int priority;
-    final boolean isAvailable;
+        LoadBalancerProvider roundRobin = defaultRegistry.getProvider("round_robin");
+        assertThat(roundRobin.getClass().getName()).isEqualTo(
+                "io.grpc.util.SecretRoundRobinLoadBalancerProvider$Provider");
+        assertThat(roundRobin.getPriority()).isEqualTo(5);
 
-    FakeProvider(String policy, int priority, boolean isAvailable) {
-      this.policy = policy;
-      this.priority = priority;
-      this.isAvailable = isAvailable;
+        LoadBalancerProvider grpclb = defaultRegistry.getProvider("grpclb");
+        assertThat(grpclb).isInstanceOf(GrpclbLoadBalancerProvider.class);
+        assertThat(grpclb.getPriority()).isEqualTo(5);
     }
 
-    @Override
-    public boolean isAvailable() {
-      return isAvailable;
+    @Test
+    public void unavilableProviderThrows() {
+        LoadBalancerRegistry reg = new LoadBalancerRegistry();
+        try {
+            reg.register(new FakeProvider("great", 5, false));
+            fail("Should throw");
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage()).contains("isAvailable() returned false");
+        }
+        assertThat(reg.getProvider("great")).isNull();
     }
 
-    @Override
-    public int getPriority() {
-      return priority;
+    @Test
+    public void registerAndDeregister() {
+        LoadBalancerProvider[] providers = new LoadBalancerProvider[]{
+                new FakeProvider("cool", 5, true),
+                new FakeProvider("cool", 6, true),
+                new FakeProvider("great", 5, true),
+                new FakeProvider("great", 4, true),
+                new FakeProvider("excellent", 5, true),
+                new FakeProvider("excellent", 5, true)};
+        LoadBalancerRegistry reg = new LoadBalancerRegistry();
+        for (LoadBalancerProvider provider : providers) {
+            reg.register(provider);
+        }
+
+        assertThat(reg.providers()).hasSize(3);
+        assertThat(reg.getProvider("cool")).isSameInstanceAs(providers[1]);
+        assertThat(reg.getProvider("great")).isSameInstanceAs(providers[2]);
+        assertThat(reg.getProvider("excellent")).isSameInstanceAs(providers[4]);
+
+        reg.deregister(providers[1]);
+        assertThat(reg.getProvider("cool")).isSameInstanceAs(providers[0]);
+        reg.deregister(providers[2]);
+        assertThat(reg.getProvider("great")).isSameInstanceAs(providers[3]);
+        reg.deregister(providers[4]);
+        assertThat(reg.getProvider("excellent")).isSameInstanceAs(providers[5]);
     }
 
-    @Override
-    public String getPolicyName() {
-      return policy;
-    }
+    private static class FakeProvider extends LoadBalancerProvider {
+        final String policy;
+        final int priority;
+        final boolean isAvailable;
 
-    @Override
-    public LoadBalancer newLoadBalancer(LoadBalancer.Helper helper) {
-      throw new AssertionError("Should not be called in test");
+        FakeProvider(String policy, int priority, boolean isAvailable) {
+            this.policy = policy;
+            this.priority = priority;
+            this.isAvailable = isAvailable;
+        }
+
+        @Override
+        public boolean isAvailable() {
+            return isAvailable;
+        }
+
+        @Override
+        public int getPriority() {
+            return priority;
+        }
+
+        @Override
+        public String getPolicyName() {
+            return policy;
+        }
+
+        @Override
+        public LoadBalancer newLoadBalancer(LoadBalancer.Helper helper) {
+            throw new AssertionError("Should not be called in test");
+        }
     }
-  }
 }

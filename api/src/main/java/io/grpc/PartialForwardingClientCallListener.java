@@ -24,28 +24,28 @@ import com.google.common.base.MoreObjects;
  * onMessage() message type.
  */
 abstract class PartialForwardingClientCallListener<RespT> extends ClientCall.Listener<RespT> {
-  /**
-   * Returns the delegated {@code ClientCall.Listener}.
-   */
-  protected abstract ClientCall.Listener<?> delegate();
+    /**
+     * Returns the delegated {@code ClientCall.Listener}.
+     */
+    protected abstract ClientCall.Listener<?> delegate();
 
-  @Override
-  public void onHeaders(Metadata headers) {
-    delegate().onHeaders(headers);
-  }
+    @Override
+    public void onHeaders(Metadata headers) {
+        delegate().onHeaders(headers);
+    }
 
-  @Override
-  public void onClose(Status status, Metadata trailers) {
-    delegate().onClose(status, trailers);
-  }
+    @Override
+    public void onClose(Status status, Metadata trailers) {
+        delegate().onClose(status, trailers);
+    }
 
-  @Override
-  public void onReady() {
-    delegate().onReady();
-  }
+    @Override
+    public void onReady() {
+        delegate().onReady();
+    }
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this).add("delegate", delegate()).toString();
-  }
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("delegate", delegate()).toString();
+    }
 }

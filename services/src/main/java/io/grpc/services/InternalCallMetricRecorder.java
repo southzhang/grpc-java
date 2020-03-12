@@ -18,6 +18,7 @@ package io.grpc.services;
 
 import io.grpc.Context;
 import io.grpc.Internal;
+
 import java.util.Map;
 
 /**
@@ -27,17 +28,17 @@ import java.util.Map;
 @Internal
 public final class InternalCallMetricRecorder {
 
-  public static final Context.Key<CallMetricRecorder> CONTEXT_KEY = CallMetricRecorder.CONTEXT_KEY;
+    public static final Context.Key<CallMetricRecorder> CONTEXT_KEY = CallMetricRecorder.CONTEXT_KEY;
 
-  // Prevent instantiation.
-  private InternalCallMetricRecorder() {
-  }
+    // Prevent instantiation.
+    private InternalCallMetricRecorder() {
+    }
 
-  public static CallMetricRecorder newCallMetricRecorder() {
-    return new CallMetricRecorder();
-  }
+    public static CallMetricRecorder newCallMetricRecorder() {
+        return new CallMetricRecorder();
+    }
 
-  public static Map<String, Double> finalizeAndDump(CallMetricRecorder recorder) {
-    return recorder.finalizeAndDump();
-  }
+    public static Map<String, Double> finalizeAndDump(CallMetricRecorder recorder) {
+        return recorder.finalizeAndDump();
+    }
 }

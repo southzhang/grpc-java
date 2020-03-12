@@ -18,6 +18,7 @@ package io.grpc.stub;
 
 import com.google.common.base.Preconditions;
 import io.grpc.ExperimentalApi;
+
 import java.util.Iterator;
 
 /**
@@ -26,61 +27,61 @@ import java.util.Iterator;
  */
 @ExperimentalApi("https://github.com/grpc/grpc-java/issues/4694")
 public final class StreamObservers {
-  /**
-   * Copy the values of an {@link Iterator} to the target {@link CallStreamObserver} while properly
-   * accounting for outbound flow-control.  After calling this method, {@code target} should no
-   * longer be used.
-   *
-   * <p>For clients this method is safe to call inside {@link ClientResponseObserver#beforeStart},
-   * on servers it is safe to call inside the service method implementation.
-   * </p>
-   *
-   * @param source of values expressed as an {@link Iterator}.
-   * @param target {@link CallStreamObserver} which accepts values from the source.
-   */
-  public static <V> void copyWithFlowControl(final Iterator<V> source,
-      final CallStreamObserver<V> target) {
-    Preconditions.checkNotNull(source, "source");
-    Preconditions.checkNotNull(target, "target");
+    /**
+     * Copy the values of an {@link Iterator} to the target {@link CallStreamObserver} while properly
+     * accounting for outbound flow-control.  After calling this method, {@code target} should no
+     * longer be used.
+     *
+     * <p>For clients this method is safe to call inside {@link ClientResponseObserver#beforeStart},
+     * on servers it is safe to call inside the service method implementation.
+     * </p>
+     *
+     * @param source of values expressed as an {@link Iterator}.
+     * @param target {@link CallStreamObserver} which accepts values from the source.
+     */
+    public static <V> void copyWithFlowControl(final Iterator<V> source,
+                                               final CallStreamObserver<V> target) {
+        Preconditions.checkNotNull(source, "source");
+        Preconditions.checkNotNull(target, "target");
 
-    final class FlowControllingOnReadyHandler implements Runnable {
-      private boolean completed;
+        final class FlowControllingOnReadyHandler implements Runnable {
+            private boolean completed;
 
-      @Override
-      public void run() {
-        if (completed) {
-          return;
+            @Override
+            public void run() {
+                if (completed) {
+                    return;
+                }
+
+                while (target.isReady() && source.hasNext()) {
+                    target.onNext(source.next());
+                }
+
+                if (!source.hasNext()) {
+                    completed = true;
+                    target.onCompleted();
+                }
+            }
         }
 
-        while (target.isReady() && source.hasNext()) {
-          target.onNext(source.next());
-        }
-
-        if (!source.hasNext()) {
-          completed = true;
-          target.onCompleted();
-        }
-      }
+        target.setOnReadyHandler(new FlowControllingOnReadyHandler());
     }
 
-    target.setOnReadyHandler(new FlowControllingOnReadyHandler());
-  }
-
-  /**
-   * Copy the values of an {@link Iterable} to the target {@link CallStreamObserver} while properly
-   * accounting for outbound flow-control.  After calling this method, {@code target} should no
-   * longer be used.
-   *
-   * <p>For clients this method is safe to call inside {@link ClientResponseObserver#beforeStart},
-   * on servers it is safe to call inside the service method implementation.
-   * </p>
-   *
-   * @param source of values expressed as an {@link Iterable}.
-   * @param target {@link CallStreamObserver} which accepts values from the source.
-   */
-  public static <V> void copyWithFlowControl(final Iterable<V> source,
-      CallStreamObserver<V> target) {
-    Preconditions.checkNotNull(source, "source");
-    copyWithFlowControl(source.iterator(), target);
-  }
+    /**
+     * Copy the values of an {@link Iterable} to the target {@link CallStreamObserver} while properly
+     * accounting for outbound flow-control.  After calling this method, {@code target} should no
+     * longer be used.
+     *
+     * <p>For clients this method is safe to call inside {@link ClientResponseObserver#beforeStart},
+     * on servers it is safe to call inside the service method implementation.
+     * </p>
+     *
+     * @param source of values expressed as an {@link Iterable}.
+     * @param target {@link CallStreamObserver} which accepts values from the source.
+     */
+    public static <V> void copyWithFlowControl(final Iterable<V> source,
+                                               CallStreamObserver<V> target) {
+        Preconditions.checkNotNull(source, "source");
+        copyWithFlowControl(source.iterator(), target);
+    }
 }

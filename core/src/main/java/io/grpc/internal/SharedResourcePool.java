@@ -20,25 +20,25 @@ package io.grpc.internal;
  * An ObjectPool backed by a {@link SharedResourceHolder.Resource}.
  */
 public final class SharedResourcePool<T> implements ObjectPool<T> {
-  private final SharedResourceHolder.Resource<T> resource;
+    private final SharedResourceHolder.Resource<T> resource;
 
-  private SharedResourcePool(SharedResourceHolder.Resource<T> resource) {
-    this.resource = resource;
-  }
+    private SharedResourcePool(SharedResourceHolder.Resource<T> resource) {
+        this.resource = resource;
+    }
 
-  public static <T> SharedResourcePool<T> forResource(SharedResourceHolder.Resource<T> resource) {
-    return new SharedResourcePool<>(resource);
-  }
+    public static <T> SharedResourcePool<T> forResource(SharedResourceHolder.Resource<T> resource) {
+        return new SharedResourcePool<>(resource);
+    }
 
-  @Override
-  public T getObject() {
-    return SharedResourceHolder.get(resource);
-  }
+    @Override
+    public T getObject() {
+        return SharedResourceHolder.get(resource);
+    }
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public T returnObject(Object object) {
-    SharedResourceHolder.release(resource, (T) object);
-    return null;
-  }
+    @Override
+    @SuppressWarnings("unchecked")
+    public T returnObject(Object object) {
+        SharedResourceHolder.release(resource, (T) object);
+        return null;
+    }
 }

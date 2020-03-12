@@ -16,11 +16,11 @@
 
 package io.grpc.internal;
 
-import static org.junit.Assert.assertNotSame;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import static org.junit.Assert.assertNotSame;
 
 /**
  * Abstract base class for tests of {@link WritableBufferAllocator} subclasses.
@@ -28,16 +28,16 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public abstract class WritableBufferAllocatorTestBase {
 
-  protected abstract WritableBufferAllocator allocator();
+    protected abstract WritableBufferAllocator allocator();
 
-  @Test
-  public void testBuffersAreDifferent() {
-    WritableBuffer buffer1 = allocator().allocate(100);
-    WritableBuffer buffer2 = allocator().allocate(100);
+    @Test
+    public void testBuffersAreDifferent() {
+        WritableBuffer buffer1 = allocator().allocate(100);
+        WritableBuffer buffer2 = allocator().allocate(100);
 
-    assertNotSame(buffer1, buffer2);
+        assertNotSame(buffer1, buffer2);
 
-    buffer1.release();
-    buffer2.release();
-  }
+        buffer1.release();
+        buffer2.release();
+    }
 }

@@ -16,28 +16,26 @@
 
 package io.grpc.benchmarks;
 
-import io.grpc.CallOptions;
-import io.grpc.Channel;
-import io.grpc.ClientCall;
-import io.grpc.ClientInterceptor;
-import io.grpc.MethodDescriptor;
+import io.grpc.*;
 
-/** Interceptor that lets you cancel the most recent call made. This class is not thread-safe. */
+/**
+ * Interceptor that lets you cancel the most recent call made. This class is not thread-safe.
+ */
 class CancellableInterceptor implements ClientInterceptor {
-  private ClientCall<?, ?> call;
+    private ClientCall<?, ?> call;
 
-  @Override
-  public <ReqT,RespT> ClientCall<ReqT,RespT> interceptCall(
-      MethodDescriptor<ReqT,RespT> method, CallOptions callOptions, Channel next) {
-    ClientCall<ReqT, RespT> call = next.newCall(method, callOptions);
-    this.call = call;
-    return call;
-  }
-
-  public void cancel(String message, Throwable cause) {
-    if (call == null) {
-      throw new NullPointerException("No previous call");
+    @Override
+    public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+            MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
+        ClientCall<ReqT, RespT> call = next.newCall(method, callOptions);
+        this.call = call;
+        return call;
     }
-    call.cancel(message, cause);
-  }
+
+    public void cancel(String message, Throwable cause) {
+        if (call == null) {
+            throw new NullPointerException("No previous call");
+        }
+        call.cancel(message, cause);
+    }
 }

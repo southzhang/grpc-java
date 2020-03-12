@@ -20,140 +20,140 @@ import com.google.common.collect.ImmutableList;
 import io.grpc.InternalChannelz.SocketStats;
 import io.grpc.InternalInstrumented;
 import io.grpc.ServerStreamTracer;
-import io.grpc.internal.AbstractTransportTest;
-import io.grpc.internal.GrpcUtil;
-import io.grpc.internal.InternalServer;
-import io.grpc.internal.ManagedClientTransport;
-import io.grpc.internal.ObjectPool;
-import io.grpc.internal.ServerListener;
-import io.grpc.internal.ServerTransport;
-import io.grpc.internal.ServerTransportListener;
-import io.grpc.internal.SharedResourcePool;
-import java.io.IOException;
-import java.net.SocketAddress;
-import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
-import javax.annotation.Nullable;
+import io.grpc.internal.*;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link InProcessTransport} when used with a separate {@link InternalServer}. */
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.net.SocketAddress;
+import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+
+/**
+ * Unit tests for {@link InProcessTransport} when used with a separate {@link InternalServer}.
+ */
 @RunWith(JUnit4.class)
 public final class StandaloneInProcessTransportTest extends AbstractTransportTest {
-  private static final String TRANSPORT_NAME = "perfect-for-testing";
-  private static final String AUTHORITY = "a-testing-authority";
-  private static final String USER_AGENT = "a-testing-user-agent";
+    private static final String TRANSPORT_NAME = "perfect-for-testing";
+    private static final String AUTHORITY = "a-testing-authority";
+    private static final String USER_AGENT = "a-testing-user-agent";
 
-  private final ObjectPool<ScheduledExecutorService> schedulerPool =
-      SharedResourcePool.forResource(GrpcUtil.TIMER_SERVICE);
+    private final ObjectPool<ScheduledExecutorService> schedulerPool =
+            SharedResourcePool.forResource(GrpcUtil.TIMER_SERVICE);
 
-  private TestServer currentServer;
+    private TestServer currentServer;
 
-  @Override
-  protected List<? extends InternalServer> newServer(
-      List<ServerStreamTracer.Factory> streamTracerFactories) {
-    return ImmutableList.of(new TestServer(streamTracerFactories));
-  }
-
-  @Override
-  protected List<? extends InternalServer> newServer(
-      int port, List<ServerStreamTracer.Factory> streamTracerFactories) {
-    return newServer(streamTracerFactories);
-  }
-
-  @Override
-  protected String testAuthority(InternalServer server) {
-    return AUTHORITY;
-  }
-
-  @Override
-  protected ManagedClientTransport newClientTransport(InternalServer server) {
-    TestServer testServer = (TestServer) server;
-    return InternalInProcess.createInProcessTransport(
-        TRANSPORT_NAME,
-        GrpcUtil.DEFAULT_MAX_HEADER_LIST_SIZE,
-        testAuthority(server),
-        USER_AGENT,
-        eagAttrs(),
-        schedulerPool,
-        testServer.streamTracerFactories,
-        testServer.serverListener);
-  }
-
-  @Override
-  protected boolean sizesReported() {
-    // TODO(zhangkun83): InProcessTransport doesn't record metrics for now
-    // (https://github.com/grpc/grpc-java/issues/2284)
-    return false;
-  }
-
-  @Test
-  @Ignore
-  @Override
-  public void socketStats() throws Exception {
-    // test does not apply to in-process
-  }
-
-  /** An internalserver just for this test. */
-  private final class TestServer implements InternalServer {
-
-    final List<ServerStreamTracer.Factory> streamTracerFactories;
-    ServerListener serverListener;
-
-    TestServer(List<ServerStreamTracer.Factory> streamTracerFactories) {
-      this.streamTracerFactories = streamTracerFactories;
+    @Override
+    protected List<? extends InternalServer> newServer(
+            List<ServerStreamTracer.Factory> streamTracerFactories) {
+        return ImmutableList.of(new TestServer(streamTracerFactories));
     }
 
     @Override
-    public void start(ServerListener serverListener) throws IOException {
-      if (currentServer != null) {
-        throw new IOException("Server already present");
-      }
-      currentServer = this;
-      this.serverListener = new ServerListenerWrapper(serverListener);
+    protected List<? extends InternalServer> newServer(
+            int port, List<ServerStreamTracer.Factory> streamTracerFactories) {
+        return newServer(streamTracerFactories);
     }
 
     @Override
-    public void shutdown() {
-      currentServer = null;
-      serverListener.serverShutdown();
+    protected String testAuthority(InternalServer server) {
+        return AUTHORITY;
     }
 
     @Override
-    public SocketAddress getListenSocketAddress() {
-      return new SocketAddress() {};
+    protected ManagedClientTransport newClientTransport(InternalServer server) {
+        TestServer testServer = (TestServer) server;
+        return InternalInProcess.createInProcessTransport(
+                TRANSPORT_NAME,
+                GrpcUtil.DEFAULT_MAX_HEADER_LIST_SIZE,
+                testAuthority(server),
+                USER_AGENT,
+                eagAttrs(),
+                schedulerPool,
+                testServer.streamTracerFactories,
+                testServer.serverListener);
     }
 
     @Override
-    @Nullable
-    public InternalInstrumented<SocketStats> getListenSocketStats() {
-      return null;
-    }
-  }
-
-  /** Wraps the server listener to ensure we don't accept new transports after shutdown. */
-  private static final class ServerListenerWrapper implements ServerListener {
-    private final ServerListener delegateListener;
-    private boolean shutdown;
-
-    ServerListenerWrapper(ServerListener delegateListener) {
-      this.delegateListener = delegateListener;
+    protected boolean sizesReported() {
+        // TODO(zhangkun83): InProcessTransport doesn't record metrics for now
+        // (https://github.com/grpc/grpc-java/issues/2284)
+        return false;
     }
 
+    @Test
+    @Ignore
     @Override
-    public ServerTransportListener transportCreated(ServerTransport transport) {
-      if (shutdown) {
-        return null;
-      }
-      return delegateListener.transportCreated(transport);
+    public void socketStats() throws Exception {
+        // test does not apply to in-process
     }
 
-    @Override
-    public void serverShutdown() {
-      shutdown = true;
-      delegateListener.serverShutdown();
+    /**
+     * An internalserver just for this test.
+     */
+    private final class TestServer implements InternalServer {
+
+        final List<ServerStreamTracer.Factory> streamTracerFactories;
+        ServerListener serverListener;
+
+        TestServer(List<ServerStreamTracer.Factory> streamTracerFactories) {
+            this.streamTracerFactories = streamTracerFactories;
+        }
+
+        @Override
+        public void start(ServerListener serverListener) throws IOException {
+            if (currentServer != null) {
+                throw new IOException("Server already present");
+            }
+            currentServer = this;
+            this.serverListener = new ServerListenerWrapper(serverListener);
+        }
+
+        @Override
+        public void shutdown() {
+            currentServer = null;
+            serverListener.serverShutdown();
+        }
+
+        @Override
+        public SocketAddress getListenSocketAddress() {
+            return new SocketAddress() {
+            };
+        }
+
+        @Override
+        @Nullable
+        public InternalInstrumented<SocketStats> getListenSocketStats() {
+            return null;
+        }
     }
-  }
+
+    /**
+     * Wraps the server listener to ensure we don't accept new transports after shutdown.
+     */
+    private static final class ServerListenerWrapper implements ServerListener {
+        private final ServerListener delegateListener;
+        private boolean shutdown;
+
+        ServerListenerWrapper(ServerListener delegateListener) {
+            this.delegateListener = delegateListener;
+        }
+
+        @Override
+        public ServerTransportListener transportCreated(ServerTransport transport) {
+            if (shutdown) {
+                return null;
+            }
+            return delegateListener.transportCreated(transport);
+        }
+
+        @Override
+        public void serverShutdown() {
+            shutdown = true;
+            delegateListener.serverShutdown();
+        }
+    }
 }

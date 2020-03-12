@@ -28,105 +28,105 @@ import io.perfmark.PerfMark;
  * Command sent from the transport to the Netty channel to send a GRPC frame to the remote endpoint.
  */
 final class SendGrpcFrameCommand extends DefaultByteBufHolder implements WriteQueue.QueuedCommand {
-  private final StreamIdHolder stream;
-  private final boolean endStream;
-  private final Link link;
+    private final StreamIdHolder stream;
+    private final boolean endStream;
+    private final Link link;
 
-  private ChannelPromise promise;
+    private ChannelPromise promise;
 
-  SendGrpcFrameCommand(StreamIdHolder stream, ByteBuf content, boolean endStream) {
-    super(content);
-    this.stream = stream;
-    this.endStream = endStream;
-    this.link = PerfMark.linkOut();
-  }
-
-  @Override
-  public Link getLink() {
-    return link;
-  }
-
-  StreamIdHolder stream() {
-    return stream;
-  }
-
-  boolean endStream() {
-    return endStream;
-  }
-
-  @Override
-  public ByteBufHolder copy() {
-    return new SendGrpcFrameCommand(stream, content().copy(), endStream);
-  }
-
-  @Override
-  public ByteBufHolder duplicate() {
-    return new SendGrpcFrameCommand(stream, content().duplicate(), endStream);
-  }
-
-  @Override
-  public SendGrpcFrameCommand retain() {
-    super.retain();
-    return this;
-  }
-
-  @Override
-  public SendGrpcFrameCommand retain(int increment) {
-    super.retain(increment);
-    return this;
-  }
-
-  @Override
-  public SendGrpcFrameCommand touch() {
-    super.touch();
-    return this;
-  }
-
-  @Override
-  public SendGrpcFrameCommand touch(Object hint) {
-    super.touch(hint);
-    return this;
-  }
-
-  @Override
-  public boolean equals(Object that) {
-    if (that == null || !that.getClass().equals(SendGrpcFrameCommand.class)) {
-      return false;
+    SendGrpcFrameCommand(StreamIdHolder stream, ByteBuf content, boolean endStream) {
+        super(content);
+        this.stream = stream;
+        this.endStream = endStream;
+        this.link = PerfMark.linkOut();
     }
-    SendGrpcFrameCommand thatCmd = (SendGrpcFrameCommand) that;
-    return thatCmd.stream.equals(stream) && thatCmd.endStream == endStream
-        && thatCmd.content().equals(content());
-  }
 
-  @Override
-  public String toString() {
-    return getClass().getSimpleName() + "(streamId=" + stream.id()
-        + ", endStream=" + endStream + ", content=" + content()
-        + ")";
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = content().hashCode();
-    hash = hash * 31 + stream.hashCode();
-    if (endStream) {
-      hash = -hash;
+    @Override
+    public Link getLink() {
+        return link;
     }
-    return hash;
-  }
 
-  @Override
-  public ChannelPromise promise() {
-    return promise;
-  }
+    StreamIdHolder stream() {
+        return stream;
+    }
 
-  @Override
-  public void promise(ChannelPromise promise) {
-    this.promise = promise;
-  }
+    boolean endStream() {
+        return endStream;
+    }
 
-  @Override
-  public final void run(Channel channel) {
-    channel.write(this, promise);
-  }
+    @Override
+    public ByteBufHolder copy() {
+        return new SendGrpcFrameCommand(stream, content().copy(), endStream);
+    }
+
+    @Override
+    public ByteBufHolder duplicate() {
+        return new SendGrpcFrameCommand(stream, content().duplicate(), endStream);
+    }
+
+    @Override
+    public SendGrpcFrameCommand retain() {
+        super.retain();
+        return this;
+    }
+
+    @Override
+    public SendGrpcFrameCommand retain(int increment) {
+        super.retain(increment);
+        return this;
+    }
+
+    @Override
+    public SendGrpcFrameCommand touch() {
+        super.touch();
+        return this;
+    }
+
+    @Override
+    public SendGrpcFrameCommand touch(Object hint) {
+        super.touch(hint);
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object that) {
+        if (that == null || !that.getClass().equals(SendGrpcFrameCommand.class)) {
+            return false;
+        }
+        SendGrpcFrameCommand thatCmd = (SendGrpcFrameCommand) that;
+        return thatCmd.stream.equals(stream) && thatCmd.endStream == endStream
+                && thatCmd.content().equals(content());
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "(streamId=" + stream.id()
+                + ", endStream=" + endStream + ", content=" + content()
+                + ")";
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = content().hashCode();
+        hash = hash * 31 + stream.hashCode();
+        if (endStream) {
+            hash = -hash;
+        }
+        return hash;
+    }
+
+    @Override
+    public ChannelPromise promise() {
+        return promise;
+    }
+
+    @Override
+    public void promise(ChannelPromise promise) {
+        this.promise = promise;
+    }
+
+    @Override
+    public final void run(Channel channel) {
+        channel.write(this, promise);
+    }
 }

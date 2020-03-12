@@ -16,24 +16,21 @@
 
 package io.grpc.grpclb;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
-import io.grpc.Attributes;
+import io.grpc.*;
 import io.grpc.ChannelLogger.ChannelLogLevel;
-import io.grpc.ConnectivityStateInfo;
-import io.grpc.EquivalentAddressGroup;
-import io.grpc.LoadBalancer;
-import io.grpc.Status;
 import io.grpc.grpclb.GrpclbState.Mode;
 import io.grpc.internal.BackoffPolicy;
 import io.grpc.internal.TimeProvider;
+
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * A {@link LoadBalancer} that uses the GRPCLB protocol.
@@ -43,123 +40,123 @@ import javax.annotation.Nullable;
  */
 class GrpclbLoadBalancer extends LoadBalancer {
 
-  private static final GrpclbConfig DEFAULT_CONFIG = GrpclbConfig.create(Mode.ROUND_ROBIN);
+    private static final GrpclbConfig DEFAULT_CONFIG = GrpclbConfig.create(Mode.ROUND_ROBIN);
 
-  private final Helper helper;
-  private final TimeProvider time;
-  private final Stopwatch stopwatch;
-  private final SubchannelPool subchannelPool;
-  private final BackoffPolicy.Provider backoffPolicyProvider;
+    private final Helper helper;
+    private final TimeProvider time;
+    private final Stopwatch stopwatch;
+    private final SubchannelPool subchannelPool;
+    private final BackoffPolicy.Provider backoffPolicyProvider;
 
-  private GrpclbConfig config = DEFAULT_CONFIG;
+    private GrpclbConfig config = DEFAULT_CONFIG;
 
-  // All mutable states in this class are mutated ONLY from Channel Executor
-  @Nullable
-  private GrpclbState grpclbState;
+    // All mutable states in this class are mutated ONLY from Channel Executor
+    @Nullable
+    private GrpclbState grpclbState;
 
-  GrpclbLoadBalancer(
-      Helper helper,
-      SubchannelPool subchannelPool,
-      TimeProvider time,
-      Stopwatch stopwatch,
-      BackoffPolicy.Provider backoffPolicyProvider) {
-    this.helper = checkNotNull(helper, "helper");
-    this.time = checkNotNull(time, "time provider");
-    this.stopwatch = checkNotNull(stopwatch, "stopwatch");
-    this.backoffPolicyProvider = checkNotNull(backoffPolicyProvider, "backoffPolicyProvider");
-    this.subchannelPool = checkNotNull(subchannelPool, "subchannelPool");
-    this.subchannelPool.init(helper, this);
-    recreateStates();
-    checkNotNull(grpclbState, "grpclbState");
-  }
-
-  @Deprecated
-  @Override
-  public void handleSubchannelState(Subchannel subchannel, ConnectivityStateInfo newState) {
-    // grpclbState should never be null here since handleSubchannelState cannot be called while the
-    // lb is shutdown.
-    grpclbState.handleSubchannelState(subchannel, newState);
-  }
-
-  @Override
-  public void handleResolvedAddresses(ResolvedAddresses resolvedAddresses) {
-    Attributes attributes = resolvedAddresses.getAttributes();
-    List<EquivalentAddressGroup> newLbAddresses = attributes.get(GrpclbConstants.ATTR_LB_ADDRS);
-    if ((newLbAddresses == null || newLbAddresses.isEmpty())
-        && resolvedAddresses.getAddresses().isEmpty()) {
-      handleNameResolutionError(
-          Status.UNAVAILABLE.withDescription("No backend or balancer addresses found"));
-      return;
+    GrpclbLoadBalancer(
+            Helper helper,
+            SubchannelPool subchannelPool,
+            TimeProvider time,
+            Stopwatch stopwatch,
+            BackoffPolicy.Provider backoffPolicyProvider) {
+        this.helper = checkNotNull(helper, "helper");
+        this.time = checkNotNull(time, "time provider");
+        this.stopwatch = checkNotNull(stopwatch, "stopwatch");
+        this.backoffPolicyProvider = checkNotNull(backoffPolicyProvider, "backoffPolicyProvider");
+        this.subchannelPool = checkNotNull(subchannelPool, "subchannelPool");
+        this.subchannelPool.init(helper, this);
+        recreateStates();
+        checkNotNull(grpclbState, "grpclbState");
     }
-    List<LbAddressGroup> newLbAddressGroups = new ArrayList<>();
 
-    if (newLbAddresses != null) {
-      for (EquivalentAddressGroup lbAddr : newLbAddresses) {
-        String lbAddrAuthority = lbAddr.getAttributes().get(GrpclbConstants.ATTR_LB_ADDR_AUTHORITY);
-        if (lbAddrAuthority == null) {
-          throw new AssertionError(
-              "This is a bug: LB address " + lbAddr + " does not have an authority.");
+    @Deprecated
+    @Override
+    public void handleSubchannelState(Subchannel subchannel, ConnectivityStateInfo newState) {
+        // grpclbState should never be null here since handleSubchannelState cannot be called while the
+        // lb is shutdown.
+        grpclbState.handleSubchannelState(subchannel, newState);
+    }
+
+    @Override
+    public void handleResolvedAddresses(ResolvedAddresses resolvedAddresses) {
+        Attributes attributes = resolvedAddresses.getAttributes();
+        List<EquivalentAddressGroup> newLbAddresses = attributes.get(GrpclbConstants.ATTR_LB_ADDRS);
+        if ((newLbAddresses == null || newLbAddresses.isEmpty())
+                && resolvedAddresses.getAddresses().isEmpty()) {
+            handleNameResolutionError(
+                    Status.UNAVAILABLE.withDescription("No backend or balancer addresses found"));
+            return;
         }
-        newLbAddressGroups.add(new LbAddressGroup(lbAddr, lbAddrAuthority));
-      }
+        List<LbAddressGroup> newLbAddressGroups = new ArrayList<>();
+
+        if (newLbAddresses != null) {
+            for (EquivalentAddressGroup lbAddr : newLbAddresses) {
+                String lbAddrAuthority = lbAddr.getAttributes().get(GrpclbConstants.ATTR_LB_ADDR_AUTHORITY);
+                if (lbAddrAuthority == null) {
+                    throw new AssertionError(
+                            "This is a bug: LB address " + lbAddr + " does not have an authority.");
+                }
+                newLbAddressGroups.add(new LbAddressGroup(lbAddr, lbAddrAuthority));
+            }
+        }
+
+        newLbAddressGroups = Collections.unmodifiableList(newLbAddressGroups);
+        List<EquivalentAddressGroup> newBackendServers =
+                Collections.unmodifiableList(resolvedAddresses.getAddresses());
+        GrpclbConfig newConfig = (GrpclbConfig) resolvedAddresses.getLoadBalancingPolicyConfig();
+        if (newConfig == null) {
+            newConfig = DEFAULT_CONFIG;
+        }
+        if (!config.equals(newConfig)) {
+            config = newConfig;
+            helper.getChannelLogger().log(ChannelLogLevel.INFO, "Config: " + newConfig);
+            recreateStates();
+        }
+        grpclbState.handleAddresses(newLbAddressGroups, newBackendServers);
     }
 
-    newLbAddressGroups = Collections.unmodifiableList(newLbAddressGroups);
-    List<EquivalentAddressGroup> newBackendServers =
-        Collections.unmodifiableList(resolvedAddresses.getAddresses());
-    GrpclbConfig newConfig = (GrpclbConfig) resolvedAddresses.getLoadBalancingPolicyConfig();
-    if (newConfig == null) {
-      newConfig = DEFAULT_CONFIG;
+    @Override
+    public void requestConnection() {
+        if (grpclbState != null) {
+            grpclbState.requestConnection();
+        }
     }
-    if (!config.equals(newConfig)) {
-      config = newConfig;
-      helper.getChannelLogger().log(ChannelLogLevel.INFO, "Config: " + newConfig);
-      recreateStates();
+
+    private void resetStates() {
+        if (grpclbState != null) {
+            grpclbState.shutdown();
+            grpclbState = null;
+        }
     }
-    grpclbState.handleAddresses(newLbAddressGroups, newBackendServers);
-  }
 
-  @Override
-  public void requestConnection() {
-    if (grpclbState != null) {
-      grpclbState.requestConnection();
+    private void recreateStates() {
+        resetStates();
+        checkState(grpclbState == null, "Should've been cleared");
+        grpclbState =
+                new GrpclbState(config, helper, subchannelPool, time, stopwatch, backoffPolicyProvider);
     }
-  }
 
-  private void resetStates() {
-    if (grpclbState != null) {
-      grpclbState.shutdown();
-      grpclbState = null;
+    @Override
+    public void shutdown() {
+        resetStates();
     }
-  }
 
-  private void recreateStates() {
-    resetStates();
-    checkState(grpclbState == null, "Should've been cleared");
-    grpclbState =
-        new GrpclbState(config, helper, subchannelPool, time, stopwatch, backoffPolicyProvider);
-  }
-
-  @Override
-  public void shutdown() {
-    resetStates();
-  }
-
-  @Override
-  public void handleNameResolutionError(Status error) {
-    if (grpclbState != null) {
-      grpclbState.propagateError(error);
+    @Override
+    public void handleNameResolutionError(Status error) {
+        if (grpclbState != null) {
+            grpclbState.propagateError(error);
+        }
     }
-  }
 
-  @Override
-  public boolean canHandleEmptyAddressListFromNameResolution() {
-    return true;
-  }
+    @Override
+    public boolean canHandleEmptyAddressListFromNameResolution() {
+        return true;
+    }
 
-  @VisibleForTesting
-  @Nullable
-  GrpclbState getGrpclbState() {
-    return grpclbState;
-  }
+    @VisibleForTesting
+    @Nullable
+    GrpclbState getGrpclbState() {
+        return grpclbState;
+    }
 }

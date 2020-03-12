@@ -12,7 +12,7 @@ description = 'gRPC: Protobuf Lite'
 dependencies {
     compile project(':grpc-api'),
             libraries.protobuf_lite
-    compile (libraries.guava) {
+    compile(libraries.guava) {
         // prefer our own versions from libraries instead of Guava's dependency
         exclude group: 'com.google.errorprone', module: 'error_prone_annotations'
         exclude group: 'com.google.code.findbugs', module: 'jsr305'
@@ -27,7 +27,7 @@ dependencies {
 
 compileTestJava {
     options.compilerArgs += [
-        "-Xlint:-cast"
+            "-Xlint:-cast"
     ]
     options.errorprone.excludedPaths = ".*/build/generated/source/proto/.*"
 }

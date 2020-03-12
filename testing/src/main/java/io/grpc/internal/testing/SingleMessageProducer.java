@@ -17,21 +17,22 @@
 package io.grpc.internal.testing;
 
 import io.grpc.internal.StreamListener;
-import java.io.InputStream;
+
 import javax.annotation.Nullable;
+import java.io.InputStream;
 
 public class SingleMessageProducer implements StreamListener.MessageProducer {
-  private InputStream message;
+    private InputStream message;
 
-  public SingleMessageProducer(InputStream message) {
-    this.message = message;
-  }
+    public SingleMessageProducer(InputStream message) {
+        this.message = message;
+    }
 
-  @Nullable
-  @Override
-  public InputStream next() {
-    InputStream messageToReturn = message;
-    message = null;
-    return messageToReturn;
-  }
+    @Nullable
+    @Override
+    public InputStream next() {
+        InputStream messageToReturn = message;
+        message = null;
+        return messageToReturn;
+    }
 }

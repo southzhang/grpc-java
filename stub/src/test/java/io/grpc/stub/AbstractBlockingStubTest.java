@@ -16,9 +16,6 @@
 
 package io.grpc.stub;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
-
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.stub.AbstractAsyncStubTest.NoopAsyncStub;
@@ -30,68 +27,71 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
+
 @RunWith(JUnit4.class)
 public class AbstractBlockingStubTest extends BaseAbstractStubTest<NoopBlockingStub> {
 
-  @Override
-  NoopBlockingStub create(Channel channel, CallOptions callOptions) {
-    return new NoopBlockingStub(channel, callOptions);
-  }
-
-  @Test
-  public void defaultCallOptions() {
-    NoopBlockingStub stub = NoopBlockingStub.newStub(new StubFactory<NoopBlockingStub>() {
-      @Override
-      public NoopBlockingStub newStub(Channel channel, CallOptions callOptions) {
-        return create(channel, callOptions);
-      }
-    }, channel, CallOptions.DEFAULT);
-
-    assertThat(stub.getCallOptions().getOption(ClientCalls.STUB_TYPE_OPTION))
-        .isEqualTo(StubType.BLOCKING);
-  }
-
-  @Test
-  @SuppressWarnings("AssertionFailureIgnored")
-  public void newStub_asyncStub_throwsException() {
-    try {
-      NoopAsyncStub unused = NoopBlockingStub.newStub(new StubFactory<NoopAsyncStub>() {
-        @Override
-        public NoopAsyncStub newStub(Channel channel, CallOptions callOptions) {
-          return new NoopAsyncStub(channel, callOptions);
-        }
-      }, channel, CallOptions.DEFAULT);
-      fail("should not reach here");
-    } catch (AssertionError e) {
-      assertThat(e).hasMessageThat().startsWith("Expected AbstractBlockingStub");
-    }
-  }
-
-  @Test
-  @SuppressWarnings("AssertionFailureIgnored")
-  public void newStub_futureStub_throwsException() {
-    try {
-      NoopFutureStub unused = NoopBlockingStub.newStub(new StubFactory<NoopFutureStub>() {
-        @Override
-        public NoopFutureStub newStub(Channel channel, CallOptions callOptions) {
-          return new NoopFutureStub(channel, callOptions);
-        }
-      }, channel, CallOptions.DEFAULT);
-      fail("should not reach here");
-    } catch (AssertionError e) {
-      assertThat(e).hasMessageThat().startsWith("Expected AbstractBlockingStub");
-    }
-  }
-
-  static class NoopBlockingStub extends AbstractBlockingStub<NoopBlockingStub> {
-
-    NoopBlockingStub(Channel channel, CallOptions options) {
-      super(channel, options);
-    }
-
     @Override
-    protected NoopBlockingStub build(Channel channel, CallOptions callOptions) {
-      return new NoopBlockingStub(channel, callOptions);
+    NoopBlockingStub create(Channel channel, CallOptions callOptions) {
+        return new NoopBlockingStub(channel, callOptions);
     }
-  }
+
+    @Test
+    public void defaultCallOptions() {
+        NoopBlockingStub stub = NoopBlockingStub.newStub(new StubFactory<NoopBlockingStub>() {
+            @Override
+            public NoopBlockingStub newStub(Channel channel, CallOptions callOptions) {
+                return create(channel, callOptions);
+            }
+        }, channel, CallOptions.DEFAULT);
+
+        assertThat(stub.getCallOptions().getOption(ClientCalls.STUB_TYPE_OPTION))
+                .isEqualTo(StubType.BLOCKING);
+    }
+
+    @Test
+    @SuppressWarnings("AssertionFailureIgnored")
+    public void newStub_asyncStub_throwsException() {
+        try {
+            NoopAsyncStub unused = NoopBlockingStub.newStub(new StubFactory<NoopAsyncStub>() {
+                @Override
+                public NoopAsyncStub newStub(Channel channel, CallOptions callOptions) {
+                    return new NoopAsyncStub(channel, callOptions);
+                }
+            }, channel, CallOptions.DEFAULT);
+            fail("should not reach here");
+        } catch (AssertionError e) {
+            assertThat(e).hasMessageThat().startsWith("Expected AbstractBlockingStub");
+        }
+    }
+
+    @Test
+    @SuppressWarnings("AssertionFailureIgnored")
+    public void newStub_futureStub_throwsException() {
+        try {
+            NoopFutureStub unused = NoopBlockingStub.newStub(new StubFactory<NoopFutureStub>() {
+                @Override
+                public NoopFutureStub newStub(Channel channel, CallOptions callOptions) {
+                    return new NoopFutureStub(channel, callOptions);
+                }
+            }, channel, CallOptions.DEFAULT);
+            fail("should not reach here");
+        } catch (AssertionError e) {
+            assertThat(e).hasMessageThat().startsWith("Expected AbstractBlockingStub");
+        }
+    }
+
+    static class NoopBlockingStub extends AbstractBlockingStub<NoopBlockingStub> {
+
+        NoopBlockingStub(Channel channel, CallOptions options) {
+            super(channel, options);
+        }
+
+        @Override
+        protected NoopBlockingStub build(Channel channel, CallOptions callOptions) {
+            return new NoopBlockingStub(channel, callOptions);
+        }
+    }
 }

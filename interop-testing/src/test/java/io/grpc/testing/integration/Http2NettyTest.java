@@ -16,9 +16,6 @@
 
 package io.grpc.testing.integration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-
 import io.grpc.ManagedChannel;
 import io.grpc.internal.AbstractServerImplBuilder;
 import io.grpc.internal.testing.TestUtils;
@@ -27,12 +24,16 @@ import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.netty.NettyServerBuilder;
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * Integration tests for GRPC over HTTP2 using the Netty framework.
@@ -40,62 +41,62 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class Http2NettyTest extends AbstractInteropTest {
 
-  @Override
-  protected AbstractServerImplBuilder<?> getServerBuilder() {
-    // Starts the server with HTTPS.
-    try {
-      return NettyServerBuilder.forPort(0)
-          .flowControlWindow(65 * 1024)
-          .maxInboundMessageSize(AbstractInteropTest.MAX_MESSAGE_SIZE)
-          .sslContext(GrpcSslContexts
-              .forServer(TestUtils.loadCert("server1.pem"), TestUtils.loadCert("server1.key"))
-              .clientAuth(ClientAuth.REQUIRE)
-              .trustManager(TestUtils.loadCert("ca.pem"))
-              .ciphers(TestUtils.preferredTestCiphers(), SupportedCipherSuiteFilter.INSTANCE)
-              .build());
-    } catch (IOException ex) {
-      throw new RuntimeException(ex);
+    @Override
+    protected AbstractServerImplBuilder<?> getServerBuilder() {
+        // Starts the server with HTTPS.
+        try {
+            return NettyServerBuilder.forPort(0)
+                    .flowControlWindow(65 * 1024)
+                    .maxInboundMessageSize(AbstractInteropTest.MAX_MESSAGE_SIZE)
+                    .sslContext(GrpcSslContexts
+                            .forServer(TestUtils.loadCert("server1.pem"), TestUtils.loadCert("server1.key"))
+                            .clientAuth(ClientAuth.REQUIRE)
+                            .trustManager(TestUtils.loadCert("ca.pem"))
+                            .ciphers(TestUtils.preferredTestCiphers(), SupportedCipherSuiteFilter.INSTANCE)
+                            .build());
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
-  }
 
-  @Override
-  protected ManagedChannel createChannel() {
-    try {
-      NettyChannelBuilder builder = NettyChannelBuilder
-          .forAddress(TestUtils.testServerAddress((InetSocketAddress) getListenAddress()))
-          .flowControlWindow(65 * 1024)
-          .maxInboundMessageSize(AbstractInteropTest.MAX_MESSAGE_SIZE)
-          .sslContext(GrpcSslContexts
-              .forClient()
-              .keyManager(TestUtils.loadCert("client.pem"), TestUtils.loadCert("client.key"))
-              .trustManager(TestUtils.loadX509Cert("ca.pem"))
-              .ciphers(TestUtils.preferredTestCiphers(), SupportedCipherSuiteFilter.INSTANCE)
-              .build());
-      // Disable the default census stats interceptor, use testing interceptor instead.
-      io.grpc.internal.TestingAccessor.setStatsEnabled(builder, false);
-      return builder.intercept(createCensusStatsClientInterceptor()).build();
-    } catch (Exception ex) {
-      throw new RuntimeException(ex);
+    @Override
+    protected ManagedChannel createChannel() {
+        try {
+            NettyChannelBuilder builder = NettyChannelBuilder
+                    .forAddress(TestUtils.testServerAddress((InetSocketAddress) getListenAddress()))
+                    .flowControlWindow(65 * 1024)
+                    .maxInboundMessageSize(AbstractInteropTest.MAX_MESSAGE_SIZE)
+                    .sslContext(GrpcSslContexts
+                            .forClient()
+                            .keyManager(TestUtils.loadCert("client.pem"), TestUtils.loadCert("client.key"))
+                            .trustManager(TestUtils.loadX509Cert("ca.pem"))
+                            .ciphers(TestUtils.preferredTestCiphers(), SupportedCipherSuiteFilter.INSTANCE)
+                            .build());
+            // Disable the default census stats interceptor, use testing interceptor instead.
+            io.grpc.internal.TestingAccessor.setStatsEnabled(builder, false);
+            return builder.intercept(createCensusStatsClientInterceptor()).build();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
-  }
 
-  @Test
-  public void remoteAddr() {
-    InetSocketAddress isa = (InetSocketAddress) obtainRemoteClientAddr();
-    assertEquals(InetAddress.getLoopbackAddress(), isa.getAddress());
-    // It should not be the same as the server
-    assertNotEquals(((InetSocketAddress) getListenAddress()).getPort(), isa.getPort());
-  }
+    @Test
+    public void remoteAddr() {
+        InetSocketAddress isa = (InetSocketAddress) obtainRemoteClientAddr();
+        assertEquals(InetAddress.getLoopbackAddress(), isa.getAddress());
+        // It should not be the same as the server
+        assertNotEquals(((InetSocketAddress) getListenAddress()).getPort(), isa.getPort());
+    }
 
-  @Test
-  public void localAddr() throws Exception {
-    InetSocketAddress isa = (InetSocketAddress) obtainLocalServerAddr();
-    assertEquals(InetAddress.getLoopbackAddress(), isa.getAddress());
-    assertEquals(((InetSocketAddress) getListenAddress()).getPort(), isa.getPort());
-  }
+    @Test
+    public void localAddr() throws Exception {
+        InetSocketAddress isa = (InetSocketAddress) obtainLocalServerAddr();
+        assertEquals(InetAddress.getLoopbackAddress(), isa.getAddress());
+        assertEquals(((InetSocketAddress) getListenAddress()).getPort(), isa.getPort());
+    }
 
-  @Test
-  public void tlsInfo() {
-    assertX500SubjectDn("CN=testclient, O=Internet Widgits Pty Ltd, ST=Some-State, C=AU");
-  }
+    @Test
+    public void tlsInfo() {
+        assertX500SubjectDn("CN=testclient, O=Internet Widgits Pty Ltd, ST=Some-State, C=AU");
+    }
 }

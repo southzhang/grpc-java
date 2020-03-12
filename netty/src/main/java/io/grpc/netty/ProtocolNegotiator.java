@@ -24,24 +24,24 @@ import io.netty.util.AsciiString;
  */
 interface ProtocolNegotiator {
 
-  /**
-   * The HTTP/2 scheme to be used when sending {@code HEADERS}.
-   */
-  AsciiString scheme();
+    /**
+     * The HTTP/2 scheme to be used when sending {@code HEADERS}.
+     */
+    AsciiString scheme();
 
-  /**
-   * Creates a new handler to control the protocol negotiation. Once the negotiation has completed
-   * successfully, the provided handler is installed. Must call {@code
-   * grpcHandler.onHandleProtocolNegotiationCompleted()} at certain point if the negotiation has
-   * completed successfully.
-   */
-  ChannelHandler newHandler(GrpcHttp2ConnectionHandler grpcHandler);
+    /**
+     * Creates a new handler to control the protocol negotiation. Once the negotiation has completed
+     * successfully, the provided handler is installed. Must call {@code
+     * grpcHandler.onHandleProtocolNegotiationCompleted()} at certain point if the negotiation has
+     * completed successfully.
+     */
+    ChannelHandler newHandler(GrpcHttp2ConnectionHandler grpcHandler);
 
-  /**
-   * Releases resources held by this negotiator. Called when the Channel transitions to terminated
-   * or when InternalServer is shutdown (depending on client or server). That means handlers
-   * returned by {@link #newHandler()} can outlive their parent negotiator on server-side, but not
-   * on client-side.
-   */
-  void close();
+    /**
+     * Releases resources held by this negotiator. Called when the Channel transitions to terminated
+     * or when InternalServer is shutdown (depending on client or server). That means handlers
+     * returned by {@link #newHandler()} can outlive their parent negotiator on server-side, but not
+     * on client-side.
+     */
+    void close();
 }

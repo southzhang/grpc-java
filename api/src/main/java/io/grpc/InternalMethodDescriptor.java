@@ -23,18 +23,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 @Internal
 public final class InternalMethodDescriptor {
-  private final InternalKnownTransport transport;
+    private final InternalKnownTransport transport;
 
-  public InternalMethodDescriptor(InternalKnownTransport transport) {
-    // TODO(carl-mastrangelo): maybe restrict access to this.
-    this.transport = checkNotNull(transport, "transport");
-  }
+    public InternalMethodDescriptor(InternalKnownTransport transport) {
+        // TODO(carl-mastrangelo): maybe restrict access to this.
+        this.transport = checkNotNull(transport, "transport");
+    }
 
-  public Object geRawMethodName(MethodDescriptor<?, ?> descriptor) {
-    return descriptor.getRawMethodName(transport.ordinal());
-  }
+    public Object geRawMethodName(MethodDescriptor<?, ?> descriptor) {
+        return descriptor.getRawMethodName(transport.ordinal());
+    }
 
-  public void setRawMethodName(MethodDescriptor<?, ?> descriptor, Object o) {
-    descriptor.setRawMethodName(transport.ordinal(), o);
-  }
+    public void setRawMethodName(MethodDescriptor<?, ?> descriptor, Object o) {
+        descriptor.setRawMethodName(transport.ordinal(), o);
+    }
 }

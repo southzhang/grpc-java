@@ -22,46 +22,50 @@ package io.grpc;
  * @see ServerServiceDefinition
  */
 public final class ServerMethodDefinition<ReqT, RespT> {
-  private final MethodDescriptor<ReqT, RespT> method;
-  private final ServerCallHandler<ReqT, RespT> handler;
+    private final MethodDescriptor<ReqT, RespT> method;
+    private final ServerCallHandler<ReqT, RespT> handler;
 
-  private ServerMethodDefinition(MethodDescriptor<ReqT, RespT> method,
-      ServerCallHandler<ReqT, RespT> handler) {
-    this.method = method;
-    this.handler = handler;
-  }
+    private ServerMethodDefinition(MethodDescriptor<ReqT, RespT> method,
+                                   ServerCallHandler<ReqT, RespT> handler) {
+        this.method = method;
+        this.handler = handler;
+    }
 
-  /**
-   * Create a new instance.
-   *
-   * @param method the {@link MethodDescriptor} for this method.
-   * @param handler to dispatch calls to.
-   * @return a new instance.
-   */
-  public static <ReqT, RespT> ServerMethodDefinition<ReqT, RespT> create(
-      MethodDescriptor<ReqT, RespT> method,
-      ServerCallHandler<ReqT, RespT> handler) {
-    return new ServerMethodDefinition<>(method, handler);
-  }
+    /**
+     * Create a new instance.
+     *
+     * @param method  the {@link MethodDescriptor} for this method.
+     * @param handler to dispatch calls to.
+     * @return a new instance.
+     */
+    public static <ReqT, RespT> ServerMethodDefinition<ReqT, RespT> create(
+            MethodDescriptor<ReqT, RespT> method,
+            ServerCallHandler<ReqT, RespT> handler) {
+        return new ServerMethodDefinition<>(method, handler);
+    }
 
-  /** The {@code MethodDescriptor} for this method. */
-  public MethodDescriptor<ReqT, RespT> getMethodDescriptor() {
-    return method;
-  }
+    /**
+     * The {@code MethodDescriptor} for this method.
+     */
+    public MethodDescriptor<ReqT, RespT> getMethodDescriptor() {
+        return method;
+    }
 
-  /** Handler for incoming calls. */
-  public ServerCallHandler<ReqT, RespT> getServerCallHandler() {
-    return handler;
-  }
+    /**
+     * Handler for incoming calls.
+     */
+    public ServerCallHandler<ReqT, RespT> getServerCallHandler() {
+        return handler;
+    }
 
-  /**
-   * Create a new method definition with a different call handler.
-   *
-   * @param handler to bind to a cloned instance of this.
-   * @return a cloned instance of this with the new handler bound.
-   */
-  public ServerMethodDefinition<ReqT, RespT> withServerCallHandler(
-      ServerCallHandler<ReqT, RespT> handler) {
-    return new ServerMethodDefinition<>(method, handler);
-  }
+    /**
+     * Create a new method definition with a different call handler.
+     *
+     * @param handler to bind to a cloned instance of this.
+     * @return a cloned instance of this with the new handler bound.
+     */
+    public ServerMethodDefinition<ReqT, RespT> withServerCallHandler(
+            ServerCallHandler<ReqT, RespT> handler) {
+        return new ServerMethodDefinition<>(method, handler);
+    }
 }

@@ -16,63 +16,64 @@
 
 package io.grpc.alts.internal;
 
-import static com.google.common.base.Preconditions.checkState;
-
 import io.netty.buffer.ByteBuf;
+
+import javax.crypto.AEADBadTagException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
-import javax.crypto.AEADBadTagException;
+
+import static com.google.common.base.Preconditions.checkState;
 
 public final class FakeChannelCrypter implements ChannelCrypterNetty {
-  private static final int TAG_BYTES = 16;
-  private static final byte TAG_BYTE = (byte) 0xa1;
+    private static final int TAG_BYTES = 16;
+    private static final byte TAG_BYTE = (byte) 0xa1;
 
-  private boolean destroyCalled = false;
+    private boolean destroyCalled = false;
 
-  public static int getTagBytes() {
-    return TAG_BYTES;
-  }
-
-  @Override
-  public void encrypt(ByteBuf out, List<ByteBuf> plain) throws GeneralSecurityException {
-    checkState(!destroyCalled);
-    for (ByteBuf buf : plain) {
-      out.writeBytes(buf);
-      for (int i = 0; i < TAG_BYTES; ++i) {
-        out.writeByte(TAG_BYTE);
-      }
+    public static int getTagBytes() {
+        return TAG_BYTES;
     }
-  }
 
-  @Override
-  public void decrypt(ByteBuf out, ByteBuf tag, List<ByteBuf> ciphertext)
-      throws GeneralSecurityException {
-    checkState(!destroyCalled);
-    for (ByteBuf buf : ciphertext) {
-      out.writeBytes(buf);
+    @Override
+    public void encrypt(ByteBuf out, List<ByteBuf> plain) throws GeneralSecurityException {
+        checkState(!destroyCalled);
+        for (ByteBuf buf : plain) {
+            out.writeBytes(buf);
+            for (int i = 0; i < TAG_BYTES; ++i) {
+                out.writeByte(TAG_BYTE);
+            }
+        }
     }
-    while (tag.isReadable()) {
-      if (tag.readByte() != TAG_BYTE) {
-        throw new AEADBadTagException("Tag mismatch!");
-      }
+
+    @Override
+    public void decrypt(ByteBuf out, ByteBuf tag, List<ByteBuf> ciphertext)
+            throws GeneralSecurityException {
+        checkState(!destroyCalled);
+        for (ByteBuf buf : ciphertext) {
+            out.writeBytes(buf);
+        }
+        while (tag.isReadable()) {
+            if (tag.readByte() != TAG_BYTE) {
+                throw new AEADBadTagException("Tag mismatch!");
+            }
+        }
     }
-  }
 
-  @Override
-  public void decrypt(ByteBuf out, ByteBuf ciphertextAndTag) throws GeneralSecurityException {
-    checkState(!destroyCalled);
-    ByteBuf ciphertext = ciphertextAndTag.readSlice(ciphertextAndTag.readableBytes() - TAG_BYTES);
-    decrypt(out, /*tag=*/ ciphertextAndTag, Collections.singletonList(ciphertext));
-  }
+    @Override
+    public void decrypt(ByteBuf out, ByteBuf ciphertextAndTag) throws GeneralSecurityException {
+        checkState(!destroyCalled);
+        ByteBuf ciphertext = ciphertextAndTag.readSlice(ciphertextAndTag.readableBytes() - TAG_BYTES);
+        decrypt(out, /*tag=*/ ciphertextAndTag, Collections.singletonList(ciphertext));
+    }
 
-  @Override
-  public int getSuffixLength() {
-    return TAG_BYTES;
-  }
+    @Override
+    public int getSuffixLength() {
+        return TAG_BYTES;
+    }
 
-  @Override
-  public void destroy() {
-    destroyCalled = true;
-  }
+    @Override
+    public void destroy() {
+        destroyCalled = true;
+    }
 }

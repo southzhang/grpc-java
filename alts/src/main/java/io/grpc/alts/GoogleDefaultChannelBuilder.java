@@ -32,73 +32,78 @@ import io.grpc.netty.InternalNettyChannelBuilder;
 import io.grpc.netty.InternalProtocolNegotiator.ProtocolNegotiator;
 import io.grpc.netty.NettyChannelBuilder;
 import io.netty.handler.ssl.SslContext;
-import java.io.IOException;
+
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLException;
+import java.io.IOException;
 
 /**
  * Google default version of {@code ManagedChannelBuilder}. This class sets up a secure channel
  * using ALTS if applicable and using TLS as fallback.
  */
 public final class GoogleDefaultChannelBuilder
-    extends ForwardingChannelBuilder<GoogleDefaultChannelBuilder> {
+        extends ForwardingChannelBuilder<GoogleDefaultChannelBuilder> {
 
-  private final NettyChannelBuilder delegate;
+    private final NettyChannelBuilder delegate;
 
-  private GoogleDefaultChannelBuilder(String target) {
-    delegate = NettyChannelBuilder.forTarget(target);
-    SslContext sslContext;
-    try {
-      sslContext = GrpcSslContexts.forClient().build();
-    } catch (SSLException e) {
-      throw new RuntimeException(e);
+    private GoogleDefaultChannelBuilder(String target) {
+        delegate = NettyChannelBuilder.forTarget(target);
+        SslContext sslContext;
+        try {
+            sslContext = GrpcSslContexts.forClient().build();
+        } catch (SSLException e) {
+            throw new RuntimeException(e);
+        }
+        InternalNettyChannelBuilder.setProtocolNegotiatorFactory(
+                delegate(),
+                new GoogleDefaultProtocolNegotiatorFactory(
+                        /* targetServiceAccounts= */ ImmutableList.<String>of(),
+                        SharedResourcePool.forResource(HandshakerServiceChannel.SHARED_HANDSHAKER_CHANNEL),
+                        sslContext));
+        @Nullable CallCredentials credentials = null;
+        Status status = Status.OK;
+        try {
+            credentials = MoreCallCredentials.from(GoogleCredentials.getApplicationDefault());
+        } catch (IOException e) {
+            status =
+                    Status.UNAUTHENTICATED
+                            .withDescription("Failed to get Google default credentials")
+                            .withCause(e);
+        }
+        delegate().intercept(new CallCredentialsInterceptor(credentials, status));
     }
-    InternalNettyChannelBuilder.setProtocolNegotiatorFactory(
-        delegate(),
-        new GoogleDefaultProtocolNegotiatorFactory(
-            /* targetServiceAccounts= */ ImmutableList.<String>of(),
-            SharedResourcePool.forResource(HandshakerServiceChannel.SHARED_HANDSHAKER_CHANNEL),
-            sslContext));
-    @Nullable CallCredentials credentials = null;
-    Status status = Status.OK;
-    try {
-      credentials = MoreCallCredentials.from(GoogleCredentials.getApplicationDefault());
-    } catch (IOException e) {
-      status =
-          Status.UNAUTHENTICATED
-              .withDescription("Failed to get Google default credentials")
-              .withCause(e);
+
+    /**
+     * "Overrides" the static method in {@link ManagedChannelBuilder}.
+     */
+    public static final GoogleDefaultChannelBuilder forTarget(String target) {
+        return new GoogleDefaultChannelBuilder(target);
     }
-    delegate().intercept(new CallCredentialsInterceptor(credentials, status));
-  }
 
-  /** "Overrides" the static method in {@link ManagedChannelBuilder}. */
-  public static final GoogleDefaultChannelBuilder forTarget(String target) {
-    return new GoogleDefaultChannelBuilder(target);
-  }
-
-  /** "Overrides" the static method in {@link ManagedChannelBuilder}. */
-  public static GoogleDefaultChannelBuilder forAddress(String name, int port) {
-    return forTarget(GrpcUtil.authorityFromHostAndPort(name, port));
-  }
-
-  @Override
-  protected NettyChannelBuilder delegate() {
-    return delegate;
-  }
-
-  @VisibleForTesting
-  ProtocolNegotiator getProtocolNegotiatorForTest() {
-    SslContext sslContext;
-    try {
-      sslContext = GrpcSslContexts.forClient().build();
-    } catch (SSLException e) {
-      throw new RuntimeException(e);
+    /**
+     * "Overrides" the static method in {@link ManagedChannelBuilder}.
+     */
+    public static GoogleDefaultChannelBuilder forAddress(String name, int port) {
+        return forTarget(GrpcUtil.authorityFromHostAndPort(name, port));
     }
-    return new GoogleDefaultProtocolNegotiatorFactory(
-        /* targetServiceAccounts= */ ImmutableList.<String>of(),
-        SharedResourcePool.forResource(HandshakerServiceChannel.SHARED_HANDSHAKER_CHANNEL),
-        sslContext)
-            .buildProtocolNegotiator();
-  }
+
+    @Override
+    protected NettyChannelBuilder delegate() {
+        return delegate;
+    }
+
+    @VisibleForTesting
+    ProtocolNegotiator getProtocolNegotiatorForTest() {
+        SslContext sslContext;
+        try {
+            sslContext = GrpcSslContexts.forClient().build();
+        } catch (SSLException e) {
+            throw new RuntimeException(e);
+        }
+        return new GoogleDefaultProtocolNegotiatorFactory(
+                /* targetServiceAccounts= */ ImmutableList.<String>of(),
+                SharedResourcePool.forResource(HandshakerServiceChannel.SHARED_HANDSHAKER_CHANNEL),
+                sslContext)
+                .buildProtocolNegotiator();
+    }
 }

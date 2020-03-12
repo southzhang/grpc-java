@@ -20,14 +20,17 @@ import io.grpc.LoadBalancer;
 import io.grpc.Status;
 
 // TODO(zdapeng): Implementation.
-/** Load balancer for xds_routing policy. */
+
+/**
+ * Load balancer for xds_routing policy.
+ */
 final class XdsRoutingLoadBalancer extends LoadBalancer {
 
-  @Override
-  public void handleNameResolutionError(Status error) {
-  }
+    @Override
+    public void handleNameResolutionError(Status error) {
+    }
 
-  @Override
-  public void shutdown() {
-  }
+    @Override
+    public void shutdown() {
+    }
 }

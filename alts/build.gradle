@@ -22,7 +22,7 @@ dependencies {
             libraries.protobuf,
             libraries.conscrypt
     def nettyDependency = compile project(':grpc-netty')
-    compile (libraries.google_auth_oauth2_http) {
+    compile(libraries.google_auth_oauth2_http) {
         // prefer our own versions instead of google-auth-oauth2-http's dependency
         exclude group: 'com.google.guava', module: 'guava'
         // we'll always be more up-to-date
@@ -52,7 +52,7 @@ import net.ltgt.gradle.errorprone.CheckSeverity
 [compileJava, compileTestJava].each() {
     // protobuf calls valueof. Will be fixed in next release (google/protobuf#4046)
     it.options.compilerArgs += [
-        "-Xlint:-deprecation"
+            "-Xlint:-deprecation"
     ]
     // ALTS returns a lot of futures that we mostly don't care about.
     it.options.errorprone.check("FutureReturnValueIgnored", CheckSeverity.OFF)
@@ -70,7 +70,7 @@ jar {
 shadowJar {
     classifier = null
     dependencies {
-        exclude(dependency {true})
+        exclude(dependency { true })
     }
     relocate 'io.grpc.netty', 'io.grpc.netty.shaded.io.grpc.netty'
     relocate 'io.netty', 'io.grpc.netty.shaded.io.netty'
@@ -81,7 +81,7 @@ publishing {
         maven(MavenPublication) {
             // use shadowJar and remove the original Jar
             artifact shadowJar
-            def originalJar = artifacts.find { dep -> dep.classifier == 'original'}
+            def originalJar = artifacts.find { dep -> dep.classifier == 'original' }
             artifacts.remove(originalJar)
 
             pom.withXml {

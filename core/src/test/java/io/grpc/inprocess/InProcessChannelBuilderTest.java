@@ -16,48 +16,49 @@
 
 package io.grpc.inprocess;
 
-import static io.grpc.internal.GrpcUtil.TIMER_SERVICE;
-import static org.junit.Assert.assertSame;
-
 import io.grpc.internal.ClientTransportFactory;
 import io.grpc.internal.FakeClock;
 import io.grpc.internal.SharedResourceHolder;
-import java.util.concurrent.ScheduledExecutorService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import java.util.concurrent.ScheduledExecutorService;
+
+import static io.grpc.internal.GrpcUtil.TIMER_SERVICE;
+import static org.junit.Assert.assertSame;
 
 /**
  * Unit tests for {@link InProcessChannelBuilder}.
  */
 @RunWith(JUnit4.class)
 public class InProcessChannelBuilderTest {
-  @Test
-  public void scheduledExecutorService_default() {
-    InProcessChannelBuilder builder = InProcessChannelBuilder.forName("foo");
-    ClientTransportFactory clientTransportFactory = builder.buildTransportFactory();
-    assertSame(
-        SharedResourceHolder.get(TIMER_SERVICE),
-        clientTransportFactory.getScheduledExecutorService());
+    @Test
+    public void scheduledExecutorService_default() {
+        InProcessChannelBuilder builder = InProcessChannelBuilder.forName("foo");
+        ClientTransportFactory clientTransportFactory = builder.buildTransportFactory();
+        assertSame(
+                SharedResourceHolder.get(TIMER_SERVICE),
+                clientTransportFactory.getScheduledExecutorService());
 
-    SharedResourceHolder.release(
-        TIMER_SERVICE, clientTransportFactory.getScheduledExecutorService());
-    clientTransportFactory.close();
-  }
+        SharedResourceHolder.release(
+                TIMER_SERVICE, clientTransportFactory.getScheduledExecutorService());
+        clientTransportFactory.close();
+    }
 
-  @Test
-  public void scheduledExecutorService_custom() {
-    InProcessChannelBuilder builder = InProcessChannelBuilder.forName("foo");
-    ScheduledExecutorService scheduledExecutorService =
-        new FakeClock().getScheduledExecutorService();
+    @Test
+    public void scheduledExecutorService_custom() {
+        InProcessChannelBuilder builder = InProcessChannelBuilder.forName("foo");
+        ScheduledExecutorService scheduledExecutorService =
+                new FakeClock().getScheduledExecutorService();
 
-    InProcessChannelBuilder builder1 = builder.scheduledExecutorService(scheduledExecutorService);
-    assertSame(builder, builder1);
+        InProcessChannelBuilder builder1 = builder.scheduledExecutorService(scheduledExecutorService);
+        assertSame(builder, builder1);
 
-    ClientTransportFactory clientTransportFactory = builder1.buildTransportFactory();
+        ClientTransportFactory clientTransportFactory = builder1.buildTransportFactory();
 
-    assertSame(scheduledExecutorService, clientTransportFactory.getScheduledExecutorService());
+        assertSame(scheduledExecutorService, clientTransportFactory.getScheduledExecutorService());
 
-    clientTransportFactory.close();
-  }
+        clientTransportFactory.close();
+    }
 }

@@ -19,28 +19,28 @@ package io.grpc.grpclb;
 import java.net.SocketAddress;
 
 final class FakeSocketAddress extends SocketAddress {
-  final String name;
+    final String name;
 
-  FakeSocketAddress(String name) {
-    this.name = name;
-  }
-
-  @Override
-  public String toString() {
-    return "FakeSocketAddress-" + name;
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other instanceof FakeSocketAddress) {
-      FakeSocketAddress otherAddr = (FakeSocketAddress) other;
-      return name.equals(otherAddr.name);
+    FakeSocketAddress(String name) {
+        this.name = name;
     }
-    return false;
-  }
 
-  @Override
-  public int hashCode() {
-    return name.hashCode();
-  }
+    @Override
+    public String toString() {
+        return "FakeSocketAddress-" + name;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof FakeSocketAddress) {
+            FakeSocketAddress otherAddr = (FakeSocketAddress) other;
+            return name.equals(otherAddr.name);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 }

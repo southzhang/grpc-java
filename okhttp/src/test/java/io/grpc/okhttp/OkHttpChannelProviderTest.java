@@ -16,10 +16,6 @@
 
 package io.grpc.okhttp;
 
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import io.grpc.InternalManagedChannelProvider;
 import io.grpc.InternalServiceProviders;
 import io.grpc.ManagedChannelProvider;
@@ -27,41 +23,45 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link OkHttpChannelProvider}. */
+import static org.junit.Assert.*;
+
+/**
+ * Unit tests for {@link OkHttpChannelProvider}.
+ */
 @RunWith(JUnit4.class)
 public class OkHttpChannelProviderTest {
-  private OkHttpChannelProvider provider = new OkHttpChannelProvider();
+    private OkHttpChannelProvider provider = new OkHttpChannelProvider();
 
-  @Test
-  public void provided() {
-    for (ManagedChannelProvider current
-        : InternalServiceProviders.getCandidatesViaServiceLoader(
-            ManagedChannelProvider.class, getClass().getClassLoader())) {
-      if (current instanceof OkHttpChannelProvider) {
-        return;
-      }
+    @Test
+    public void provided() {
+        for (ManagedChannelProvider current
+                : InternalServiceProviders.getCandidatesViaServiceLoader(
+                ManagedChannelProvider.class, getClass().getClassLoader())) {
+            if (current instanceof OkHttpChannelProvider) {
+                return;
+            }
+        }
+        fail("ServiceLoader unable to load OkHttpChannelProvider");
     }
-    fail("ServiceLoader unable to load OkHttpChannelProvider");
-  }
 
-  @Test
-  public void providedHardCoded() {
-    for (ManagedChannelProvider current : InternalServiceProviders.getCandidatesViaHardCoded(
-        ManagedChannelProvider.class, InternalManagedChannelProvider.HARDCODED_CLASSES)) {
-      if (current instanceof OkHttpChannelProvider) {
-        return;
-      }
+    @Test
+    public void providedHardCoded() {
+        for (ManagedChannelProvider current : InternalServiceProviders.getCandidatesViaHardCoded(
+                ManagedChannelProvider.class, InternalManagedChannelProvider.HARDCODED_CLASSES)) {
+            if (current instanceof OkHttpChannelProvider) {
+                return;
+            }
+        }
+        fail("Hard coded unable to load OkHttpChannelProvider");
     }
-    fail("Hard coded unable to load OkHttpChannelProvider");
-  }
 
-  @Test
-  public void isAvailable() {
-    assertTrue(provider.isAvailable());
-  }
+    @Test
+    public void isAvailable() {
+        assertTrue(provider.isAvailable());
+    }
 
-  @Test
-  public void builderIsAOkHttpBuilder() {
-    assertSame(OkHttpChannelBuilder.class, provider.builderForAddress("localhost", 443).getClass());
-  }
+    @Test
+    public void builderIsAOkHttpBuilder() {
+        assertSame(OkHttpChannelBuilder.class, provider.builderForAddress("localhost", 443).getClass());
+    }
 }

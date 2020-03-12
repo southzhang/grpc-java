@@ -21,7 +21,9 @@ package io.grpc.netty;
  */
 public final class InternalProtocolNegotiator {
 
-  private InternalProtocolNegotiator() {}
+    private InternalProtocolNegotiator() {
+    }
 
-  public interface ProtocolNegotiator extends io.grpc.netty.ProtocolNegotiator {}
+    public interface ProtocolNegotiator extends io.grpc.netty.ProtocolNegotiator {
+    }
 }

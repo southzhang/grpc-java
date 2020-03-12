@@ -26,19 +26,19 @@ import io.grpc.Internal;
 @Internal
 public final class InternalHandlerSettings {
 
-  public static void enable(boolean enable) {
-    NettyHandlerSettings.enable(enable);
-  }
+    public static void enable(boolean enable) {
+        NettyHandlerSettings.enable(enable);
+    }
 
-  public static synchronized void autoWindowOn(boolean autoFlowControl) {
-    NettyHandlerSettings.autoWindowOn(autoFlowControl);
-  }
+    public static synchronized void autoWindowOn(boolean autoFlowControl) {
+        NettyHandlerSettings.autoWindowOn(autoFlowControl);
+    }
 
-  public static synchronized int getLatestClientWindow() {
-    return NettyHandlerSettings.getLatestClientWindow();
-  }
+    public static synchronized int getLatestClientWindow() {
+        return NettyHandlerSettings.getLatestClientWindow();
+    }
 
-  public static synchronized int getLatestServerWindow() {
-    return NettyHandlerSettings.getLatestServerWindow();
-  }
+    public static synchronized int getLatestServerWindow() {
+        return NettyHandlerSettings.getLatestServerWindow();
+    }
 }

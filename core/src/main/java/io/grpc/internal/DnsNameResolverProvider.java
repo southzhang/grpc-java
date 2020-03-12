@@ -21,6 +21,7 @@ import com.google.common.base.Stopwatch;
 import io.grpc.InternalServiceProviders;
 import io.grpc.NameResolver;
 import io.grpc.NameResolverProvider;
+
 import java.net.URI;
 
 /**
@@ -40,39 +41,39 @@ import java.net.URI;
  */
 public final class DnsNameResolverProvider extends NameResolverProvider {
 
-  private static final String SCHEME = "dns";
+    private static final String SCHEME = "dns";
 
-  @Override
-  public DnsNameResolver newNameResolver(URI targetUri, NameResolver.Args args) {
-    if (SCHEME.equals(targetUri.getScheme())) {
-      String targetPath = Preconditions.checkNotNull(targetUri.getPath(), "targetPath");
-      Preconditions.checkArgument(targetPath.startsWith("/"),
-          "the path component (%s) of the target (%s) must start with '/'", targetPath, targetUri);
-      String name = targetPath.substring(1);
-      return new DnsNameResolver(
-          targetUri.getAuthority(),
-          name,
-          args,
-          GrpcUtil.SHARED_CHANNEL_EXECUTOR,
-          Stopwatch.createUnstarted(),
-          InternalServiceProviders.isAndroid(getClass().getClassLoader()));
-    } else {
-      return null;
+    @Override
+    public DnsNameResolver newNameResolver(URI targetUri, NameResolver.Args args) {
+        if (SCHEME.equals(targetUri.getScheme())) {
+            String targetPath = Preconditions.checkNotNull(targetUri.getPath(), "targetPath");
+            Preconditions.checkArgument(targetPath.startsWith("/"),
+                    "the path component (%s) of the target (%s) must start with '/'", targetPath, targetUri);
+            String name = targetPath.substring(1);
+            return new DnsNameResolver(
+                    targetUri.getAuthority(),
+                    name,
+                    args,
+                    GrpcUtil.SHARED_CHANNEL_EXECUTOR,
+                    Stopwatch.createUnstarted(),
+                    InternalServiceProviders.isAndroid(getClass().getClassLoader()));
+        } else {
+            return null;
+        }
     }
-  }
 
-  @Override
-  public String getDefaultScheme() {
-    return SCHEME;
-  }
+    @Override
+    public String getDefaultScheme() {
+        return SCHEME;
+    }
 
-  @Override
-  protected boolean isAvailable() {
-    return true;
-  }
+    @Override
+    protected boolean isAvailable() {
+        return true;
+    }
 
-  @Override
-  public int priority() {
-    return 5;
-  }
+    @Override
+    public int priority() {
+        return 5;
+    }
 }

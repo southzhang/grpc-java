@@ -17,30 +17,33 @@
 package io.grpc;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.Iterator;
-import java.util.concurrent.Callable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link ManagedChannelProvider}. */
+import java.util.Iterator;
+import java.util.concurrent.Callable;
+
+/**
+ * Unit tests for {@link ManagedChannelProvider}.
+ */
 @RunWith(JUnit4.class)
 public class ManagedChannelProviderTest {
 
-  @Test
-  public void getCandidatesViaHardCoded_triesToLoadClasses() throws Exception {
-    ServiceProvidersTestUtil.testHardcodedClasses(
-        HardcodedClassesCallable.class.getName(),
-        getClass().getClassLoader(),
-        ImmutableSet.of(
-            "io.grpc.okhttp.OkHttpChannelProvider",
-            "io.grpc.netty.NettyChannelProvider"));
-  }
-
-  public static final class HardcodedClassesCallable implements Callable<Iterator<Class<?>>> {
-    @Override
-    public Iterator<Class<?>> call() {
-      return ManagedChannelProvider.HARDCODED_CLASSES.iterator();
+    @Test
+    public void getCandidatesViaHardCoded_triesToLoadClasses() throws Exception {
+        ServiceProvidersTestUtil.testHardcodedClasses(
+                HardcodedClassesCallable.class.getName(),
+                getClass().getClassLoader(),
+                ImmutableSet.of(
+                        "io.grpc.okhttp.OkHttpChannelProvider",
+                        "io.grpc.netty.NettyChannelProvider"));
     }
-  }
+
+    public static final class HardcodedClassesCallable implements Callable<Iterator<Class<?>>> {
+        @Override
+        public Iterator<Class<?>> call() {
+            return ManagedChannelProvider.HARDCODED_CLASSES.iterator();
+        }
+    }
 }

@@ -11,8 +11,8 @@ description = "gRPC: XDS plugin"
 
 [compileJava].each() {
     it.options.compilerArgs += [
-        // valueOf(int) in RoutingPriority has been deprecated
-        "-Xlint:-deprecation",
+            // valueOf(int) in RoutingPriority has been deprecated
+            "-Xlint:-deprecation",
     ]
 }
 
@@ -25,12 +25,12 @@ dependencies {
             project(':grpc-services'),
             project(path: ':grpc-alts', configuration: 'shadow')
     def nettyDependency = compile project(':grpc-netty')
-    def pgvDependency = compile (libraries.pgv) {
+    def pgvDependency = compile(libraries.pgv) {
         // PGV depends on com.google.protobuf:protobuf-java 3.6.1 conflicting with :grpc-protobuf
         exclude group: 'com.google.protobuf'
     }
 
-    compile (libraries.protobuf_util) {
+    compile(libraries.protobuf_util) {
         // prefer our own versions instead of protobuf-util's dependency
         exclude group: 'com.google.guava', module: 'guava'
         exclude group: 'com.google.errorprone', module: 'error_prone_annotations'
@@ -41,8 +41,8 @@ dependencies {
     compileOnly libraries.javax_annotation,
             // At runtime use the epoll included in grpc-netty-shaded
             libraries.netty_epoll
-    
-    testCompile project(':grpc-testing'), 
+
+    testCompile project(':grpc-testing'),
             project(':grpc-testing-proto'),
             libraries.guava_testlib,
             libraries.netty_epoll

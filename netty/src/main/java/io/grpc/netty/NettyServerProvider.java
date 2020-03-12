@@ -20,23 +20,25 @@ import io.grpc.Internal;
 import io.grpc.ServerProvider;
 
 
-/** Provider for {@link NettyChannelBuilder} instances. */
+/**
+ * Provider for {@link NettyChannelBuilder} instances.
+ */
 @Internal
 public final class NettyServerProvider extends ServerProvider {
 
-  @Override
-  protected boolean isAvailable() {
-    return true;
-  }
+    @Override
+    protected boolean isAvailable() {
+        return true;
+    }
 
-  @Override
-  protected int priority() {
-    return 5;
-  }
+    @Override
+    protected int priority() {
+        return 5;
+    }
 
-  @Override
-  protected NettyServerBuilder builderForPort(int port) {
-    return NettyServerBuilder.forPort(port);
-  }
+    @Override
+    protected NettyServerBuilder builderForPort(int port) {
+        return NettyServerBuilder.forPort(port);
+    }
 }
 

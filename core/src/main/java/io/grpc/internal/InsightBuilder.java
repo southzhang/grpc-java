@@ -16,8 +16,8 @@
 
 package io.grpc.internal;
 
-import java.util.ArrayList;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 
 /**
  * Builds a concise and readable string that gives insight of the concerned part of the system.  The
@@ -25,31 +25,31 @@ import javax.annotation.Nullable;
  * information.
  */
 public final class InsightBuilder {
-  private final ArrayList<String> buffer = new ArrayList<>();
+    private final ArrayList<String> buffer = new ArrayList<>();
 
-  /**
-   * Appends a piece of information which is a plain string.  The given object is immediately
-   * converted to string and recorded.
-   */
-  public InsightBuilder append(@Nullable Object insight) {
-    buffer.add(String.valueOf(insight));
-    return this;
-  }
+    /**
+     * Appends a piece of information which is a plain string.  The given object is immediately
+     * converted to string and recorded.
+     */
+    public InsightBuilder append(@Nullable Object insight) {
+        buffer.add(String.valueOf(insight));
+        return this;
+    }
 
-  /**
-   * Appends a piece of information which is a key-value , which will be formatted into {@code
-   * "key=value"}.  Value's {@code toString()} or {@code null} is immediately recorded.
-   */
-  public InsightBuilder appendKeyValue(String key, @Nullable Object value) {
-    buffer.add(key + "=" + value);
-    return this;
-  }
+    /**
+     * Appends a piece of information which is a key-value , which will be formatted into {@code
+     * "key=value"}.  Value's {@code toString()} or {@code null} is immediately recorded.
+     */
+    public InsightBuilder appendKeyValue(String key, @Nullable Object value) {
+        buffer.add(key + "=" + value);
+        return this;
+    }
 
-  /**
-   * Get the resulting string.
-   */
-  @Override
-  public String toString() {
-    return buffer.toString();
-  }
+    /**
+     * Get the resulting string.
+     */
+    @Override
+    public String toString() {
+        return buffer.toString();
+    }
 }

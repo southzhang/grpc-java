@@ -18,10 +18,11 @@ package io.grpc.internal;
 
 import io.grpc.InternalChannelz.SocketStats;
 import io.grpc.InternalInstrumented;
-import java.io.IOException;
-import java.net.SocketAddress;
+
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
+import java.io.IOException;
+import java.net.SocketAddress;
 
 /**
  * An object that accepts new incoming connections. This would commonly encapsulate a bound socket
@@ -29,33 +30,34 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public interface InternalServer {
-  /**
-   * Starts transport. Implementations must not call {@code listener} until after {@code start()}
-   * returns. The method only returns after it has done the equivalent of bind()ing, so it will be
-   * able to service any connections created after returning.
-   *
-   * @param listener non-{@code null} listener of server events
-   * @throws IOException if unable to bind
-   */
-  void start(ServerListener listener) throws IOException;
+    /**
+     * Starts transport. Implementations must not call {@code listener} until after {@code start()}
+     * returns. The method only returns after it has done the equivalent of bind()ing, so it will be
+     * able to service any connections created after returning.
+     *
+     * @param listener non-{@code null} listener of server events
+     * @throws IOException if unable to bind
+     */
+    void start(ServerListener listener) throws IOException;
 
-  /**
-   * Initiates an orderly shutdown of the server. Existing transports continue, but new transports
-   * will not be created (once {@link ServerListener#serverShutdown()} callback is called). This
-   * method may only be called once.  Blocks until the listening socket(s) have been closed.  If
-   * interrupted, this method will not wait for the close to complete, but it will happen
-   * asynchronously.
-   */
-  void shutdown();
+    /**
+     * Initiates an orderly shutdown of the server. Existing transports continue, but new transports
+     * will not be created (once {@link ServerListener#serverShutdown()} callback is called). This
+     * method may only be called once.  Blocks until the listening socket(s) have been closed.  If
+     * interrupted, this method will not wait for the close to complete, but it will happen
+     * asynchronously.
+     */
+    void shutdown();
 
-  /**
-   * Returns the listening socket address.  May change after {@link start(ServerListener)} is
-   * called.
-   */
-  SocketAddress getListenSocketAddress();
+    /**
+     * Returns the listening socket address.  May change after {@link start(ServerListener)} is
+     * called.
+     */
+    SocketAddress getListenSocketAddress();
 
-  /**
-   * Returns the listen socket stats of this server. May return {@code null}.
-   */
-  @Nullable InternalInstrumented<SocketStats> getListenSocketStats();
+    /**
+     * Returns the listen socket stats of this server. May return {@code null}.
+     */
+    @Nullable
+    InternalInstrumented<SocketStats> getListenSocketStats();
 }

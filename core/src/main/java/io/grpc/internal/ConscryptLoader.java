@@ -24,57 +24,61 @@ import java.security.Provider;
  * Utility to load dynamically Conscrypt when it is available.
  */
 public final class ConscryptLoader {
-  private static final Method NEW_PROVIDER_METHOD;
-  private static final Method IS_CONSCRYPT_METHOD;
+    private static final Method NEW_PROVIDER_METHOD;
+    private static final Method IS_CONSCRYPT_METHOD;
 
-  static {
-    Method newProvider;
-    Method isConscrypt;
-    try {
-      Class<?> conscryptClass = Class.forName("org.conscrypt.Conscrypt");
-      newProvider = conscryptClass.getMethod("newProvider");
-      isConscrypt = conscryptClass.getMethod("isConscrypt", Provider.class);
-    } catch (ClassNotFoundException ex) {
-      newProvider = null;
-      isConscrypt = null;
-    } catch (NoSuchMethodException ex) {
-      throw new AssertionError(ex);
+    static {
+        Method newProvider;
+        Method isConscrypt;
+        try {
+            Class<?> conscryptClass = Class.forName("org.conscrypt.Conscrypt");
+            newProvider = conscryptClass.getMethod("newProvider");
+            isConscrypt = conscryptClass.getMethod("isConscrypt", Provider.class);
+        } catch (ClassNotFoundException ex) {
+            newProvider = null;
+            isConscrypt = null;
+        } catch (NoSuchMethodException ex) {
+            throw new AssertionError(ex);
+        }
+        NEW_PROVIDER_METHOD = newProvider;
+        IS_CONSCRYPT_METHOD = isConscrypt;
     }
-    NEW_PROVIDER_METHOD = newProvider;
-    IS_CONSCRYPT_METHOD = isConscrypt;
-  }
 
-  /**
-   * Returns {@code true} when the Conscrypt Java classes are available. Does not imply it actually
-   * works on this platform.
-   */
-  public static boolean isPresent() {
-    return NEW_PROVIDER_METHOD != null;
-  }
+    /**
+     * Returns {@code true} when the Conscrypt Java classes are available. Does not imply it actually
+     * works on this platform.
+     */
+    public static boolean isPresent() {
+        return NEW_PROVIDER_METHOD != null;
+    }
 
-  /** Same as {@code Conscrypt.isConscrypt(Provider)}. */
-  public static boolean isConscrypt(Provider provider) {
-    if (!isPresent()) {
-      return false;
+    /**
+     * Same as {@code Conscrypt.isConscrypt(Provider)}.
+     */
+    public static boolean isConscrypt(Provider provider) {
+        if (!isPresent()) {
+            return false;
+        }
+        try {
+            return (Boolean) IS_CONSCRYPT_METHOD.invoke(null, provider);
+        } catch (IllegalAccessException ex) {
+            throw new AssertionError(ex);
+        } catch (InvocationTargetException ex) {
+            throw new AssertionError(ex);
+        }
     }
-    try {
-      return (Boolean) IS_CONSCRYPT_METHOD.invoke(null, provider);
-    } catch (IllegalAccessException ex) {
-      throw new AssertionError(ex);
-    } catch (InvocationTargetException ex) {
-      throw new AssertionError(ex);
-    }
-  }
 
-  /** Same as {@code Conscrypt.newProvider()}. */
-  public static Provider newProvider() throws Throwable {
-    if (!isPresent()) {
-      Class.forName("org.conscrypt.Conscrypt");
-      throw new AssertionError("Unexpected failure referencing Conscrypt class");
+    /**
+     * Same as {@code Conscrypt.newProvider()}.
+     */
+    public static Provider newProvider() throws Throwable {
+        if (!isPresent()) {
+            Class.forName("org.conscrypt.Conscrypt");
+            throw new AssertionError("Unexpected failure referencing Conscrypt class");
+        }
+        // Exceptions here probably mean something's wrong with the JNI loading. Maybe the platform is
+        // not supported. It's an error, but it may occur in some environments as part of normal
+        // operation. It's too hard to distinguish "normal" from "abnormal" failures here.
+        return (Provider) NEW_PROVIDER_METHOD.invoke(null);
     }
-    // Exceptions here probably mean something's wrong with the JNI loading. Maybe the platform is
-    // not supported. It's an error, but it may occur in some environments as part of normal
-    // operation. It's too hard to distinguish "normal" from "abnormal" failures here.
-    return (Provider) NEW_PROVIDER_METHOD.invoke(null);
-  }
 }

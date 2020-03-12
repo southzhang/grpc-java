@@ -16,97 +16,97 @@
 
 package io.grpc;
 
+import javax.annotation.Nullable;
+import java.util.concurrent.atomic.AtomicLong;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.util.concurrent.atomic.AtomicLong;
-import javax.annotation.Nullable;
 
 /**
  * An internal class. Do not use.
  *
- *<p>An object that has an ID that is unique within the JVM, primarily for debug logging.
+ * <p>An object that has an ID that is unique within the JVM, primarily for debug logging.
  */
 @Internal
 public final class InternalLogId {
 
-  private static final AtomicLong idAlloc = new AtomicLong();
+    private static final AtomicLong idAlloc = new AtomicLong();
 
-  /**
-   * Creates a log id.
-   *
-   * @param type the "Type" to be used when logging this id.   The short name of this class will be
-   *     used, or else a default if the class is anonymous.
-   * @param details a short, human readable string that describes the object the id is attached to.
-   *     Typically this will be an address or target.
-   */
-  public static InternalLogId allocate(Class<?> type, @Nullable String details) {
-    return allocate(getClassName(type), details);
-  }
-
-  /**
-   * Creates a log id.
-   *
-   * @param typeName the "Type" to be used when logging this id.
-   * @param details a short, human readable string that describes the object the id is attached to.
-   *     Typically this will be an address or target.
-   */
-  public static InternalLogId allocate(String typeName, @Nullable String details) {
-    return new InternalLogId(typeName, details, getNextId());
-  }
-
-  static long getNextId() {
-    return idAlloc.incrementAndGet();
-  }
-
-  private final String typeName;
-  @Nullable
-  private final String details;
-  private final long id;
-
-  InternalLogId(String typeName, String details, long id) {
-    checkNotNull(typeName, "typeName");
-    checkArgument(!typeName.isEmpty(), "empty type");
-    this.typeName = typeName;
-    this.details = details;
-    this.id = id;
-  }
-
-  public String getTypeName() {
-    return typeName;
-  }
-
-  @Nullable
-  public String getDetails() {
-    return details;
-  }
-
-  public long getId() {
-    return id;
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(shortName());
-    if (details != null) {
-      sb.append(": (");
-      sb.append(details);
-      sb.append(')');
+    /**
+     * Creates a log id.
+     *
+     * @param type    the "Type" to be used when logging this id.   The short name of this class will be
+     *                used, or else a default if the class is anonymous.
+     * @param details a short, human readable string that describes the object the id is attached to.
+     *                Typically this will be an address or target.
+     */
+    public static InternalLogId allocate(Class<?> type, @Nullable String details) {
+        return allocate(getClassName(type), details);
     }
-    return sb.toString();
-  }
 
-  private static String getClassName(Class<?> type) {
-    String className = checkNotNull(type, "type").getSimpleName();
-    if (!className.isEmpty()) {
-      return className;
+    /**
+     * Creates a log id.
+     *
+     * @param typeName the "Type" to be used when logging this id.
+     * @param details  a short, human readable string that describes the object the id is attached to.
+     *                 Typically this will be an address or target.
+     */
+    public static InternalLogId allocate(String typeName, @Nullable String details) {
+        return new InternalLogId(typeName, details, getNextId());
     }
-    // + 1 removes the separating '.'
-    return type.getName().substring(type.getPackage().getName().length() + 1);
-  }
 
-  public String shortName() {
-    return typeName + "<" + id + ">";
-  }
+    static long getNextId() {
+        return idAlloc.incrementAndGet();
+    }
+
+    private final String typeName;
+    @Nullable
+    private final String details;
+    private final long id;
+
+    InternalLogId(String typeName, String details, long id) {
+        checkNotNull(typeName, "typeName");
+        checkArgument(!typeName.isEmpty(), "empty type");
+        this.typeName = typeName;
+        this.details = details;
+        this.id = id;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    @Nullable
+    public String getDetails() {
+        return details;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(shortName());
+        if (details != null) {
+            sb.append(": (");
+            sb.append(details);
+            sb.append(')');
+        }
+        return sb.toString();
+    }
+
+    private static String getClassName(Class<?> type) {
+        String className = checkNotNull(type, "type").getSimpleName();
+        if (!className.isEmpty()) {
+            return className;
+        }
+        // + 1 removes the separating '.'
+        return type.getName().substring(type.getPackage().getName().length() + 1);
+    }
+
+    public String shortName() {
+        return typeName + "<" + id + ">";
+    }
 }

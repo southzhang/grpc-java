@@ -26,26 +26,31 @@ import io.grpc.Metadata;
  */
 public class NoopClientCall<ReqT, RespT> extends ClientCall<ReqT, RespT> {
 
-  /**
-   * {@link NoopClientCall.NoopClientCallListener} is a class that is designed for use in tests.
-   * It is designed to be used in places where a scriptable call listener is necessary.  By
-   * default, all methods are noops, and designed to be overridden.
-   */
-  public static class NoopClientCallListener<T> extends ClientCall.Listener<T> {
-  }
+    /**
+     * {@link NoopClientCall.NoopClientCallListener} is a class that is designed for use in tests.
+     * It is designed to be used in places where a scriptable call listener is necessary.  By
+     * default, all methods are noops, and designed to be overridden.
+     */
+    public static class NoopClientCallListener<T> extends ClientCall.Listener<T> {
+    }
 
-  @Override
-  public void start(ClientCall.Listener<RespT> listener, Metadata headers) {}
+    @Override
+    public void start(ClientCall.Listener<RespT> listener, Metadata headers) {
+    }
 
-  @Override
-  public void request(int numMessages) {}
+    @Override
+    public void request(int numMessages) {
+    }
 
-  @Override
-  public void cancel(String message, Throwable cause) {}
+    @Override
+    public void cancel(String message, Throwable cause) {
+    }
 
-  @Override
-  public void halfClose() {}
+    @Override
+    public void halfClose() {
+    }
 
-  @Override
-  public void sendMessage(ReqT message) {}
+    @Override
+    public void sendMessage(ReqT message) {
+    }
 }

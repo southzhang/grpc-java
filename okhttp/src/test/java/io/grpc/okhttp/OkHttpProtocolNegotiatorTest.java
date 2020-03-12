@@ -16,26 +16,12 @@
 
 package io.grpc.okhttp;
 
-import static com.google.common.base.Charsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import io.grpc.okhttp.OkHttpProtocolNegotiator.AndroidNegotiator;
 import io.grpc.okhttp.internal.Platform;
 import io.grpc.okhttp.internal.Platform.TlsExtensionType;
 import io.grpc.okhttp.internal.Protocol;
-import java.io.IOException;
-import javax.net.ssl.HandshakeCompletedListener;
-import javax.net.ssl.SSLParameters;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -43,256 +29,281 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.ArgumentMatchers;
 
+import javax.net.ssl.HandshakeCompletedListener;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import java.io.IOException;
+
+import static com.google.common.base.Charsets.UTF_8;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.*;
+
 /**
  * Tests for {@link OkHttpProtocolNegotiator}.
  */
 @RunWith(JUnit4.class)
 public class OkHttpProtocolNegotiatorTest {
-  @Rule public final ExpectedException thrown = ExpectedException.none();
+    @Rule
+    public final ExpectedException thrown = ExpectedException.none();
 
-  private final SSLSocket sock = mock(SSLSocket.class);
-  private final Platform platform = mock(Platform.class);
+    private final SSLSocket sock = mock(SSLSocket.class);
+    private final Platform platform = mock(Platform.class);
 
-  @Test
-  public void createNegotiator_isAndroid() {
-    ClassLoader cl = new ClassLoader(this.getClass().getClassLoader()) {
-      @Override
-      protected Class<?> findClass(String name) throws ClassNotFoundException {
-        // Just don't throw.
-        if ("com.android.org.conscrypt.OpenSSLSocketImpl".equals(name)) {
-          return null;
+    @Test
+    public void createNegotiator_isAndroid() {
+        ClassLoader cl = new ClassLoader(this.getClass().getClassLoader()) {
+            @Override
+            protected Class<?> findClass(String name) throws ClassNotFoundException {
+                // Just don't throw.
+                if ("com.android.org.conscrypt.OpenSSLSocketImpl".equals(name)) {
+                    return null;
+                }
+                return super.findClass(name);
+            }
+        };
+
+        OkHttpProtocolNegotiator negotiator = OkHttpProtocolNegotiator.createNegotiator(cl);
+        assertEquals(AndroidNegotiator.class, negotiator.getClass());
+    }
+
+    @Test
+    public void createNegotiator_isAndroidLegacy() {
+        ClassLoader cl = new ClassLoader(this.getClass().getClassLoader()) {
+            @Override
+            protected Class<?> findClass(String name) throws ClassNotFoundException {
+                // Just don't throw.
+                if ("org.apache.harmony.xnet.provider.jsse.OpenSSLSocketImpl".equals(name)) {
+                    return null;
+                }
+                return super.findClass(name);
+            }
+        };
+
+        OkHttpProtocolNegotiator negotiator = OkHttpProtocolNegotiator.createNegotiator(cl);
+
+        assertEquals(AndroidNegotiator.class, negotiator.getClass());
+    }
+
+    @Test
+    public void createNegotiator_notAndroid() {
+        ClassLoader cl = new ClassLoader(this.getClass().getClassLoader()) {
+            @Override
+            protected Class<?> findClass(String name) throws ClassNotFoundException {
+                if ("com.android.org.conscrypt.OpenSSLSocketImpl".equals(name)) {
+                    throw new ClassNotFoundException();
+                }
+                return super.findClass(name);
+            }
+        };
+
+        OkHttpProtocolNegotiator negotiator = OkHttpProtocolNegotiator.createNegotiator(cl);
+
+        assertEquals(OkHttpProtocolNegotiator.class, negotiator.getClass());
+    }
+
+    @Test
+    public void negotiatorNotNull() {
+        assertNotNull(OkHttpProtocolNegotiator.get());
+    }
+
+    @Test
+    public void negotiate_handshakeFails() throws IOException {
+        SSLParameters parameters = new SSLParameters();
+        OkHttpProtocolNegotiator negotiator = OkHttpProtocolNegotiator.get();
+        doReturn(parameters).when(sock).getSSLParameters();
+        doThrow(new IOException()).when(sock).startHandshake();
+        thrown.expect(IOException.class);
+
+        negotiator.negotiate(sock, "hostname", ImmutableList.of(Protocol.HTTP_2));
+    }
+
+    @Test
+    public void negotiate_noSelectedProtocol() throws Exception {
+        Platform platform = mock(Platform.class);
+
+        OkHttpProtocolNegotiator negotiator = new OkHttpProtocolNegotiator(platform);
+
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage("TLS ALPN negotiation failed");
+
+        negotiator.negotiate(sock, "hostname", ImmutableList.of(Protocol.HTTP_2));
+    }
+
+    @Test
+    public void negotiate_success() throws Exception {
+        when(platform.getSelectedProtocol(ArgumentMatchers.<SSLSocket>any())).thenReturn("h2");
+        OkHttpProtocolNegotiator negotiator = new OkHttpProtocolNegotiator(platform);
+
+        String actual = negotiator.negotiate(sock, "hostname", ImmutableList.of(Protocol.HTTP_2));
+
+        assertEquals("h2", actual);
+        verify(sock).startHandshake();
+        verify(platform).getSelectedProtocol(sock);
+        verify(platform).afterHandshake(sock);
+    }
+
+    // Checks that the super class is properly invoked.
+    @Test
+    public void negotiate_android_handshakeFails() throws Exception {
+        when(platform.getTlsExtensionType()).thenReturn(TlsExtensionType.ALPN_AND_NPN);
+        AndroidNegotiator negotiator = new AndroidNegotiator(platform);
+
+        FakeAndroidSslSocket androidSock = new FakeAndroidSslSocket() {
+            @Override
+            public void startHandshake() throws IOException {
+                throw new IOException("expected");
+            }
+        };
+
+        thrown.expect(IOException.class);
+        thrown.expectMessage("expected");
+
+        negotiator.negotiate(androidSock, "hostname", ImmutableList.of(Protocol.HTTP_2));
+    }
+
+    @VisibleForTesting
+    public static class FakeAndroidSslSocketAlpn extends FakeAndroidSslSocket {
+        @Override
+        public byte[] getAlpnSelectedProtocol() {
+            return "h2".getBytes(UTF_8);
         }
-        return super.findClass(name);
-      }
-    };
+    }
 
-    OkHttpProtocolNegotiator negotiator = OkHttpProtocolNegotiator.createNegotiator(cl);
-    assertEquals(AndroidNegotiator.class, negotiator.getClass());
-  }
+    @Test
+    public void getSelectedProtocol_alpn() throws Exception {
+        when(platform.getTlsExtensionType()).thenReturn(TlsExtensionType.ALPN_AND_NPN);
+        AndroidNegotiator negotiator = new AndroidNegotiator(platform);
+        FakeAndroidSslSocket androidSock = new FakeAndroidSslSocketAlpn();
 
-  @Test
-  public void createNegotiator_isAndroidLegacy() {
-    ClassLoader cl = new ClassLoader(this.getClass().getClassLoader()) {
-      @Override
-      protected Class<?> findClass(String name) throws ClassNotFoundException {
-        // Just don't throw.
-        if ("org.apache.harmony.xnet.provider.jsse.OpenSSLSocketImpl".equals(name)) {
-          return null;
+        String actual = negotiator.getSelectedProtocol(androidSock);
+
+        assertEquals("h2", actual);
+    }
+
+    @VisibleForTesting
+    public static class FakeAndroidSslSocketNpn extends FakeAndroidSslSocket {
+        @Override
+        public byte[] getNpnSelectedProtocol() {
+            return "h2".getBytes(UTF_8);
         }
-        return super.findClass(name);
-      }
-    };
+    }
 
-    OkHttpProtocolNegotiator negotiator = OkHttpProtocolNegotiator.createNegotiator(cl);
+    @Test
+    public void getSelectedProtocol_npn() throws Exception {
+        when(platform.getTlsExtensionType()).thenReturn(TlsExtensionType.NPN);
+        AndroidNegotiator negotiator = new AndroidNegotiator(platform);
+        FakeAndroidSslSocket androidSock = new FakeAndroidSslSocketNpn();
 
-    assertEquals(AndroidNegotiator.class, negotiator.getClass());
-  }
+        String actual = negotiator.getSelectedProtocol(androidSock);
 
-  @Test
-  public void createNegotiator_notAndroid() {
-    ClassLoader cl = new ClassLoader(this.getClass().getClassLoader()) {
-      @Override
-      protected Class<?> findClass(String name) throws ClassNotFoundException {
-        if ("com.android.org.conscrypt.OpenSSLSocketImpl".equals(name)) {
-          throw new ClassNotFoundException();
+        assertEquals("h2", actual);
+    }
+
+    // A fake of org.conscrypt.OpenSSLSocketImpl
+    @VisibleForTesting // Must be public for reflection to work
+    public static class FakeAndroidSslSocket extends SSLSocket {
+
+        public void setUseSessionTickets(boolean arg) {
         }
-        return super.findClass(name);
-      }
-    };
 
-    OkHttpProtocolNegotiator negotiator = OkHttpProtocolNegotiator.createNegotiator(cl);
+        public void setHostname(String arg) {
+        }
 
-    assertEquals(OkHttpProtocolNegotiator.class, negotiator.getClass());
-  }
+        public byte[] getAlpnSelectedProtocol() {
+            return null;
+        }
 
-  @Test
-  public void negotiatorNotNull() {
-    assertNotNull(OkHttpProtocolNegotiator.get());
-  }
+        public void setAlpnProtocols(byte[] arg) {
+        }
 
-  @Test
-  public void negotiate_handshakeFails() throws IOException {
-    SSLParameters parameters = new SSLParameters();
-    OkHttpProtocolNegotiator negotiator = OkHttpProtocolNegotiator.get();
-    doReturn(parameters).when(sock).getSSLParameters();
-    doThrow(new IOException()).when(sock).startHandshake();
-    thrown.expect(IOException.class);
+        public byte[] getNpnSelectedProtocol() {
+            return null;
+        }
 
-    negotiator.negotiate(sock, "hostname", ImmutableList.of(Protocol.HTTP_2));
-  }
+        public void setNpnProtocols(byte[] arg) {
+        }
 
-  @Test
-  public void negotiate_noSelectedProtocol() throws Exception {
-    Platform platform = mock(Platform.class);
+        @Override
+        public void addHandshakeCompletedListener(HandshakeCompletedListener listener) {
+        }
 
-    OkHttpProtocolNegotiator negotiator = new OkHttpProtocolNegotiator(platform);
+        @Override
+        public boolean getEnableSessionCreation() {
+            return false;
+        }
 
-    thrown.expect(RuntimeException.class);
-    thrown.expectMessage("TLS ALPN negotiation failed");
+        @Override
+        public String[] getEnabledCipherSuites() {
+            return null;
+        }
 
-    negotiator.negotiate(sock, "hostname", ImmutableList.of(Protocol.HTTP_2));
-  }
+        @Override
+        public String[] getEnabledProtocols() {
+            return null;
+        }
 
-  @Test
-  public void negotiate_success() throws Exception {
-    when(platform.getSelectedProtocol(ArgumentMatchers.<SSLSocket>any())).thenReturn("h2");
-    OkHttpProtocolNegotiator negotiator = new OkHttpProtocolNegotiator(platform);
+        @Override
+        public boolean getNeedClientAuth() {
+            return false;
+        }
 
-    String actual = negotiator.negotiate(sock, "hostname", ImmutableList.of(Protocol.HTTP_2));
+        @Override
+        public SSLSession getSession() {
+            return null;
+        }
 
-    assertEquals("h2", actual);
-    verify(sock).startHandshake();
-    verify(platform).getSelectedProtocol(sock);
-    verify(platform).afterHandshake(sock);
-  }
+        @Override
+        public String[] getSupportedCipherSuites() {
+            return null;
+        }
 
-  // Checks that the super class is properly invoked.
-  @Test
-  public void negotiate_android_handshakeFails() throws Exception {
-    when(platform.getTlsExtensionType()).thenReturn(TlsExtensionType.ALPN_AND_NPN);
-    AndroidNegotiator negotiator = new AndroidNegotiator(platform);
+        @Override
+        public String[] getSupportedProtocols() {
+            return null;
+        }
 
-    FakeAndroidSslSocket androidSock = new FakeAndroidSslSocket() {
-      @Override
-      public void startHandshake() throws IOException {
-        throw new IOException("expected");
-      }
-    };
+        @Override
+        public boolean getUseClientMode() {
+            return false;
+        }
 
-    thrown.expect(IOException.class);
-    thrown.expectMessage("expected");
+        @Override
+        public boolean getWantClientAuth() {
+            return false;
+        }
 
-    negotiator.negotiate(androidSock, "hostname", ImmutableList.of(Protocol.HTTP_2));
-  }
+        @Override
+        public void removeHandshakeCompletedListener(HandshakeCompletedListener listener) {
+        }
 
-  @VisibleForTesting
-  public static class FakeAndroidSslSocketAlpn extends FakeAndroidSslSocket {
-    @Override
-    public byte[] getAlpnSelectedProtocol() {
-      return "h2".getBytes(UTF_8);
+        @Override
+        public void setEnableSessionCreation(boolean flag) {
+        }
+
+        @Override
+        public void setEnabledCipherSuites(String[] suites) {
+        }
+
+        @Override
+        public void setEnabledProtocols(String[] protocols) {
+        }
+
+        @Override
+        public void setNeedClientAuth(boolean need) {
+        }
+
+        @Override
+        public void setUseClientMode(boolean mode) {
+        }
+
+        @Override
+        public void setWantClientAuth(boolean want) {
+        }
+
+        @Override
+        public void startHandshake() throws IOException {
+        }
     }
-  }
-
-  @Test
-  public void getSelectedProtocol_alpn() throws Exception {
-    when(platform.getTlsExtensionType()).thenReturn(TlsExtensionType.ALPN_AND_NPN);
-    AndroidNegotiator negotiator = new AndroidNegotiator(platform);
-    FakeAndroidSslSocket androidSock = new FakeAndroidSslSocketAlpn();
-
-    String actual = negotiator.getSelectedProtocol(androidSock);
-
-    assertEquals("h2", actual);
-  }
-
-  @VisibleForTesting
-  public static class FakeAndroidSslSocketNpn extends FakeAndroidSslSocket {
-    @Override
-    public byte[] getNpnSelectedProtocol() {
-      return "h2".getBytes(UTF_8);
-    }
-  }
-
-  @Test
-  public void getSelectedProtocol_npn() throws Exception {
-    when(platform.getTlsExtensionType()).thenReturn(TlsExtensionType.NPN);
-    AndroidNegotiator negotiator = new AndroidNegotiator(platform);
-    FakeAndroidSslSocket androidSock = new FakeAndroidSslSocketNpn();
-
-    String actual = negotiator.getSelectedProtocol(androidSock);
-
-    assertEquals("h2", actual);
-  }
-
-  // A fake of org.conscrypt.OpenSSLSocketImpl
-  @VisibleForTesting // Must be public for reflection to work
-  public static class FakeAndroidSslSocket extends SSLSocket {
-
-    public void setUseSessionTickets(boolean arg) {}
-
-    public void setHostname(String arg) {}
-
-    public byte[] getAlpnSelectedProtocol() {
-      return null;
-    }
-
-    public void setAlpnProtocols(byte[] arg) {}
-
-    public byte[] getNpnSelectedProtocol() {
-      return null;
-    }
-
-    public void setNpnProtocols(byte[] arg) {}
-
-    @Override
-    public void addHandshakeCompletedListener(HandshakeCompletedListener listener) {}
-
-    @Override
-    public boolean getEnableSessionCreation() {
-      return false;
-    }
-
-    @Override
-    public String[] getEnabledCipherSuites() {
-      return null;
-    }
-
-    @Override
-    public String[] getEnabledProtocols() {
-      return null;
-    }
-
-    @Override
-    public boolean getNeedClientAuth() {
-      return false;
-    }
-
-    @Override
-    public SSLSession getSession() {
-      return null;
-    }
-
-    @Override
-    public String[] getSupportedCipherSuites() {
-      return null;
-    }
-
-    @Override
-    public String[] getSupportedProtocols() {
-      return null;
-    }
-
-    @Override
-    public boolean getUseClientMode() {
-      return false;
-    }
-
-    @Override
-    public boolean getWantClientAuth() {
-      return false;
-    }
-
-    @Override
-    public void removeHandshakeCompletedListener(HandshakeCompletedListener listener) {}
-
-    @Override
-    public void setEnableSessionCreation(boolean flag) {}
-
-    @Override
-    public void setEnabledCipherSuites(String[] suites) {}
-
-    @Override
-    public void setEnabledProtocols(String[] protocols) {}
-
-    @Override
-    public void setNeedClientAuth(boolean need) {}
-
-    @Override
-    public void setUseClientMode(boolean mode) {}
-
-    @Override
-    public void setWantClientAuth(boolean want) {}
-
-    @Override
-    public void startHandshake() throws IOException {}
-  }
 }

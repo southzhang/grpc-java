@@ -21,12 +21,13 @@ package io.grpc;
  */
 @Internal
 public final class InternalCallOptions {
-  private InternalCallOptions() {}
+    private InternalCallOptions() {
+    }
 
-  /**
-   * Gets the waitForReady bit or {@code null} if it was never set.
-   */
-  public static Boolean getWaitForReady(CallOptions callOptions) {
-    return callOptions.getWaitForReady();
-  }
+    /**
+     * Gets the waitForReady bit or {@code null} if it was never set.
+     */
+    public static Boolean getWaitForReady(CallOptions callOptions) {
+        return callOptions.getWaitForReady();
+    }
 }

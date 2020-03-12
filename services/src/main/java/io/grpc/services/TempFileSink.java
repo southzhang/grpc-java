@@ -17,11 +17,8 @@
 package io.grpc.services;
 
 import com.google.protobuf.MessageLite;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+
+import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,55 +27,55 @@ import java.util.logging.Logger;
  * are written serially using {@link MessageLite#writeDelimitedTo(OutputStream)}.
  */
 class TempFileSink implements BinaryLogSink {
-  private static final Logger logger = Logger.getLogger(TempFileSink.class.getName());
+    private static final Logger logger = Logger.getLogger(TempFileSink.class.getName());
 
-  private final String outPath;
-  private final OutputStream out;
-  private boolean closed;
+    private final String outPath;
+    private final OutputStream out;
+    private boolean closed;
 
-  TempFileSink() throws IOException {
-    File outFile = File.createTempFile("BINARY_INFO.", "");
-    outPath = outFile.getPath();
-    logger.log(Level.INFO, "Writing binary logs to to {0}", outFile.getAbsolutePath());
-    out = new BufferedOutputStream(new FileOutputStream(outFile));
-  }
-
-  String getPath() {
-    return this.outPath;
-  }
-
-  @Override
-  public synchronized void write(MessageLite message) {
-    if (closed) {
-      logger.log(Level.FINEST, "Attempt to write after TempFileSink is closed.");
-      return;
+    TempFileSink() throws IOException {
+        File outFile = File.createTempFile("BINARY_INFO.", "");
+        outPath = outFile.getPath();
+        logger.log(Level.INFO, "Writing binary logs to to {0}", outFile.getAbsolutePath());
+        out = new BufferedOutputStream(new FileOutputStream(outFile));
     }
-    try {
-      message.writeDelimitedTo(out);
-    } catch (IOException e) {
-      logger.log(Level.SEVERE, "Caught exception while writing", e);
-      closeQuietly();
-    }
-  }
 
-  @Override
-  public synchronized void close() throws IOException {
-    if (closed) {
-      return;
+    String getPath() {
+        return this.outPath;
     }
-    closed = true;
-    try {
-      out.flush();
-    } finally {
-      out.close();
-    }
-  }
 
-  private synchronized void closeQuietly() {
-    try {
-      close();
-    } catch (IOException e) {
-      logger.log(Level.SEVERE, "Caught exception while closing", e);
+    @Override
+    public synchronized void write(MessageLite message) {
+        if (closed) {
+            logger.log(Level.FINEST, "Attempt to write after TempFileSink is closed.");
+            return;
+        }
+        try {
+            message.writeDelimitedTo(out);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Caught exception while writing", e);
+            closeQuietly();
+        }
     }
-  }
+
+    @Override
+    public synchronized void close() throws IOException {
+        if (closed) {
+            return;
+        }
+        closed = true;
+        try {
+            out.flush();
+        } finally {
+            out.close();
+        }
+    }
+
+    private synchronized void closeQuietly() {
+        try {
+            close();
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Caught exception while closing", e);
+        }
+    }
 }

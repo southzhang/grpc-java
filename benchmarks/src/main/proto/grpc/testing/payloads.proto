@@ -19,24 +19,24 @@ option java_package = "io.grpc.benchmarks.proto";
 option java_outer_classname = "Payloads";
 
 message ByteBufferParams {
-  int32 req_size = 1;
-  int32 resp_size = 2;
+    int32 req_size = 1;
+    int32 resp_size = 2;
 }
 
 message SimpleProtoParams {
-  int32 req_size = 1;
-  int32 resp_size = 2;
+    int32 req_size = 1;
+    int32 resp_size = 2;
 }
 
 message ComplexProtoParams {
-  // TODO (vpai): Fill this in once the details of complex, representative
-  //              protos are decided
+    // TODO (vpai): Fill this in once the details of complex, representative
+    //              protos are decided
 }
 
 message PayloadConfig {
-  oneof payload {
-    ByteBufferParams bytebuf_params = 1;
-    SimpleProtoParams simple_params = 2;
-    ComplexProtoParams complex_params = 3;
-  }
+    oneof payload {
+        ByteBufferParams bytebuf_params = 1;
+        SimpleProtoParams simple_params = 2;
+        ComplexProtoParams complex_params = 3;
+    }
 }

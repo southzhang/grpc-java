@@ -17,35 +17,52 @@
 package io.grpc.internal;
 
 import io.grpc.Compressor;
+
 import java.io.InputStream;
 
-/** Interface for framing gRPC messages. */
+/**
+ * Interface for framing gRPC messages.
+ */
 public interface Framer {
-  /**
-   * Writes out a payload message.
-   *
-   * @param message contains the message to be written out. It will be completely consumed.
-   */
-  void writePayload(InputStream message);
+    /**
+     * Writes out a payload message.
+     *
+     * @param message contains the message to be written out. It will be completely consumed.
+     */
+    void writePayload(InputStream message);
 
-  /** Flush the buffered payload. */
-  void flush();
+    /**
+     * Flush the buffered payload.
+     */
+    void flush();
 
-  /** Returns whether the framer is closed. */
-  boolean isClosed();
+    /**
+     * Returns whether the framer is closed.
+     */
+    boolean isClosed();
 
-  /** Closes, with flush. */
-  void close();
+    /**
+     * Closes, with flush.
+     */
+    void close();
 
-  /** Closes, without flush. */
-  void dispose();
+    /**
+     * Closes, without flush.
+     */
+    void dispose();
 
-  /** Enable or disable compression. */
-  Framer setMessageCompression(boolean enable);
+    /**
+     * Enable or disable compression.
+     */
+    Framer setMessageCompression(boolean enable);
 
-  /** Set the compressor used for compression. */
-  Framer setCompressor(Compressor compressor);
+    /**
+     * Set the compressor used for compression.
+     */
+    Framer setCompressor(Compressor compressor);
 
-  /** Set a size limit for each outbound message. */ 
-  void setMaxOutboundMessageSize(int maxSize);
+    /**
+     * Set a size limit for each outbound message.
+     */
+    void setMaxOutboundMessageSize(int maxSize);
 }

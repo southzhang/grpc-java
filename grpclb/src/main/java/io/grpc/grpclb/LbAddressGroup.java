@@ -16,27 +16,27 @@
 
 package io.grpc.grpclb;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.grpc.EquivalentAddressGroup;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Represents a balancer address entry.
  */
 final class LbAddressGroup {
-  private final EquivalentAddressGroup addresses;
-  private final String authority;
+    private final EquivalentAddressGroup addresses;
+    private final String authority;
 
-  LbAddressGroup(EquivalentAddressGroup addresses, String authority) {
-    this.addresses = checkNotNull(addresses, "addresses");
-    this.authority = checkNotNull(authority, "authority");
-  }
+    LbAddressGroup(EquivalentAddressGroup addresses, String authority) {
+        this.addresses = checkNotNull(addresses, "addresses");
+        this.authority = checkNotNull(authority, "authority");
+    }
 
-  EquivalentAddressGroup getAddresses() {
-    return addresses;
-  }
+    EquivalentAddressGroup getAddresses() {
+        return addresses;
+    }
 
-  String getAuthority() {
-    return authority;
-  }
+    String getAuthority() {
+        return authority;
+    }
 }

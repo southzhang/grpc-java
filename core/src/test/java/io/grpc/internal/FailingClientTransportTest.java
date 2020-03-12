@@ -16,11 +16,6 @@
 
 package io.grpc.internal;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
 import io.grpc.CallOptions;
 import io.grpc.Metadata;
 import io.grpc.Status;
@@ -30,22 +25,27 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 /**
  * Unit tests for {@link FailingClientTransport}.
  */
 @RunWith(JUnit4.class)
 public class FailingClientTransportTest {
 
-  @Test
-  public void newStreamStart() {
-    Status error = Status.UNAVAILABLE;
-    RpcProgress rpcProgress = RpcProgress.DROPPED;
-    FailingClientTransport transport = new FailingClientTransport(error, rpcProgress);
-    ClientStream stream = transport
-        .newStream(TestMethodDescriptors.voidMethod(), new Metadata(), CallOptions.DEFAULT);
-    ClientStreamListener listener = mock(ClientStreamListener.class);
-    stream.start(listener);
+    @Test
+    public void newStreamStart() {
+        Status error = Status.UNAVAILABLE;
+        RpcProgress rpcProgress = RpcProgress.DROPPED;
+        FailingClientTransport transport = new FailingClientTransport(error, rpcProgress);
+        ClientStream stream = transport
+                .newStream(TestMethodDescriptors.voidMethod(), new Metadata(), CallOptions.DEFAULT);
+        ClientStreamListener listener = mock(ClientStreamListener.class);
+        stream.start(listener);
 
-    verify(listener).closed(eq(error), eq(rpcProgress), any(Metadata.class));
-  }
+        verify(listener).closed(eq(error), eq(rpcProgress), any(Metadata.class));
+    }
 }

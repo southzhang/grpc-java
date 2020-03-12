@@ -28,56 +28,56 @@ import io.grpc.protobuf.lite.ProtoLiteUtils;
  */
 public final class ProtoUtils {
 
-  /**
-   * Sets the global registry for proto marshalling shared across all servers and clients.
-   *
-   * <p>Warning:  This API will likely change over time.  It is not possible to have separate
-   * registries per Process, Server, Channel, Service, or Method.  This is intentional until there
-   * is a more appropriate API to set them.
-   *
-   * <p>Warning:  Do NOT modify the extension registry after setting it.  It is thread safe to call
-   * {@link #setExtensionRegistry}, but not to modify the underlying object.
-   *
-   * <p>If you need custom parsing behavior for protos, you will need to make your own
-   * {@code MethodDescriptor.Marshaller} for the time being.
-   *
-   * @since 1.16.0
-   */
-  @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1787")
-  public static void setExtensionRegistry(ExtensionRegistry registry) {
-    ProtoLiteUtils.setExtensionRegistry(registry);
-  }
+    /**
+     * Sets the global registry for proto marshalling shared across all servers and clients.
+     *
+     * <p>Warning:  This API will likely change over time.  It is not possible to have separate
+     * registries per Process, Server, Channel, Service, or Method.  This is intentional until there
+     * is a more appropriate API to set them.
+     *
+     * <p>Warning:  Do NOT modify the extension registry after setting it.  It is thread safe to call
+     * {@link #setExtensionRegistry}, but not to modify the underlying object.
+     *
+     * <p>If you need custom parsing behavior for protos, you will need to make your own
+     * {@code MethodDescriptor.Marshaller} for the time being.
+     *
+     * @since 1.16.0
+     */
+    @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1787")
+    public static void setExtensionRegistry(ExtensionRegistry registry) {
+        ProtoLiteUtils.setExtensionRegistry(registry);
+    }
 
-  /**
-   * Create a {@link Marshaller} for protos of the same type as {@code defaultInstance}.
-   *
-   * @since 1.0.0
-   */
-  public static <T extends Message> Marshaller<T> marshaller(final T defaultInstance) {
-    return ProtoLiteUtils.marshaller(defaultInstance);
-  }
+    /**
+     * Create a {@link Marshaller} for protos of the same type as {@code defaultInstance}.
+     *
+     * @since 1.0.0
+     */
+    public static <T extends Message> Marshaller<T> marshaller(final T defaultInstance) {
+        return ProtoLiteUtils.marshaller(defaultInstance);
+    }
 
-  /**
-   * Produce a metadata key for a generated protobuf type.
-   *
-   * @since 1.0.0
-   */
-  public static <T extends Message> Metadata.Key<T> keyForProto(T instance) {
-    return Metadata.Key.of(
-        instance.getDescriptorForType().getFullName() + Metadata.BINARY_HEADER_SUFFIX,
-        metadataMarshaller(instance));
-  }
+    /**
+     * Produce a metadata key for a generated protobuf type.
+     *
+     * @since 1.0.0
+     */
+    public static <T extends Message> Metadata.Key<T> keyForProto(T instance) {
+        return Metadata.Key.of(
+                instance.getDescriptorForType().getFullName() + Metadata.BINARY_HEADER_SUFFIX,
+                metadataMarshaller(instance));
+    }
 
-  /**
-   * Produce a metadata marshaller for a protobuf type.
-   * 
-   * @since 1.13.0
-   */
-  @ExperimentalApi("https://github.com/grpc/grpc-java/issues/4477")
-  public static <T extends Message> Metadata.BinaryMarshaller<T> metadataMarshaller(T instance) {
-    return ProtoLiteUtils.metadataMarshaller(instance);
-  }
+    /**
+     * Produce a metadata marshaller for a protobuf type.
+     *
+     * @since 1.13.0
+     */
+    @ExperimentalApi("https://github.com/grpc/grpc-java/issues/4477")
+    public static <T extends Message> Metadata.BinaryMarshaller<T> metadataMarshaller(T instance) {
+        return ProtoLiteUtils.metadataMarshaller(instance);
+    }
 
-  private ProtoUtils() {
-  }
+    private ProtoUtils() {
+    }
 }

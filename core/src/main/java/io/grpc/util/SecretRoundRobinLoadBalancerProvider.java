@@ -19,6 +19,7 @@ package io.grpc.util;
 import io.grpc.LoadBalancer;
 import io.grpc.LoadBalancerProvider;
 import io.grpc.NameResolver.ConfigOrError;
+
 import java.util.Map;
 
 /**
@@ -27,38 +28,38 @@ import java.util.Map;
 // Make it package-private so that it cannot be directly referenced by users.  Java service loader
 // requires the provider to be public, but we can hide it under a package-private class.
 final class SecretRoundRobinLoadBalancerProvider {
-  private SecretRoundRobinLoadBalancerProvider() {
-  }
-
-  public static final class Provider extends LoadBalancerProvider {
-
-    private static final String NO_CONFIG = "no service config";
-
-
-    @Override
-    public boolean isAvailable() {
-      return true;
+    private SecretRoundRobinLoadBalancerProvider() {
     }
 
-    @Override
-    public int getPriority() {
-      return 5;
-    }
+    public static final class Provider extends LoadBalancerProvider {
 
-    @Override
-    public String getPolicyName() {
-      return "round_robin";
-    }
+        private static final String NO_CONFIG = "no service config";
 
-    @Override
-    public LoadBalancer newLoadBalancer(LoadBalancer.Helper helper) {
-      return new RoundRobinLoadBalancer(helper);
-    }
 
-    @Override
-    public ConfigOrError parseLoadBalancingPolicyConfig(
-        Map<String, ?> rawLoadBalancingPolicyConfig) {
-      return ConfigOrError.fromConfig(NO_CONFIG);
+        @Override
+        public boolean isAvailable() {
+            return true;
+        }
+
+        @Override
+        public int getPriority() {
+            return 5;
+        }
+
+        @Override
+        public String getPolicyName() {
+            return "round_robin";
+        }
+
+        @Override
+        public LoadBalancer newLoadBalancer(LoadBalancer.Helper helper) {
+            return new RoundRobinLoadBalancer(helper);
+        }
+
+        @Override
+        public ConfigOrError parseLoadBalancingPolicyConfig(
+                Map<String, ?> rawLoadBalancingPolicyConfig) {
+            return ConfigOrError.fromConfig(NO_CONFIG);
+        }
     }
-  }
 }

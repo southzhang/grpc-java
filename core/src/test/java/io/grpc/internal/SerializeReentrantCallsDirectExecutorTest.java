@@ -16,134 +16,138 @@
 
 package io.grpc.internal;
 
-import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 @RunWith(JUnit4.class)
 public class SerializeReentrantCallsDirectExecutorTest {
 
-  SerializeReentrantCallsDirectExecutor executor;
+    SerializeReentrantCallsDirectExecutor executor;
 
-  @Before
-  public void setup() {
-    executor = new SerializeReentrantCallsDirectExecutor();
-  }
+    @Before
+    public void setup() {
+        executor = new SerializeReentrantCallsDirectExecutor();
+    }
 
-  @Test public void reentrantCallsShouldBeSerialized() {
-    final List<Integer> callOrder = new ArrayList<>(4);
-    executor.execute(new Runnable() {
-      @Override
-      public void run() {
+    @Test
+    public void reentrantCallsShouldBeSerialized() {
+        final List<Integer> callOrder = new ArrayList<>(4);
         executor.execute(new Runnable() {
-          @Override
-          public void run() {
-            executor.execute(new Runnable() {
-              @Override public void run() {
-                callOrder.add(3);
-              }
-            });
+            @Override
+            public void run() {
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        executor.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                callOrder.add(3);
+                            }
+                        });
 
-            callOrder.add(2);
+                        callOrder.add(2);
 
-            executor.execute(new Runnable() {
-              @Override public void run() {
-                callOrder.add(4);
-              }
-            });
-          }
-        });
-        callOrder.add(1);
-      }
-    });
-
-    assertEquals(asList(1, 2, 3, 4), callOrder);
-  }
-
-  @Test
-  public void exceptionShouldNotCancelQueuedTasks() {
-    final AtomicBoolean executed1 = new AtomicBoolean();
-    final AtomicBoolean executed2 = new AtomicBoolean();
-    executor.execute(new Runnable() {
-      @Override
-      public void run() {
-        executor.execute(new Runnable() {
-          @Override
-          public void run() {
-            executed1.set(true);
-            throw new RuntimeException("Two");
-          }
-        });
-        executor.execute(new Runnable() {
-          @Override
-          public void run() {
-            executed2.set(true);
-          }
+                        executor.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                callOrder.add(4);
+                            }
+                        });
+                    }
+                });
+                callOrder.add(1);
+            }
         });
 
-        throw new RuntimeException("One");
-      }
-    });
+        assertEquals(asList(1, 2, 3, 4), callOrder);
+    }
 
-    assertTrue(executed1.get());
-    assertTrue(executed2.get());
-  }
+    @Test
+    public void exceptionShouldNotCancelQueuedTasks() {
+        final AtomicBoolean executed1 = new AtomicBoolean();
+        final AtomicBoolean executed2 = new AtomicBoolean();
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        executed1.set(true);
+                        throw new RuntimeException("Two");
+                    }
+                });
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        executed2.set(true);
+                    }
+                });
 
-  @Test(expected = NullPointerException.class)
-  public void executingNullShouldFail() {
-    executor.execute(null);
-  }
+                throw new RuntimeException("One");
+            }
+        });
 
-  @Test
-  public void executeCanBeRepeated() {
-    final List<Integer> executes = new ArrayList<>();
-    executor.execute(new Runnable() {
-      @Override
-      public void run() {
-        executes.add(1);
-      }
-    });
-    executor.execute(new Runnable() {
-      @Override
-      public void run() {
-        executes.add(2);
-      }
-    });
+        assertTrue(executed1.get());
+        assertTrue(executed2.get());
+    }
 
-    assertEquals(asList(1,2), executes);
-  }
+    @Test(expected = NullPointerException.class)
+    public void executingNullShouldFail() {
+        executor.execute(null);
+    }
 
-  @Test
-  public void interruptDoesNotAffectExecution() {
-    final AtomicInteger callsExecuted = new AtomicInteger();
+    @Test
+    public void executeCanBeRepeated() {
+        final List<Integer> executes = new ArrayList<>();
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                executes.add(1);
+            }
+        });
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                executes.add(2);
+            }
+        });
 
-    Thread.currentThread().interrupt();
+        assertEquals(asList(1, 2), executes);
+    }
 
-    executor.execute(new Runnable() {
-      @Override
-      public void run() {
+    @Test
+    public void interruptDoesNotAffectExecution() {
+        final AtomicInteger callsExecuted = new AtomicInteger();
+
         Thread.currentThread().interrupt();
-        callsExecuted.incrementAndGet();
-      }
-    });
 
-    executor.execute(new Runnable() {
-      @Override
-      public void run() {
-        callsExecuted.incrementAndGet();
-      }
-    });
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                Thread.currentThread().interrupt();
+                callsExecuted.incrementAndGet();
+            }
+        });
 
-    // clear interrupted flag
-    Thread.interrupted();
-  }
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                callsExecuted.incrementAndGet();
+            }
+        });
+
+        // clear interrupted flag
+        Thread.interrupted();
+    }
 }

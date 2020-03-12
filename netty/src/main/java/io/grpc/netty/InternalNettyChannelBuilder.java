@@ -28,64 +28,68 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 @Internal
 public final class InternalNettyChannelBuilder {
 
-  /**
-   * Checks authority upon channel construction.  The purpose of this interface is to raise the
-   * visibility of {@link NettyChannelBuilder.OverrideAuthorityChecker}.
-   */
-  public interface OverrideAuthorityChecker extends NettyChannelBuilder.OverrideAuthorityChecker {}
+    /**
+     * Checks authority upon channel construction.  The purpose of this interface is to raise the
+     * visibility of {@link NettyChannelBuilder.OverrideAuthorityChecker}.
+     */
+    public interface OverrideAuthorityChecker extends NettyChannelBuilder.OverrideAuthorityChecker {
+    }
 
-  public static void overrideAuthorityChecker(
-      NettyChannelBuilder channelBuilder, OverrideAuthorityChecker authorityChecker) {
-    channelBuilder.overrideAuthorityChecker(authorityChecker);
-  }
+    public static void overrideAuthorityChecker(
+            NettyChannelBuilder channelBuilder, OverrideAuthorityChecker authorityChecker) {
+        channelBuilder.overrideAuthorityChecker(authorityChecker);
+    }
 
-  /** A class that provides a Netty handler to control protocol negotiation. */
-  public interface ProtocolNegotiatorFactory
-      extends NettyChannelBuilder.ProtocolNegotiatorFactory {
+    /**
+     * A class that provides a Netty handler to control protocol negotiation.
+     */
+    public interface ProtocolNegotiatorFactory
+            extends NettyChannelBuilder.ProtocolNegotiatorFactory {
 
-    @Override
-    InternalProtocolNegotiator.ProtocolNegotiator buildProtocolNegotiator();
-  }
+        @Override
+        InternalProtocolNegotiator.ProtocolNegotiator buildProtocolNegotiator();
+    }
 
-  /**
-   * Sets the {@link ProtocolNegotiatorFactory} to be used. Overrides any specified negotiation type
-   * and {@code SslContext}.
-   */
-  public static void setProtocolNegotiatorFactory(
-      NettyChannelBuilder builder, ProtocolNegotiatorFactory protocolNegotiator) {
-    builder.protocolNegotiatorFactory(protocolNegotiator);
-  }
+    /**
+     * Sets the {@link ProtocolNegotiatorFactory} to be used. Overrides any specified negotiation type
+     * and {@code SslContext}.
+     */
+    public static void setProtocolNegotiatorFactory(
+            NettyChannelBuilder builder, ProtocolNegotiatorFactory protocolNegotiator) {
+        builder.protocolNegotiatorFactory(protocolNegotiator);
+    }
 
-  public static void setStatsEnabled(NettyChannelBuilder builder, boolean value) {
-    builder.setStatsEnabled(value);
-  }
+    public static void setStatsEnabled(NettyChannelBuilder builder, boolean value) {
+        builder.setStatsEnabled(value);
+    }
 
-  public static void setTracingEnabled(NettyChannelBuilder builder, boolean value) {
-    builder.setTracingEnabled(value);
-  }
+    public static void setTracingEnabled(NettyChannelBuilder builder, boolean value) {
+        builder.setTracingEnabled(value);
+    }
 
-  public static void setStatsRecordStartedRpcs(NettyChannelBuilder builder, boolean value) {
-    builder.setStatsRecordStartedRpcs(value);
-  }
+    public static void setStatsRecordStartedRpcs(NettyChannelBuilder builder, boolean value) {
+        builder.setStatsRecordStartedRpcs(value);
+    }
 
-  public static void setStatsRecordRealTimeMetrics(NettyChannelBuilder builder, boolean value) {
-    builder.setStatsRecordRealTimeMetrics(value);
-  }
+    public static void setStatsRecordRealTimeMetrics(NettyChannelBuilder builder, boolean value) {
+        builder.setStatsRecordRealTimeMetrics(value);
+    }
 
-  /**
-   * Sets {@link io.grpc.Channel} and {@link io.netty.channel.EventLoopGroup} to Nio. A major
-   * benefit over using setters is gRPC will manage the life cycle of {@link
-   * io.netty.channel.EventLoopGroup}.
-   */
-  public static void useNioTransport(NettyChannelBuilder builder) {
-    builder.channelType(NioSocketChannel.class);
-    builder
-        .eventLoopGroupPool(SharedResourcePool.forResource(Utils.NIO_WORKER_EVENT_LOOP_GROUP));
-  }
+    /**
+     * Sets {@link io.grpc.Channel} and {@link io.netty.channel.EventLoopGroup} to Nio. A major
+     * benefit over using setters is gRPC will manage the life cycle of {@link
+     * io.netty.channel.EventLoopGroup}.
+     */
+    public static void useNioTransport(NettyChannelBuilder builder) {
+        builder.channelType(NioSocketChannel.class);
+        builder
+                .eventLoopGroupPool(SharedResourcePool.forResource(Utils.NIO_WORKER_EVENT_LOOP_GROUP));
+    }
 
-  public static ClientTransportFactory buildTransportFactory(NettyChannelBuilder builder) {
-    return builder.buildTransportFactory();
-  }
+    public static ClientTransportFactory buildTransportFactory(NettyChannelBuilder builder) {
+        return builder.buildTransportFactory();
+    }
 
-  private InternalNettyChannelBuilder() {}
+    private InternalNettyChannelBuilder() {
+    }
 }

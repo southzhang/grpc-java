@@ -24,49 +24,49 @@ import com.google.common.base.Preconditions;
  */
 final class NettyHandlerSettings {
 
-  private static volatile boolean enabled;
+    private static volatile boolean enabled;
 
-  private static boolean autoFlowControlOn;
-  // These will be the most recently created handlers created using NettyClientTransport and
-  // NettyServerTransport
-  private static AbstractNettyHandler clientHandler;
-  private static AbstractNettyHandler serverHandler;
+    private static boolean autoFlowControlOn;
+    // These will be the most recently created handlers created using NettyClientTransport and
+    // NettyServerTransport
+    private static AbstractNettyHandler clientHandler;
+    private static AbstractNettyHandler serverHandler;
 
-  static void setAutoWindow(AbstractNettyHandler handler) {
-    if (!enabled) {
-      return;
+    static void setAutoWindow(AbstractNettyHandler handler) {
+        if (!enabled) {
+            return;
+        }
+        synchronized (NettyHandlerSettings.class) {
+            handler.setAutoTuneFlowControl(autoFlowControlOn);
+            if (handler instanceof NettyClientHandler) {
+                clientHandler = handler;
+            } else if (handler instanceof NettyServerHandler) {
+                serverHandler = handler;
+            } else {
+                throw new RuntimeException("Expecting NettyClientHandler or NettyServerHandler");
+            }
+        }
     }
-    synchronized (NettyHandlerSettings.class) {
-      handler.setAutoTuneFlowControl(autoFlowControlOn);
-      if (handler instanceof NettyClientHandler) {
-        clientHandler = handler;
-      } else if (handler instanceof NettyServerHandler) {
-        serverHandler = handler;
-      } else {
-        throw new RuntimeException("Expecting NettyClientHandler or NettyServerHandler");
-      }
+
+    public static void enable(boolean enable) {
+        enabled = enable;
     }
-  }
 
-  public static void enable(boolean enable) {
-    enabled = enable;
-  }
+    public static synchronized void autoWindowOn(boolean autoFlowControl) {
+        autoFlowControlOn = autoFlowControl;
+    }
 
-  public static synchronized void autoWindowOn(boolean autoFlowControl) {
-    autoFlowControlOn = autoFlowControl;
-  }
+    public static synchronized int getLatestClientWindow() {
+        return getLatestWindow(clientHandler);
+    }
 
-  public static synchronized int getLatestClientWindow() {
-    return getLatestWindow(clientHandler);
-  }
+    public static synchronized int getLatestServerWindow() {
+        return getLatestWindow(serverHandler);
+    }
 
-  public static synchronized int getLatestServerWindow() {
-    return getLatestWindow(serverHandler);
-  }
-
-  private static synchronized int getLatestWindow(AbstractNettyHandler handler) {
-    Preconditions.checkNotNull(handler);
-    return handler.decoder().flowController()
-        .initialWindowSize(handler.connection().connectionStream());
-  }
+    private static synchronized int getLatestWindow(AbstractNettyHandler handler) {
+        Preconditions.checkNotNull(handler);
+        return handler.decoder().flowController()
+                .initialWindowSize(handler.connection().connectionStream());
+    }
 }

@@ -16,20 +16,21 @@
 
 package io.grpc.okhttp;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-
 import io.grpc.internal.SerializingExecutor;
 import io.grpc.okhttp.ExceptionHandlingFrameWriter.TransportExceptionHandler;
 import io.perfmark.Link;
 import io.perfmark.PerfMark;
-import java.io.IOException;
-import java.net.Socket;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.GuardedBy;
 import okio.Buffer;
 import okio.Sink;
 import okio.Timeout;
+
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
+import java.io.IOException;
+import java.net.Socket;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * A sink that asynchronously write / flushes a buffer internally. AsyncSink provides flush
@@ -37,164 +38,166 @@ import okio.Timeout;
  */
 final class AsyncSink implements Sink {
 
-  private final Object lock = new Object();
-  private final Buffer buffer = new Buffer();
-  private final SerializingExecutor serializingExecutor;
-  private final TransportExceptionHandler transportExceptionHandler;
+    private final Object lock = new Object();
+    private final Buffer buffer = new Buffer();
+    private final SerializingExecutor serializingExecutor;
+    private final TransportExceptionHandler transportExceptionHandler;
 
-  @GuardedBy("lock")
-  private boolean writeEnqueued = false;
-  @GuardedBy("lock")
-  private boolean flushEnqueued = false;
-  private boolean closed = false;
-  @Nullable
-  private Sink sink;
-  @Nullable
-  private Socket socket;
+    @GuardedBy("lock")
+    private boolean writeEnqueued = false;
+    @GuardedBy("lock")
+    private boolean flushEnqueued = false;
+    private boolean closed = false;
+    @Nullable
+    private Sink sink;
+    @Nullable
+    private Socket socket;
 
-  private AsyncSink(SerializingExecutor executor, TransportExceptionHandler exceptionHandler) {
-    this.serializingExecutor = checkNotNull(executor, "executor");
-    this.transportExceptionHandler = checkNotNull(exceptionHandler, "exceptionHandler");
-  }
-
-  static AsyncSink sink(
-      SerializingExecutor executor, TransportExceptionHandler exceptionHandler) {
-    return new AsyncSink(executor, exceptionHandler);
-  }
-
-  /**
-   * Sets the actual sink. It is allowed to call write / flush operations on the sink iff calling
-   * this method is scheduled in the executor. The socket is needed for closing.
-   *
-   * <p>should only be called once by thread of executor.
-   */
-  void becomeConnected(Sink sink, Socket socket) {
-    checkState(this.sink == null, "AsyncSink's becomeConnected should only be called once.");
-    this.sink = checkNotNull(sink, "sink");
-    this.socket = checkNotNull(socket, "socket");
-  }
-
-  @Override
-  public void write(Buffer source, long byteCount) throws IOException {
-    checkNotNull(source, "source");
-    if (closed) {
-      throw new IOException("closed");
+    private AsyncSink(SerializingExecutor executor, TransportExceptionHandler exceptionHandler) {
+        this.serializingExecutor = checkNotNull(executor, "executor");
+        this.transportExceptionHandler = checkNotNull(exceptionHandler, "exceptionHandler");
     }
-    PerfMark.startTask("AsyncSink.write");
-    try {
-      synchronized (lock) {
-        buffer.write(source, byteCount);
-        if (writeEnqueued || flushEnqueued || buffer.completeSegmentByteCount() <= 0) {
-          return;
-        }
-        writeEnqueued = true;
-      }
-      serializingExecutor.execute(new WriteRunnable() {
-        final Link link = PerfMark.linkOut();
-        @Override
-        public void doRun() throws IOException {
-          PerfMark.startTask("WriteRunnable.runWrite");
-          PerfMark.linkIn(link);
-          Buffer buf = new Buffer();
-          try {
-            synchronized (lock) {
-              buf.write(buffer, buffer.completeSegmentByteCount());
-              writeEnqueued = false;
-            }
-            sink.write(buf, buf.size());
-          } finally {
-            PerfMark.stopTask("WriteRunnable.runWrite");
-          }
-        }
-      });
-    } finally {
-      PerfMark.stopTask("AsyncSink.write");
-    }
-  }
 
-  @Override
-  public void flush() throws IOException {
-    if (closed) {
-      throw new IOException("closed");
+    static AsyncSink sink(
+            SerializingExecutor executor, TransportExceptionHandler exceptionHandler) {
+        return new AsyncSink(executor, exceptionHandler);
     }
-    PerfMark.startTask("AsyncSink.flush");
-    try {
-      synchronized (lock) {
-        if (flushEnqueued) {
-          return;
-        }
-        flushEnqueued = true;
-      }
-      serializingExecutor.execute(new WriteRunnable() {
-        final Link link = PerfMark.linkOut();
-        @Override
-        public void doRun() throws IOException {
-          PerfMark.startTask("WriteRunnable.runFlush");
-          PerfMark.linkIn(link);
-          Buffer buf = new Buffer();
-          try {
-            synchronized (lock) {
-              buf.write(buffer, buffer.size());
-              flushEnqueued = false;
-            }
-            sink.write(buf, buf.size());
-            sink.flush();
-          } finally {
-            PerfMark.stopTask("WriteRunnable.runFlush");
-          }
-        }
-      });
-    } finally {
-      PerfMark.stopTask("AsyncSink.flush");
+
+    /**
+     * Sets the actual sink. It is allowed to call write / flush operations on the sink iff calling
+     * this method is scheduled in the executor. The socket is needed for closing.
+     *
+     * <p>should only be called once by thread of executor.
+     */
+    void becomeConnected(Sink sink, Socket socket) {
+        checkState(this.sink == null, "AsyncSink's becomeConnected should only be called once.");
+        this.sink = checkNotNull(sink, "sink");
+        this.socket = checkNotNull(socket, "socket");
     }
-  }
 
-  @Override
-  public Timeout timeout() {
-    return Timeout.NONE;
-  }
-
-  @Override
-  public void close() {
-    if (closed) {
-      return;
-    }
-    closed = true;
-    serializingExecutor.execute(new Runnable() {
-      @Override
-      public void run() {
-        buffer.close();
-        try {
-          if (sink != null) {
-            sink.close();
-          }
-        } catch (IOException e) {
-          transportExceptionHandler.onException(e);
-        }
-        try {
-          if (socket != null) {
-            socket.close();
-          }
-        } catch (IOException e) {
-          transportExceptionHandler.onException(e);
-        }
-      }
-    });
-  }
-
-  private abstract class WriteRunnable implements Runnable {
     @Override
-    public final void run() {
-      try {
-        if (sink == null) {
-          throw new IOException("Unable to perform write due to unavailable sink.");
+    public void write(Buffer source, long byteCount) throws IOException {
+        checkNotNull(source, "source");
+        if (closed) {
+            throw new IOException("closed");
         }
-        doRun();
-      } catch (Exception e) {
-        transportExceptionHandler.onException(e);
-      }
+        PerfMark.startTask("AsyncSink.write");
+        try {
+            synchronized (lock) {
+                buffer.write(source, byteCount);
+                if (writeEnqueued || flushEnqueued || buffer.completeSegmentByteCount() <= 0) {
+                    return;
+                }
+                writeEnqueued = true;
+            }
+            serializingExecutor.execute(new WriteRunnable() {
+                final Link link = PerfMark.linkOut();
+
+                @Override
+                public void doRun() throws IOException {
+                    PerfMark.startTask("WriteRunnable.runWrite");
+                    PerfMark.linkIn(link);
+                    Buffer buf = new Buffer();
+                    try {
+                        synchronized (lock) {
+                            buf.write(buffer, buffer.completeSegmentByteCount());
+                            writeEnqueued = false;
+                        }
+                        sink.write(buf, buf.size());
+                    } finally {
+                        PerfMark.stopTask("WriteRunnable.runWrite");
+                    }
+                }
+            });
+        } finally {
+            PerfMark.stopTask("AsyncSink.write");
+        }
     }
 
-    public abstract void doRun() throws IOException;
-  }
+    @Override
+    public void flush() throws IOException {
+        if (closed) {
+            throw new IOException("closed");
+        }
+        PerfMark.startTask("AsyncSink.flush");
+        try {
+            synchronized (lock) {
+                if (flushEnqueued) {
+                    return;
+                }
+                flushEnqueued = true;
+            }
+            serializingExecutor.execute(new WriteRunnable() {
+                final Link link = PerfMark.linkOut();
+
+                @Override
+                public void doRun() throws IOException {
+                    PerfMark.startTask("WriteRunnable.runFlush");
+                    PerfMark.linkIn(link);
+                    Buffer buf = new Buffer();
+                    try {
+                        synchronized (lock) {
+                            buf.write(buffer, buffer.size());
+                            flushEnqueued = false;
+                        }
+                        sink.write(buf, buf.size());
+                        sink.flush();
+                    } finally {
+                        PerfMark.stopTask("WriteRunnable.runFlush");
+                    }
+                }
+            });
+        } finally {
+            PerfMark.stopTask("AsyncSink.flush");
+        }
+    }
+
+    @Override
+    public Timeout timeout() {
+        return Timeout.NONE;
+    }
+
+    @Override
+    public void close() {
+        if (closed) {
+            return;
+        }
+        closed = true;
+        serializingExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                buffer.close();
+                try {
+                    if (sink != null) {
+                        sink.close();
+                    }
+                } catch (IOException e) {
+                    transportExceptionHandler.onException(e);
+                }
+                try {
+                    if (socket != null) {
+                        socket.close();
+                    }
+                } catch (IOException e) {
+                    transportExceptionHandler.onException(e);
+                }
+            }
+        });
+    }
+
+    private abstract class WriteRunnable implements Runnable {
+        @Override
+        public final void run() {
+            try {
+                if (sink == null) {
+                    throw new IOException("Unable to perform write due to unavailable sink.");
+                }
+                doRun();
+            } catch (Exception e) {
+                transportExceptionHandler.onException(e);
+            }
+        }
+
+        public abstract void doRun() throws IOException;
+    }
 }

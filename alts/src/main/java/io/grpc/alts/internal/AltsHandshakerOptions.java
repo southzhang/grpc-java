@@ -18,15 +18,18 @@ package io.grpc.alts.internal;
 
 import javax.annotation.Nullable;
 
-/** Handshaker options for creating ALTS channel. */
+/**
+ * Handshaker options for creating ALTS channel.
+ */
 public class AltsHandshakerOptions {
-  @Nullable private final RpcProtocolVersions rpcProtocolVersions;
+    @Nullable
+    private final RpcProtocolVersions rpcProtocolVersions;
 
-  public AltsHandshakerOptions(RpcProtocolVersions rpcProtocolVersions) {
-    this.rpcProtocolVersions = rpcProtocolVersions;
-  }
+    public AltsHandshakerOptions(RpcProtocolVersions rpcProtocolVersions) {
+        this.rpcProtocolVersions = rpcProtocolVersions;
+    }
 
-  public RpcProtocolVersions getRpcProtocolVersions() {
-    return rpcProtocolVersions;
-  }
+    public RpcProtocolVersions getRpcProtocolVersions() {
+        return rpcProtocolVersions;
+    }
 }

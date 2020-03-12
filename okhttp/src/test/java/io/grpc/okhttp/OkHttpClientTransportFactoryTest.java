@@ -23,9 +23,9 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class OkHttpClientTransportFactoryTest extends AbstractClientTransportFactoryTest {
-  @Override
-  protected ClientTransportFactory newClientTransportFactory() {
-    return OkHttpChannelBuilder.forAddress("localhost", 0)
-        .buildTransportFactory();
-  }
+    @Override
+    protected ClientTransportFactory newClientTransportFactory() {
+        return OkHttpChannelBuilder.forAddress("localhost", 0)
+                .buildTransportFactory();
+    }
 }

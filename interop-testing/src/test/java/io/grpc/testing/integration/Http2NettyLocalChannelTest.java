@@ -35,38 +35,38 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class Http2NettyLocalChannelTest extends AbstractInteropTest {
 
-  private DefaultEventLoopGroup eventLoopGroup = new DefaultEventLoopGroup();
+    private DefaultEventLoopGroup eventLoopGroup = new DefaultEventLoopGroup();
 
-  @Override
-  protected AbstractServerImplBuilder<?> getServerBuilder() {
-    return NettyServerBuilder
-        .forAddress(new LocalAddress("in-process-1"))
-        .flowControlWindow(65 * 1024)
-        .maxInboundMessageSize(AbstractInteropTest.MAX_MESSAGE_SIZE)
-        .channelType(LocalServerChannel.class)
-        .workerEventLoopGroup(eventLoopGroup)
-        .bossEventLoopGroup(eventLoopGroup);
-  }
+    @Override
+    protected AbstractServerImplBuilder<?> getServerBuilder() {
+        return NettyServerBuilder
+                .forAddress(new LocalAddress("in-process-1"))
+                .flowControlWindow(65 * 1024)
+                .maxInboundMessageSize(AbstractInteropTest.MAX_MESSAGE_SIZE)
+                .channelType(LocalServerChannel.class)
+                .workerEventLoopGroup(eventLoopGroup)
+                .bossEventLoopGroup(eventLoopGroup);
+    }
 
-  @Override
-  protected ManagedChannel createChannel() {
-    NettyChannelBuilder builder = NettyChannelBuilder
-        .forAddress(new LocalAddress("in-process-1"))
-        .negotiationType(NegotiationType.PLAINTEXT)
-        .channelType(LocalChannel.class)
-        .eventLoopGroup(eventLoopGroup)
-        .flowControlWindow(65 * 1024)
-        .maxInboundMessageSize(AbstractInteropTest.MAX_MESSAGE_SIZE);
-    // Disable the default census stats interceptor, use testing interceptor instead.
-    io.grpc.internal.TestingAccessor.setStatsEnabled(builder, false);
-    return builder.intercept(createCensusStatsClientInterceptor()).build();
-  }
+    @Override
+    protected ManagedChannel createChannel() {
+        NettyChannelBuilder builder = NettyChannelBuilder
+                .forAddress(new LocalAddress("in-process-1"))
+                .negotiationType(NegotiationType.PLAINTEXT)
+                .channelType(LocalChannel.class)
+                .eventLoopGroup(eventLoopGroup)
+                .flowControlWindow(65 * 1024)
+                .maxInboundMessageSize(AbstractInteropTest.MAX_MESSAGE_SIZE);
+        // Disable the default census stats interceptor, use testing interceptor instead.
+        io.grpc.internal.TestingAccessor.setStatsEnabled(builder, false);
+        return builder.intercept(createCensusStatsClientInterceptor()).build();
+    }
 
-  @Override
-  @After
-  @SuppressWarnings("FutureReturnValueIgnored")
-  public void tearDown() {
-    super.tearDown();
-    eventLoopGroup.shutdownGracefully();
-  }
+    @Override
+    @After
+    @SuppressWarnings("FutureReturnValueIgnored")
+    public void tearDown() {
+        super.tearDown();
+        eventLoopGroup.shutdownGracefully();
+    }
 }

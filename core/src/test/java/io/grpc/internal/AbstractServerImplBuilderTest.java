@@ -16,92 +16,95 @@
 
 package io.grpc.internal;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertEquals;
-
 import io.grpc.Metadata;
 import io.grpc.ServerStreamTracer;
-import java.io.File;
-import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link AbstractServerImplBuilder}. */
+import java.io.File;
+import java.util.List;
+
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertEquals;
+
+/**
+ * Unit tests for {@link AbstractServerImplBuilder}.
+ */
 @RunWith(JUnit4.class)
 public class AbstractServerImplBuilderTest {
 
-  private static final ServerStreamTracer.Factory DUMMY_USER_TRACER =
-      new ServerStreamTracer.Factory() {
+    private static final ServerStreamTracer.Factory DUMMY_USER_TRACER =
+            new ServerStreamTracer.Factory() {
+                @Override
+                public ServerStreamTracer newServerStreamTracer(String fullMethodName, Metadata headers) {
+                    throw new UnsupportedOperationException();
+                }
+            };
+
+    private Builder builder = new Builder();
+
+    @Test
+    public void getTracerFactories_default() {
+        builder.addStreamTracerFactory(DUMMY_USER_TRACER);
+
+        List<? extends ServerStreamTracer.Factory> factories = builder.getTracerFactories();
+
+        assertEquals(3, factories.size());
+        assertThat(factories.get(0).getClass().getName())
+                .isEqualTo("io.grpc.census.CensusStatsModule$ServerTracerFactory");
+        assertThat(factories.get(1).getClass().getName())
+                .isEqualTo("io.grpc.census.CensusTracingModule$ServerTracerFactory");
+        assertThat(factories.get(2)).isSameInstanceAs(DUMMY_USER_TRACER);
+    }
+
+    @Test
+    public void getTracerFactories_disableStats() {
+        builder.addStreamTracerFactory(DUMMY_USER_TRACER);
+        builder.setStatsEnabled(false);
+
+        List<? extends ServerStreamTracer.Factory> factories = builder.getTracerFactories();
+
+        assertEquals(2, factories.size());
+        assertThat(factories.get(0).getClass().getName())
+                .isEqualTo("io.grpc.census.CensusTracingModule$ServerTracerFactory");
+        assertThat(factories.get(1)).isSameInstanceAs(DUMMY_USER_TRACER);
+    }
+
+    @Test
+    public void getTracerFactories_disableTracing() {
+        builder.addStreamTracerFactory(DUMMY_USER_TRACER);
+        builder.setTracingEnabled(false);
+
+        List<? extends ServerStreamTracer.Factory> factories = builder.getTracerFactories();
+
+        assertEquals(2, factories.size());
+        assertThat(factories.get(0).getClass().getName())
+                .isEqualTo("io.grpc.census.CensusStatsModule$ServerTracerFactory");
+        assertThat(factories.get(1)).isSameInstanceAs(DUMMY_USER_TRACER);
+    }
+
+    @Test
+    public void getTracerFactories_disableBoth() {
+        builder.addStreamTracerFactory(DUMMY_USER_TRACER);
+        builder.setTracingEnabled(false);
+        builder.setStatsEnabled(false);
+        List<? extends ServerStreamTracer.Factory> factories = builder.getTracerFactories();
+        assertThat(factories).containsExactly(DUMMY_USER_TRACER);
+    }
+
+    static class Builder extends AbstractServerImplBuilder<Builder> {
+
         @Override
-        public ServerStreamTracer newServerStreamTracer(String fullMethodName, Metadata headers) {
-          throw new UnsupportedOperationException();
+        protected List<io.grpc.internal.InternalServer> buildTransportServers(
+                List<? extends ServerStreamTracer.Factory> streamTracerFactories) {
+            throw new UnsupportedOperationException();
         }
-      };
 
-  private Builder builder = new Builder();
-
-  @Test
-  public void getTracerFactories_default() {
-    builder.addStreamTracerFactory(DUMMY_USER_TRACER);
-
-    List<? extends ServerStreamTracer.Factory> factories = builder.getTracerFactories();
-
-    assertEquals(3, factories.size());
-    assertThat(factories.get(0).getClass().getName())
-        .isEqualTo("io.grpc.census.CensusStatsModule$ServerTracerFactory");
-    assertThat(factories.get(1).getClass().getName())
-        .isEqualTo("io.grpc.census.CensusTracingModule$ServerTracerFactory");
-    assertThat(factories.get(2)).isSameInstanceAs(DUMMY_USER_TRACER);
-  }
-
-  @Test
-  public void getTracerFactories_disableStats() {
-    builder.addStreamTracerFactory(DUMMY_USER_TRACER);
-    builder.setStatsEnabled(false);
-
-    List<? extends ServerStreamTracer.Factory> factories = builder.getTracerFactories();
-
-    assertEquals(2, factories.size());
-    assertThat(factories.get(0).getClass().getName())
-        .isEqualTo("io.grpc.census.CensusTracingModule$ServerTracerFactory");
-    assertThat(factories.get(1)).isSameInstanceAs(DUMMY_USER_TRACER);
-  }
-
-  @Test
-  public void getTracerFactories_disableTracing() {
-    builder.addStreamTracerFactory(DUMMY_USER_TRACER);
-    builder.setTracingEnabled(false);
-
-    List<? extends ServerStreamTracer.Factory> factories = builder.getTracerFactories();
-
-    assertEquals(2, factories.size());
-    assertThat(factories.get(0).getClass().getName())
-        .isEqualTo("io.grpc.census.CensusStatsModule$ServerTracerFactory");
-    assertThat(factories.get(1)).isSameInstanceAs(DUMMY_USER_TRACER);
-  }
-
-  @Test
-  public void getTracerFactories_disableBoth() {
-    builder.addStreamTracerFactory(DUMMY_USER_TRACER);
-    builder.setTracingEnabled(false);
-    builder.setStatsEnabled(false);
-    List<? extends ServerStreamTracer.Factory> factories = builder.getTracerFactories();
-    assertThat(factories).containsExactly(DUMMY_USER_TRACER);
-  }
-
-  static class Builder extends AbstractServerImplBuilder<Builder> {
-
-    @Override
-    protected List<io.grpc.internal.InternalServer> buildTransportServers(
-        List<? extends ServerStreamTracer.Factory> streamTracerFactories) {
-      throw new UnsupportedOperationException();
+        @Override
+        public Builder useTransportSecurity(File certChain, File privateKey) {
+            throw new UnsupportedOperationException();
+        }
     }
-
-    @Override
-    public Builder useTransportSecurity(File certChain, File privateKey) {
-      throw new UnsupportedOperationException();
-    }
-  }
 
 }

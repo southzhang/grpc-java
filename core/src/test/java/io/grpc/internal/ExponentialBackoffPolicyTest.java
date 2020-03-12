@@ -16,43 +16,45 @@
 
 package io.grpc.internal;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import java.util.Random;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Test for {@link ExponentialBackoffPolicy}.
  */
 @RunWith(JUnit4.class)
 public class ExponentialBackoffPolicyTest {
-  private ExponentialBackoffPolicy policy = new ExponentialBackoffPolicy();
-  private Random notRandom = new Random() {
-    @Override
-    public double nextDouble() {
-      return .5;
-    }
-  };
+    private ExponentialBackoffPolicy policy = new ExponentialBackoffPolicy();
+    private Random notRandom = new Random() {
+        @Override
+        public double nextDouble() {
+            return .5;
+        }
+    };
 
-  @Test
-  public void maxDelayReached() {
-    long maxBackoffNanos = 120 * 1000;
-    policy.setMaxBackoffNanos(maxBackoffNanos)
-        .setJitter(0)
-        .setRandom(notRandom);
-    for (int i = 0; i < 50; i++) {
-      if (maxBackoffNanos == policy.nextBackoffNanos()) {
-        return; // Success
-      }
+    @Test
+    public void maxDelayReached() {
+        long maxBackoffNanos = 120 * 1000;
+        policy.setMaxBackoffNanos(maxBackoffNanos)
+                .setJitter(0)
+                .setRandom(notRandom);
+        for (int i = 0; i < 50; i++) {
+            if (maxBackoffNanos == policy.nextBackoffNanos()) {
+                return; // Success
+            }
+        }
+        assertEquals("max delay not reached", maxBackoffNanos, policy.nextBackoffNanos());
     }
-    assertEquals("max delay not reached", maxBackoffNanos, policy.nextBackoffNanos());
-  }
 
-  @Test public void canProvide() {
-    assertNotNull(new ExponentialBackoffPolicy.Provider().get());
-  }
+    @Test
+    public void canProvide() {
+        assertNotNull(new ExponentialBackoffPolicy.Provider().get());
+    }
 }
 

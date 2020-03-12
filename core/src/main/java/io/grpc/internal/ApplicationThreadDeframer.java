@@ -16,13 +16,14 @@
 
 package io.grpc.internal;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.grpc.Decompressor;
+
+import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.Queue;
-import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Sits between {@link AbstractStream.TransportState} and {@link MessageDeframer} to deframe in the
@@ -32,165 +33,167 @@ import javax.annotation.Nullable;
  * TransportExecutor#runOnTransportThread} to run on the transport thread.
  */
 public class ApplicationThreadDeframer implements Deframer, MessageDeframer.Listener {
-  interface TransportExecutor {
-    void runOnTransportThread(Runnable r);
-  }
-
-  private final MessageDeframer.Listener storedListener;
-  private final MessageDeframer deframer;
-  private final TransportExecutor transportExecutor;
-
-  /** Queue for messages returned by the deframer when deframing in the application thread. */
-  private final Queue<InputStream> messageReadQueue = new ArrayDeque<>();
-
-  ApplicationThreadDeframer(
-      MessageDeframer.Listener listener,
-      TransportExecutor transportExecutor,
-      MessageDeframer deframer) {
-    this.storedListener = checkNotNull(listener, "listener");
-    this.transportExecutor = checkNotNull(transportExecutor, "transportExecutor");
-    deframer.setListener(this);
-    this.deframer = deframer;
-  }
-
-  @Override
-  public void setMaxInboundMessageSize(int messageSize) {
-    deframer.setMaxInboundMessageSize(messageSize);
-  }
-
-  @Override
-  public void setDecompressor(Decompressor decompressor) {
-    deframer.setDecompressor(decompressor);
-  }
-
-  @Override
-  public void setFullStreamDecompressor(GzipInflatingBuffer fullStreamDecompressor) {
-    deframer.setFullStreamDecompressor(fullStreamDecompressor);
-  }
-
-  @Override
-  public void request(final int numMessages) {
-    storedListener.messagesAvailable(
-        new InitializingMessageProducer(
-            new Runnable() {
-              @Override
-              public void run() {
-                if (deframer.isClosed()) {
-                  return;
-                }
-                try {
-                  deframer.request(numMessages);
-                } catch (Throwable t) {
-                  storedListener.deframeFailed(t);
-                  deframer.close(); // unrecoverable state
-                }
-              }
-            }));
-  }
-
-  @Override
-  public void deframe(final ReadableBuffer data) {
-    storedListener.messagesAvailable(
-        new InitializingMessageProducer(
-            new Runnable() {
-              @Override
-              public void run() {
-                try {
-                  deframer.deframe(data);
-                } catch (Throwable t) {
-                  deframeFailed(t);
-                  deframer.close(); // unrecoverable state
-                }
-              }
-            }));
-  }
-
-  @Override
-  public void closeWhenComplete() {
-    storedListener.messagesAvailable(
-        new InitializingMessageProducer(
-            new Runnable() {
-              @Override
-              public void run() {
-                deframer.closeWhenComplete();
-              }
-            }));
-  }
-
-  @Override
-  public void close() {
-    deframer.stopDelivery();
-    storedListener.messagesAvailable(
-        new InitializingMessageProducer(
-            new Runnable() {
-              @Override
-              public void run() {
-                deframer.close();
-              }
-            }));
-  }
-
-  @Override
-  public void bytesRead(final int numBytes) {
-    transportExecutor.runOnTransportThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            storedListener.bytesRead(numBytes);
-          }
-        });
-  }
-
-  @Override
-  public void messagesAvailable(StreamListener.MessageProducer producer) {
-    InputStream message;
-    while ((message = producer.next()) != null) {
-      messageReadQueue.add(message);
-    }
-  }
-
-  @Override
-  public void deframerClosed(final boolean hasPartialMessage) {
-    transportExecutor.runOnTransportThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            storedListener.deframerClosed(hasPartialMessage);
-          }
-        });
-  }
-
-  @Override
-  public void deframeFailed(final Throwable cause) {
-    transportExecutor.runOnTransportThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            storedListener.deframeFailed(cause);
-          }
-        });
-  }
-
-  private class InitializingMessageProducer implements StreamListener.MessageProducer {
-    private final Runnable runnable;
-    private boolean initialized = false;
-
-    private InitializingMessageProducer(Runnable runnable) {
-      this.runnable = runnable;
+    interface TransportExecutor {
+        void runOnTransportThread(Runnable r);
     }
 
-    private void initialize() {
-      if (!initialized) {
-        runnable.run();
-        initialized = true;
-      }
+    private final MessageDeframer.Listener storedListener;
+    private final MessageDeframer deframer;
+    private final TransportExecutor transportExecutor;
+
+    /**
+     * Queue for messages returned by the deframer when deframing in the application thread.
+     */
+    private final Queue<InputStream> messageReadQueue = new ArrayDeque<>();
+
+    ApplicationThreadDeframer(
+            MessageDeframer.Listener listener,
+            TransportExecutor transportExecutor,
+            MessageDeframer deframer) {
+        this.storedListener = checkNotNull(listener, "listener");
+        this.transportExecutor = checkNotNull(transportExecutor, "transportExecutor");
+        deframer.setListener(this);
+        this.deframer = deframer;
     }
 
-    @Nullable
     @Override
-    public InputStream next() {
-      initialize();
-      return messageReadQueue.poll();
+    public void setMaxInboundMessageSize(int messageSize) {
+        deframer.setMaxInboundMessageSize(messageSize);
     }
-  }
+
+    @Override
+    public void setDecompressor(Decompressor decompressor) {
+        deframer.setDecompressor(decompressor);
+    }
+
+    @Override
+    public void setFullStreamDecompressor(GzipInflatingBuffer fullStreamDecompressor) {
+        deframer.setFullStreamDecompressor(fullStreamDecompressor);
+    }
+
+    @Override
+    public void request(final int numMessages) {
+        storedListener.messagesAvailable(
+                new InitializingMessageProducer(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                if (deframer.isClosed()) {
+                                    return;
+                                }
+                                try {
+                                    deframer.request(numMessages);
+                                } catch (Throwable t) {
+                                    storedListener.deframeFailed(t);
+                                    deframer.close(); // unrecoverable state
+                                }
+                            }
+                        }));
+    }
+
+    @Override
+    public void deframe(final ReadableBuffer data) {
+        storedListener.messagesAvailable(
+                new InitializingMessageProducer(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    deframer.deframe(data);
+                                } catch (Throwable t) {
+                                    deframeFailed(t);
+                                    deframer.close(); // unrecoverable state
+                                }
+                            }
+                        }));
+    }
+
+    @Override
+    public void closeWhenComplete() {
+        storedListener.messagesAvailable(
+                new InitializingMessageProducer(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                deframer.closeWhenComplete();
+                            }
+                        }));
+    }
+
+    @Override
+    public void close() {
+        deframer.stopDelivery();
+        storedListener.messagesAvailable(
+                new InitializingMessageProducer(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                deframer.close();
+                            }
+                        }));
+    }
+
+    @Override
+    public void bytesRead(final int numBytes) {
+        transportExecutor.runOnTransportThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        storedListener.bytesRead(numBytes);
+                    }
+                });
+    }
+
+    @Override
+    public void messagesAvailable(StreamListener.MessageProducer producer) {
+        InputStream message;
+        while ((message = producer.next()) != null) {
+            messageReadQueue.add(message);
+        }
+    }
+
+    @Override
+    public void deframerClosed(final boolean hasPartialMessage) {
+        transportExecutor.runOnTransportThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        storedListener.deframerClosed(hasPartialMessage);
+                    }
+                });
+    }
+
+    @Override
+    public void deframeFailed(final Throwable cause) {
+        transportExecutor.runOnTransportThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        storedListener.deframeFailed(cause);
+                    }
+                });
+    }
+
+    private class InitializingMessageProducer implements StreamListener.MessageProducer {
+        private final Runnable runnable;
+        private boolean initialized = false;
+
+        private InitializingMessageProducer(Runnable runnable) {
+            this.runnable = runnable;
+        }
+
+        private void initialize() {
+            if (!initialized) {
+                runnable.run();
+                initialized = true;
+            }
+        }
+
+        @Nullable
+        @Override
+        public InputStream next() {
+            initialize();
+            return messageReadQueue.poll();
+        }
+    }
 }

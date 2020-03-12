@@ -25,61 +25,61 @@ import io.netty.handler.codec.http2.Http2Headers;
  * Command sent from the transport to the Netty channel to send response headers to the client.
  */
 final class SendResponseHeadersCommand extends WriteQueue.AbstractQueuedCommand {
-  private final StreamIdHolder stream;
-  private final Http2Headers headers;
-  private final Status status;
+    private final StreamIdHolder stream;
+    private final Http2Headers headers;
+    private final Status status;
 
-  private SendResponseHeadersCommand(StreamIdHolder stream, Http2Headers headers, Status status) {
-    this.stream = Preconditions.checkNotNull(stream, "stream");
-    this.headers = Preconditions.checkNotNull(headers, "headers");
-    this.status = status;
-  }
-
-  static SendResponseHeadersCommand createHeaders(StreamIdHolder stream, Http2Headers headers) {
-    return new SendResponseHeadersCommand(stream, headers, null);
-  }
-
-  static SendResponseHeadersCommand createTrailers(
-      StreamIdHolder stream, Http2Headers headers, Status status) {
-    return new SendResponseHeadersCommand(
-        stream, headers, Preconditions.checkNotNull(status, "status"));
-  }
-
-  StreamIdHolder stream() {
-    return stream;
-  }
-
-  Http2Headers headers() {
-    return headers;
-  }
-
-  boolean endOfStream() {
-    return status != null;
-  }
-
-  Status status() {
-    return status;
-  }
-
-  @Override
-  public boolean equals(Object that) {
-    if (that == null || !that.getClass().equals(SendResponseHeadersCommand.class)) {
-      return false;
+    private SendResponseHeadersCommand(StreamIdHolder stream, Http2Headers headers, Status status) {
+        this.stream = Preconditions.checkNotNull(stream, "stream");
+        this.headers = Preconditions.checkNotNull(headers, "headers");
+        this.status = status;
     }
-    SendResponseHeadersCommand thatCmd = (SendResponseHeadersCommand) that;
-    return thatCmd.stream.equals(stream)
-        && thatCmd.headers.equals(headers)
-        && thatCmd.status.equals(status);
-  }
 
-  @Override
-  public String toString() {
-    return getClass().getSimpleName() + "(stream=" + stream.id() + ", headers=" + headers
-        + ", status=" + status + ")";
-  }
+    static SendResponseHeadersCommand createHeaders(StreamIdHolder stream, Http2Headers headers) {
+        return new SendResponseHeadersCommand(stream, headers, null);
+    }
 
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(stream, status);
-  }
+    static SendResponseHeadersCommand createTrailers(
+            StreamIdHolder stream, Http2Headers headers, Status status) {
+        return new SendResponseHeadersCommand(
+                stream, headers, Preconditions.checkNotNull(status, "status"));
+    }
+
+    StreamIdHolder stream() {
+        return stream;
+    }
+
+    Http2Headers headers() {
+        return headers;
+    }
+
+    boolean endOfStream() {
+        return status != null;
+    }
+
+    Status status() {
+        return status;
+    }
+
+    @Override
+    public boolean equals(Object that) {
+        if (that == null || !that.getClass().equals(SendResponseHeadersCommand.class)) {
+            return false;
+        }
+        SendResponseHeadersCommand thatCmd = (SendResponseHeadersCommand) that;
+        return thatCmd.stream.equals(stream)
+                && thatCmd.headers.equals(headers)
+                && thatCmd.status.equals(status);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "(stream=" + stream.id() + ", headers=" + headers
+                + ", status=" + status + ")";
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(stream, status);
+    }
 }

@@ -20,54 +20,55 @@ import com.google.common.base.Objects;
 import io.grpc.Attributes;
 import io.grpc.MethodDescriptor;
 import io.grpc.ServerStreamTracer.ServerCallInfo;
+
 import javax.annotation.Nullable;
 
 /**
  * An implementation of {@link ServerCallInfo}.
  */
 final class ServerCallInfoImpl<ReqT, RespT> extends ServerCallInfo<ReqT, RespT> {
-  private final MethodDescriptor<ReqT, RespT> methodDescriptor;
-  private final Attributes attributes;
-  private final String authority;
+    private final MethodDescriptor<ReqT, RespT> methodDescriptor;
+    private final Attributes attributes;
+    private final String authority;
 
-  ServerCallInfoImpl(
-      MethodDescriptor<ReqT, RespT> methodDescriptor,
-      Attributes attributes,
-      @Nullable String authority) {
-    this.methodDescriptor = methodDescriptor;
-    this.attributes = attributes;
-    this.authority = authority;
-  }
-
-  @Override
-  public MethodDescriptor<ReqT, RespT> getMethodDescriptor() {
-    return methodDescriptor;
-  }
-
-  @Override
-  public Attributes getAttributes() {
-    return attributes;
-  }
-
-  @Override
-  @Nullable
-  public String getAuthority() {
-    return authority;
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (!(other instanceof ServerCallInfoImpl)) {
-      return false;
+    ServerCallInfoImpl(
+            MethodDescriptor<ReqT, RespT> methodDescriptor,
+            Attributes attributes,
+            @Nullable String authority) {
+        this.methodDescriptor = methodDescriptor;
+        this.attributes = attributes;
+        this.authority = authority;
     }
-    ServerCallInfoImpl<?, ?> that = (ServerCallInfoImpl) other;
-    return Objects.equal(methodDescriptor, that.methodDescriptor)
-        && Objects.equal(attributes, that.attributes)
-        && Objects.equal(authority, that.authority);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(methodDescriptor, attributes, authority);
-  }
+    @Override
+    public MethodDescriptor<ReqT, RespT> getMethodDescriptor() {
+        return methodDescriptor;
+    }
+
+    @Override
+    public Attributes getAttributes() {
+        return attributes;
+    }
+
+    @Override
+    @Nullable
+    public String getAuthority() {
+        return authority;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof ServerCallInfoImpl)) {
+            return false;
+        }
+        ServerCallInfoImpl<?, ?> that = (ServerCallInfoImpl) other;
+        return Objects.equal(methodDescriptor, that.methodDescriptor)
+                && Objects.equal(attributes, that.attributes)
+                && Objects.equal(authority, that.authority);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(methodDescriptor, attributes, authority);
+    }
 }

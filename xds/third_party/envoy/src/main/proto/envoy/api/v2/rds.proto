@@ -27,18 +27,18 @@ option (udpa.annotations.file_migrate).move_to_package = "envoy.service.route.v3
 // configurations. Each listener will bind its HTTP connection manager filter to
 // a route table via this identifier.
 service RouteDiscoveryService {
-  option (envoy.annotations.resource).type = "envoy.api.v2.RouteConfiguration";
+    option (envoy.annotations.resource).type = "envoy.api.v2.RouteConfiguration";
 
-  rpc StreamRoutes(stream DiscoveryRequest) returns (stream DiscoveryResponse) {
-  }
+    rpc StreamRoutes (stream DiscoveryRequest) returns (stream DiscoveryResponse) {
+    }
 
-  rpc DeltaRoutes(stream DeltaDiscoveryRequest) returns (stream DeltaDiscoveryResponse) {
-  }
+    rpc DeltaRoutes (stream DeltaDiscoveryRequest) returns (stream DeltaDiscoveryResponse) {
+    }
 
-  rpc FetchRoutes(DiscoveryRequest) returns (DiscoveryResponse) {
-    option (google.api.http).post = "/v2/discovery:routes";
-    option (google.api.http).body = "*";
-  }
+    rpc FetchRoutes (DiscoveryRequest) returns (DiscoveryResponse) {
+        option (google.api.http).post = "/v2/discovery:routes";
+        option (google.api.http).body = "*";
+    }
 }
 
 // Virtual Host Discovery Service (VHDS) is used to dynamically update the list of virtual hosts for
@@ -52,10 +52,10 @@ service RouteDiscoveryService {
 // contains a list of virtual host names that have been :ref:`unsubscribed
 // <xds_protocol_unsubscribe>` from the routing table associated with the RouteConfiguration.
 service VirtualHostDiscoveryService {
-  option (envoy.annotations.resource).type = "envoy.api.v2.route.VirtualHost";
+    option (envoy.annotations.resource).type = "envoy.api.v2.route.VirtualHost";
 
-  rpc DeltaVirtualHosts(stream DeltaDiscoveryRequest) returns (stream DeltaDiscoveryResponse) {
-  }
+    rpc DeltaVirtualHosts (stream DeltaDiscoveryRequest) returns (stream DeltaDiscoveryResponse) {
+    }
 }
 
 // [#not-implemented-hide:] Not configuration. Workaround c++ protobuf issue with importing

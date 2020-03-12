@@ -28,33 +28,37 @@ import io.grpc.Status;
  */
 public class NoopServerCall<ReqT, RespT> extends ServerCall<ReqT, RespT> {
 
-  /**
-   * {@link NoopServerCall.NoopServerCallListener} is a class that is designed for use in tests.
-   * It is designed to be used in places where a scriptable call listener is necessary.  By
-   * default, all methods are noops, and designed to be overridden.
-   */
-  public static class NoopServerCallListener<T> extends ServerCall.Listener<T> {
-  }
+    /**
+     * {@link NoopServerCall.NoopServerCallListener} is a class that is designed for use in tests.
+     * It is designed to be used in places where a scriptable call listener is necessary.  By
+     * default, all methods are noops, and designed to be overridden.
+     */
+    public static class NoopServerCallListener<T> extends ServerCall.Listener<T> {
+    }
 
-  @Override
-  public void request(int numMessages) {}
+    @Override
+    public void request(int numMessages) {
+    }
 
-  @Override
-  public void sendHeaders(Metadata headers) {}
+    @Override
+    public void sendHeaders(Metadata headers) {
+    }
 
-  @Override
-  public void sendMessage(RespT message) {}
+    @Override
+    public void sendMessage(RespT message) {
+    }
 
-  @Override
-  public void close(Status status, Metadata trailers) {}
+    @Override
+    public void close(Status status, Metadata trailers) {
+    }
 
-  @Override
-  public boolean isCancelled() {
-    return false;
-  }
+    @Override
+    public boolean isCancelled() {
+        return false;
+    }
 
-  @Override
-  public MethodDescriptor<ReqT, RespT> getMethodDescriptor() {
-    return null;
-  }
+    @Override
+    public MethodDescriptor<ReqT, RespT> getMethodDescriptor() {
+        return null;
+    }
 }

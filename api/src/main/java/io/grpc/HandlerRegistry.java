@@ -16,10 +16,10 @@
 
 package io.grpc;
 
-import java.util.Collections;
-import java.util.List;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Registry of services and their methods used by servers to dispatching incoming calls.
@@ -27,36 +27,36 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public abstract class HandlerRegistry {
 
-  /**
-   * Returns the {@link ServerServiceDefinition}s provided by the registry, or an empty list if not
-   * supported by the implementation.
-   */
-  @ExperimentalApi("https://github.com/grpc/grpc-java/issues/2222")
-  public List<ServerServiceDefinition> getServices() {
-    return Collections.emptyList();
-  }
+    /**
+     * Returns the {@link ServerServiceDefinition}s provided by the registry, or an empty list if not
+     * supported by the implementation.
+     */
+    @ExperimentalApi("https://github.com/grpc/grpc-java/issues/2222")
+    public List<ServerServiceDefinition> getServices() {
+        return Collections.emptyList();
+    }
 
-  /**
-   * Lookup a {@link ServerMethodDefinition} by its fully-qualified name.
-   *
-   * @param methodName to lookup {@link ServerMethodDefinition} for.
-   * @param authority the authority for the desired method (to do virtual hosting). If {@code null}
-   *        the first matching method will be returned.
-   * @return the resolved method or {@code null} if no method for that name exists.
-   */
-  @Nullable
-  public abstract ServerMethodDefinition<?, ?> lookupMethod(
-      String methodName, @Nullable String authority);
+    /**
+     * Lookup a {@link ServerMethodDefinition} by its fully-qualified name.
+     *
+     * @param methodName to lookup {@link ServerMethodDefinition} for.
+     * @param authority  the authority for the desired method (to do virtual hosting). If {@code null}
+     *                   the first matching method will be returned.
+     * @return the resolved method or {@code null} if no method for that name exists.
+     */
+    @Nullable
+    public abstract ServerMethodDefinition<?, ?> lookupMethod(
+            String methodName, @Nullable String authority);
 
-  /**
-   * Lookup a {@link ServerMethodDefinition} by its fully-qualified name.
-   *
-   * @param methodName to lookup {@link ServerMethodDefinition} for.
-   * @return the resolved method or {@code null} if no method for that name exists.
-   */
-  @Nullable
-  public final ServerMethodDefinition<?, ?> lookupMethod(String methodName) {
-    return lookupMethod(methodName, null);
-  }
+    /**
+     * Lookup a {@link ServerMethodDefinition} by its fully-qualified name.
+     *
+     * @param methodName to lookup {@link ServerMethodDefinition} for.
+     * @return the resolved method or {@code null} if no method for that name exists.
+     */
+    @Nullable
+    public final ServerMethodDefinition<?, ?> lookupMethod(String methodName) {
+        return lookupMethod(methodName, null);
+    }
 
 }

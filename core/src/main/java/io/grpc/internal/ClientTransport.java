@@ -21,8 +21,9 @@ import io.grpc.InternalChannelz.SocketStats;
 import io.grpc.InternalInstrumented;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
-import java.util.concurrent.Executor;
+
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.concurrent.Executor;
 
 /**
  * The client-side transport typically encapsulating a single connection to a remote
@@ -33,57 +34,57 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public interface ClientTransport extends InternalInstrumented<SocketStats> {
 
-  /**
-   * Creates a new stream for sending messages to a remote end-point.
-   *
-   * <p>This method returns immediately and does not wait for any validation of the request. If
-   * creation fails for any reason, {@link ClientStreamListener#closed} will be called to provide
-   * the error information. Any sent messages for this stream will be buffered until creation has
-   * completed (either successfully or unsuccessfully).
-   *
-   * <p>This method is called under the {@link io.grpc.Context} of the {@link io.grpc.ClientCall}.
-   *
-   * @param method the descriptor of the remote method to be called for this stream.
-   * @param headers to send at the beginning of the call
-   * @param callOptions runtime options of the call
-   * @return the newly created stream.
-   */
-  // TODO(nmittler): Consider also throwing for stopping.
-  ClientStream newStream(MethodDescriptor<?, ?> method, Metadata headers, CallOptions callOptions);
-
-  /**
-   * Pings a remote endpoint. When an acknowledgement is received, the given callback will be
-   * invoked using the given executor.
-   *
-   * <p>Pings are not necessarily sent to the same endpont, thus a successful ping only means at
-   * least one endpoint responded, but doesn't imply the availability of other endpoints (if there
-   * is any).
-   *
-   * <p>This is an optional method. Transports that do not have any mechanism by which to ping the
-   * remote endpoint may throw {@link UnsupportedOperationException}.
-   */
-  void ping(PingCallback callback, Executor executor);
-
-  /**
-   * A callback that is invoked when the acknowledgement to a {@link #ping} is received. Exactly one
-   * of the two methods should be called per {@link #ping}.
-   */
-  interface PingCallback {
+    /**
+     * Creates a new stream for sending messages to a remote end-point.
+     *
+     * <p>This method returns immediately and does not wait for any validation of the request. If
+     * creation fails for any reason, {@link ClientStreamListener#closed} will be called to provide
+     * the error information. Any sent messages for this stream will be buffered until creation has
+     * completed (either successfully or unsuccessfully).
+     *
+     * <p>This method is called under the {@link io.grpc.Context} of the {@link io.grpc.ClientCall}.
+     *
+     * @param method      the descriptor of the remote method to be called for this stream.
+     * @param headers     to send at the beginning of the call
+     * @param callOptions runtime options of the call
+     * @return the newly created stream.
+     */
+    // TODO(nmittler): Consider also throwing for stopping.
+    ClientStream newStream(MethodDescriptor<?, ?> method, Metadata headers, CallOptions callOptions);
 
     /**
-     * Invoked when a ping is acknowledged. The given argument is the round-trip time of the ping,
-     * in nanoseconds.
+     * Pings a remote endpoint. When an acknowledgement is received, the given callback will be
+     * invoked using the given executor.
      *
-     * @param roundTripTimeNanos the round-trip duration between the ping being sent and the
-     *     acknowledgement received
+     * <p>Pings are not necessarily sent to the same endpont, thus a successful ping only means at
+     * least one endpoint responded, but doesn't imply the availability of other endpoints (if there
+     * is any).
+     *
+     * <p>This is an optional method. Transports that do not have any mechanism by which to ping the
+     * remote endpoint may throw {@link UnsupportedOperationException}.
      */
-    void onSuccess(long roundTripTimeNanos);
+    void ping(PingCallback callback, Executor executor);
 
     /**
-     * Invoked when a ping fails. The given argument is the cause of the failure.
-     *
-     * @param cause the cause of the ping failure
+     * A callback that is invoked when the acknowledgement to a {@link #ping} is received. Exactly one
+     * of the two methods should be called per {@link #ping}.
      */
-    void onFailure(Throwable cause);
-  }
+    interface PingCallback {
+
+        /**
+         * Invoked when a ping is acknowledged. The given argument is the round-trip time of the ping,
+         * in nanoseconds.
+         *
+         * @param roundTripTimeNanos the round-trip duration between the ping being sent and the
+         *                           acknowledgement received
+         */
+        void onSuccess(long roundTripTimeNanos);
+
+        /**
+         * Invoked when a ping fails. The given argument is the cause of the failure.
+         *
+         * @param cause the cause of the ping failure
+         */
+        void onFailure(Throwable cause);
+    }
 }

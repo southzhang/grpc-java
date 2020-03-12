@@ -16,23 +16,20 @@
 
 package io.grpc.inprocess;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.base.Preconditions;
 import io.grpc.Deadline;
 import io.grpc.ExperimentalApi;
 import io.grpc.ServerStreamTracer;
-import io.grpc.internal.AbstractServerImplBuilder;
-import io.grpc.internal.FixedObjectPool;
-import io.grpc.internal.GrpcUtil;
-import io.grpc.internal.ObjectPool;
-import io.grpc.internal.SharedResourcePool;
+import io.grpc.internal.*;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Builder for a server that services in-process requests. Clients identify the in-process server by
@@ -68,110 +65,108 @@ import java.util.concurrent.TimeUnit;
  */
 @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1783")
 public final class InProcessServerBuilder
-    extends AbstractServerImplBuilder<InProcessServerBuilder> {
-  /**
-   * Create a server builder that will bind with the given name.
-   *
-   * @param name the identity of the server for clients to connect to
-   * @return a new builder
-   */
-  public static InProcessServerBuilder forName(String name) {
-    return new InProcessServerBuilder(name);
-  }
+        extends AbstractServerImplBuilder<InProcessServerBuilder> {
+    /**
+     * Create a server builder that will bind with the given name.
+     *
+     * @param name the identity of the server for clients to connect to
+     * @return a new builder
+     */
+    public static InProcessServerBuilder forName(String name) {
+        return new InProcessServerBuilder(name);
+    }
 
-  /**
-   * Always fails.  Call {@link #forName} instead.
-   */
-  public static InProcessServerBuilder forPort(int port) {
-    throw new UnsupportedOperationException("call forName() instead");
-  }
+    /**
+     * Always fails.  Call {@link #forName} instead.
+     */
+    public static InProcessServerBuilder forPort(int port) {
+        throw new UnsupportedOperationException("call forName() instead");
+    }
 
-  /**
-   * Generates a new server name that is unique each time.
-   */
-  public static String generateName() {
-    return UUID.randomUUID().toString();
-  }
+    /**
+     * Generates a new server name that is unique each time.
+     */
+    public static String generateName() {
+        return UUID.randomUUID().toString();
+    }
 
-  final String name;
-  int maxInboundMetadataSize = Integer.MAX_VALUE;
-  ObjectPool<ScheduledExecutorService> schedulerPool =
-      SharedResourcePool.forResource(GrpcUtil.TIMER_SERVICE);
+    final String name;
+    int maxInboundMetadataSize = Integer.MAX_VALUE;
+    ObjectPool<ScheduledExecutorService> schedulerPool =
+            SharedResourcePool.forResource(GrpcUtil.TIMER_SERVICE);
 
-  private InProcessServerBuilder(String name) {
-    this.name = Preconditions.checkNotNull(name, "name");
-    // In-process transport should not record its traffic to the stats module.
-    // https://github.com/grpc/grpc-java/issues/2284
-    setStatsRecordStartedRpcs(false);
-    setStatsRecordFinishedRpcs(false);
-    // Disable handshake timeout because it is unnecessary, and can trigger Thread creation that can
-    // break some environments (like tests).
-    handshakeTimeout(Long.MAX_VALUE, TimeUnit.SECONDS);
-  }
+    private InProcessServerBuilder(String name) {
+        this.name = Preconditions.checkNotNull(name, "name");
+        // In-process transport should not record its traffic to the stats module.
+        // https://github.com/grpc/grpc-java/issues/2284
+        setStatsRecordStartedRpcs(false);
+        setStatsRecordFinishedRpcs(false);
+        // Disable handshake timeout because it is unnecessary, and can trigger Thread creation that can
+        // break some environments (like tests).
+        handshakeTimeout(Long.MAX_VALUE, TimeUnit.SECONDS);
+    }
 
-  /**
-   * Provides a custom scheduled executor service.
-   *
-   * <p>It's an optional parameter. If the user has not provided a scheduled executor service when
-   * the channel is built, the builder will use a static cached thread pool.
-   *
-   * @return this
-   *
-   * @since 1.11.0
-   */
-  public InProcessServerBuilder scheduledExecutorService(
-      ScheduledExecutorService scheduledExecutorService) {
-    schedulerPool = new FixedObjectPool<>(
-        checkNotNull(scheduledExecutorService, "scheduledExecutorService"));
-    return this;
-  }
+    /**
+     * Provides a custom scheduled executor service.
+     *
+     * <p>It's an optional parameter. If the user has not provided a scheduled executor service when
+     * the channel is built, the builder will use a static cached thread pool.
+     *
+     * @return this
+     * @since 1.11.0
+     */
+    public InProcessServerBuilder scheduledExecutorService(
+            ScheduledExecutorService scheduledExecutorService) {
+        schedulerPool = new FixedObjectPool<>(
+                checkNotNull(scheduledExecutorService, "scheduledExecutorService"));
+        return this;
+    }
 
-  /**
-   * Provides a custom deadline ticker that this server will use to create incoming {@link
-   * Deadline}s.
-   *
-   * <p>This is intended for unit tests that fake out the clock.  You should also have a fake {@link
-   * ScheduledExecutorService} whose clock is synchronized with this ticker and set it to {@link
-   * #scheduledExecutorService}. DO NOT use this in production.
-   *
-   * @return this
-   * @see Deadline#after(long, TimeUnit, Deadline.Ticker)
-   *
-   * @since 1.24.0
-   */
-  public InProcessServerBuilder deadlineTicker(Deadline.Ticker ticker) {
-    setDeadlineTicker(ticker);
-    return this;
-  }
+    /**
+     * Provides a custom deadline ticker that this server will use to create incoming {@link
+     * Deadline}s.
+     *
+     * <p>This is intended for unit tests that fake out the clock.  You should also have a fake {@link
+     * ScheduledExecutorService} whose clock is synchronized with this ticker and set it to {@link
+     * #scheduledExecutorService}. DO NOT use this in production.
+     *
+     * @return this
+     * @see Deadline#after(long, TimeUnit, Deadline.Ticker)
+     * @since 1.24.0
+     */
+    public InProcessServerBuilder deadlineTicker(Deadline.Ticker ticker) {
+        setDeadlineTicker(ticker);
+        return this;
+    }
 
-  /**
-   * Sets the maximum size of metadata allowed to be received. {@code Integer.MAX_VALUE} disables
-   * the enforcement. Defaults to no limit ({@code Integer.MAX_VALUE}).
-   *
-   * <p>There is potential for performance penalty when this setting is enabled, as the Metadata
-   * must actually be serialized. Since the current implementation of Metadata pre-serializes, it's
-   * currently negligible. But Metadata is free to change its implementation.
-   *
-   * @param bytes the maximum size of received metadata
-   * @return this
-   * @throws IllegalArgumentException if bytes is non-positive
-   * @since 1.17.0
-   */
-  @Override
-  public InProcessServerBuilder maxInboundMetadataSize(int bytes) {
-    Preconditions.checkArgument(bytes > 0, "maxInboundMetadataSize must be > 0");
-    this.maxInboundMetadataSize = bytes;
-    return this;
-  }
+    /**
+     * Sets the maximum size of metadata allowed to be received. {@code Integer.MAX_VALUE} disables
+     * the enforcement. Defaults to no limit ({@code Integer.MAX_VALUE}).
+     *
+     * <p>There is potential for performance penalty when this setting is enabled, as the Metadata
+     * must actually be serialized. Since the current implementation of Metadata pre-serializes, it's
+     * currently negligible. But Metadata is free to change its implementation.
+     *
+     * @param bytes the maximum size of received metadata
+     * @return this
+     * @throws IllegalArgumentException if bytes is non-positive
+     * @since 1.17.0
+     */
+    @Override
+    public InProcessServerBuilder maxInboundMetadataSize(int bytes) {
+        Preconditions.checkArgument(bytes > 0, "maxInboundMetadataSize must be > 0");
+        this.maxInboundMetadataSize = bytes;
+        return this;
+    }
 
-  @Override
-  protected List<InProcessServer> buildTransportServers(
-      List<? extends ServerStreamTracer.Factory> streamTracerFactories) {
-    return Collections.singletonList(new InProcessServer(this, streamTracerFactories));
-  }
+    @Override
+    protected List<InProcessServer> buildTransportServers(
+            List<? extends ServerStreamTracer.Factory> streamTracerFactories) {
+        return Collections.singletonList(new InProcessServer(this, streamTracerFactories));
+    }
 
-  @Override
-  public InProcessServerBuilder useTransportSecurity(File certChain, File privateKey) {
-    throw new UnsupportedOperationException("TLS not supported in InProcessServer");
-  }
+    @Override
+    public InProcessServerBuilder useTransportSecurity(File certChain, File privateKey) {
+        throw new UnsupportedOperationException("TLS not supported in InProcessServer");
+    }
 }
